@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Idea Management &amp; Detail View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(19, 127, 236, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(19, 127, 236, 0.4); }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex">
+<!-- Global Navigation Sidebar -->
+<aside class="w-16 flex flex-col items-center py-6 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mb-8">
+<span class="material-icons text-white">bolt</span>
+</div>
+<nav class="flex flex-col gap-6 flex-1">
+<button class="p-2 text-primary bg-primary/10 rounded-lg"><span class="material-icons">dashboard</span></button>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">lightbulb</span></button>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">groups</span></button>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">assessment</span></button>
+</nav>
+<div class="flex flex-col gap-6">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">settings</span></button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-slate-700" data-alt="User profile circular avatar image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJi6A1yBRxEMdu-fYyHrHhUSzMv08dPt09VTlzwXHozS1ffTGV0PxxWmYT_jw8Fq0P3HMfQYTsAeNaaBYgb9So72Dabp8CdPEn5-dYbxVxYPtDu5CpHzqYjSO--BmTQ6QJ7INMlx7g1_Bp3pSvfdo1OSKS949Nd4_KxFnUftB51Jrk2BDd3Bj-GX0zspY6UmGg63bI9hADCogum1nuBGOvNR9gFY9hnGTvSl1-a0xVuc6mPSFX50czQhqhj4M5P6uYxQS5nVj9Gug"/>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- Top Toolbar -->
+<header class="h-16 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-background-dark">
+<div class="flex items-center gap-4 flex-1 max-w-2xl">
+<div class="relative flex-1">
+<span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all" placeholder="Search ideas..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors">
+                        Goals <span class="material-icons text-xs">expand_more</span>
+</button>
+<button class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors">
+                        Status <span class="material-icons text-xs">expand_more</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+<button class="px-3 py-1 bg-white dark:bg-slate-700 shadow-sm rounded-md text-xs font-medium flex items-center gap-1">
+<span class="material-icons text-xs">view_list</span> List
+                    </button>
+<button class="px-3 py-1 text-slate-500 dark:text-slate-400 text-xs font-medium flex items-center gap-1 hover:text-primary">
+<span class="material-icons text-xs">dashboard</span> Board
+                    </button>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all">
+<span class="material-icons text-sm">add</span> New Idea
+                </button>
+</div>
+</header>
+<!-- List View -->
+<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+<div class="flex items-center justify-between mb-4">
+<h1 class="text-xl font-bold">Innovation Group <span class="text-slate-400 font-normal ml-2">24 Ideas</span></h1>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span>Sort by:</span>
+<button class="text-primary font-medium flex items-center">Recent <span class="material-icons text-xs">arrow_drop_down</span></button>
+</div>
+</div>
+<div class="space-y-3">
+<!-- Idea Card: Active/Selected -->
+<div class="p-4 bg-white dark:bg-slate-900 border-2 border-primary rounded-xl shadow-sm cursor-pointer group">
+<div class="flex gap-4">
+<img alt="Author" class="w-10 h-10 rounded-full" data-alt="Author circular portrait image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLDwiQx_-hkdlYl2AP3jG1SCKg0KlvrTtNFk7SL7V4jNu4T1K9SzcZqEOszrQrGTGBgOit5pykFfCexNK-PUe5fgaypPyPwfJB4Y4UUl3ysuZi-ESCBM5uNPmZO0TJpFONn7P-uej2jqXIy-BCKlbDs3wxLsTHDTLeDJADlbmyGk9UM2kBz2pcfVAEYHlXsxIheOoy5O9ROhNh6dVRlw5La_Hrub-gxC3lzzDFFseqgmnLhAKpiJyw98oI1stwSIHwq41AyrWjLKI"/>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<h3 class="font-semibold text-primary">AI-driven sentiment analysis for feedback</h3>
+<span class="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] uppercase font-bold rounded tracking-wider">In Review</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">Q4 Retention</span>
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">AI/ML</span>
+</div>
+<div class="mt-4 flex items-center gap-4 text-xs text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons text-xs">chat_bubble_outline</span> 12 comments</span>
+<span class="flex items-center gap-1"><span class="material-icons text-xs">schedule</span> 2 hours ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Idea Card 2 -->
+<div class="p-4 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-primary/50 rounded-xl transition-all cursor-pointer">
+<div class="flex gap-4">
+<img alt="Author" class="w-10 h-10 rounded-full" data-alt="Woman author portrait image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWH_lk_e8cLeh8zXDmHryAUsZuJMIWPcjKvIe2CPyo7VHg8doz26IXGniYskErsw_GE5ITGFCDUQ6ly0rf60wtW9u5JtEPwbnudi5Uchq0eamXdJRSpfr9We0AZHUzJ3hxsBPBAJkNkqqUQXJuGM32PILKF9_dHAYqwNXd0-lJd2gIw5iHBs34YvviCHVsslielLH608nSHcfLXl_N0nre9QDWMJxFo4EUoSP3zGuuO1ejIZYf5hjq3UQztJSYhkYlTwGPaYA7Eik"/>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<h3 class="font-semibold">Gamified onboarding flow for new users</h3>
+<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-[10px] uppercase font-bold rounded tracking-wider">Draft</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">User Growth</span>
+</div>
+<div class="mt-4 flex items-center gap-4 text-xs text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons text-xs">chat_bubble_outline</span> 5 comments</span>
+<span class="flex items-center gap-1"><span class="material-icons text-xs">schedule</span> 5 hours ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Idea Card 3 -->
+<div class="p-4 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-primary/50 rounded-xl transition-all cursor-pointer">
+<div class="flex gap-4">
+<div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold">JD</div>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<h3 class="font-semibold">Automated testing for legacy modules</h3>
+<span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[10px] uppercase font-bold rounded tracking-wider">Approved</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">Internal Tooling</span>
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">Ops</span>
+</div>
+<div class="mt-4 flex items-center gap-4 text-xs text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons text-xs">chat_bubble_outline</span> 2 comments</span>
+<span class="flex items-center gap-1"><span class="material-icons text-xs">schedule</span> 1 day ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Idea Card 4 -->
+<div class="p-4 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-primary/50 rounded-xl transition-all cursor-pointer">
+<div class="flex gap-4">
+<img alt="Author" class="w-10 h-10 rounded-full" data-alt="Male author portrait image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGcFJX8BGtGUdlxqe_6oIttJYTkR4m7eQdzmPx26bAanyOQEN4-Pr0Incy5ol9cgiNAaCg58E5KKgNj9mNwIk1HIyxwC9WV-wKdPZov054oxxGGIQP0Vj0X9pwmC9l4zvZnVrZ6e6FImF9wfp2yW1I4v_FxdSd7umVIzgG0y9ORtzcBMD8DmdI29A93KRJz-fpCefCJO761h6vAHNDsyXSJzGl9JFn7mTGUlZYU9wKRv3JABjyr-dktw6Mw50Rt-K49yYYWYvJK2s"/>
+<div class="flex-1">
+<div class="flex items-start justify-between">
+<h3 class="font-semibold">Dark Mode implementation for desktop app</h3>
+<span class="px-2 py-0.5 bg-purple-500/10 text-purple-500 text-[10px] uppercase font-bold rounded tracking-wider">Implemented</span>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 uppercase">UX/UI</span>
+</div>
+<div class="mt-4 flex items-center gap-4 text-xs text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons text-xs">chat_bubble_outline</span> 24 comments</span>
+<span class="flex items-center gap-1"><span class="material-icons text-xs">schedule</span> 3 days ago</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Detail Drawer (Right Panel) -->
+<aside class="w-[500px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col shadow-2xl">
+<div class="h-16 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400"><span class="material-icons">close</span></button>
+<span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Idea Detail</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons text-sm">share</span></button>
+<button class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all">
+<span class="material-icons text-sm">edit</span> Edit
+                        </button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Markdown Content Container -->
+<div class="p-8">
+<div class="flex items-center gap-3 mb-6">
+<img alt="Author" class="w-6 h-6 rounded-full" data-alt="Small author avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRTrSOwrPxBdKJrIdel31fg-zDgFQoCGY_gpgOx2MquCz9bBM3SV4LVNW256hTW7aj029Ie_RmtxNHK-LGmzg-pZl6k5YrWJqocBTQ8H-4pLcRcUqP6e45bAVg9lb0JbEKRgkO-L1ba6qCBR8shxY9uJr1u7YQIBHr0lpz7cNk7wIrqHpSJ8By-xtDhyGSgoQw42TZfCzmy_fBmiL6rHDNi4qroOPaKja9RxCZdqou0TKaydGJcUglYq-vESuV5hq62AG6STSo1uw"/>
+<span class="text-sm font-medium">Alex Rivera</span>
+<span class="text-slate-500 text-xs">• Oct 24, 2023</span>
+</div>
+<article class="prose prose-slate dark:prose-invert max-w-none">
+<h1 class="text-2xl font-bold mb-4">AI-driven sentiment analysis for feedback</h1>
+<p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                                To improve our response time to user concerns, we should implement a real-time sentiment analysis engine that parses incoming feedback from all channels.
+                            </p>
+<h2 class="text-lg font-semibold mt-8 mb-3 flex items-center gap-2">
+<span class="material-icons text-primary text-base">auto_awesome</span> Key Objectives
+                            </h2>
+<ul class="space-y-2 text-sm text-slate-600 dark:text-slate-300 list-disc pl-5">
+<li>Automatic categorization of feedback into Positive, Neutral, or Negative.</li>
+<li>Urgency flags for highly dissatisfied customers.</li>
+<li>Dashboard for product managers to see sentiment trends over time.</li>
+</ul>
+<h2 class="text-lg font-semibold mt-8 mb-3">Technical Approach</h2>
+<div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg font-mono text-xs text-slate-700 dark:text-slate-400">
+                                // Implementation Plan<br/>
+                                const analysis = await AI.analyze(feedback_text);<br/>
+                                if (analysis.score &lt; -0.8) notifySupport(feedback_id);
+                            </div>
+<p class="mt-6 text-sm italic text-slate-500">
+                                This will integrate directly with our existing Intercom and Zendesk webhooks.
+                            </p>
+</article>
+<div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Linked Goals</h3>
+<div class="flex flex-wrap gap-2">
+<span class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-full">
+<span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Q4 Retention
+                                </span>
+<span class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold rounded-full">
+<span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> AI/ML Strategy
+                                </span>
+<button class="w-8 h-8 rounded-full border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all">
+<span class="material-icons text-sm">add</span>
+</button>
+</div>
+</div>
+<!-- Comments Section -->
+<div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold">Comments (12)</h3>
+<button class="text-primary text-xs font-semibold">View All</button>
+</div>
+<div class="space-y-6">
+<div class="flex gap-3">
+<img class="w-8 h-8 rounded-full shrink-0" data-alt="Commenter profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-U0CJ3rwqyFUQWBQGo6ANNNvi7XGuXetOUuODrI1PX10Cd_9FEW6m3_VsQYHr3nhyE5_2d_zW5EFKDgB5hra4bPGmjiFcCqig9x53g1xltWHcvv5xnPkwMvhEV66DEGW2VKzJNruduh9GjUCH-aiu5MOf43Ie7Nsw-Sc1XU9jEEMO4N81y2KAiX9oV68_wCu5xPiG7PsCU9dmg7SDhIp1G_Pjbd1JJXrB-mDmyHfSPlWc8IYbhk_TS7kWOQXFyjxnqIAB5JYjFV4"/>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-xs font-bold">Sarah Chen</span>
+<span class="text-[10px] text-slate-500">1 hour ago</span>
+</div>
+<p class="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                                            This is exactly what we need for the customer success team. We're currently drowning in manual reviews.
+                                        </p>
+<div class="flex items-center gap-4 mt-2">
+<button class="text-[10px] font-bold text-slate-400 hover:text-primary">Reply</button>
+<button class="text-[10px] font-bold text-slate-400 hover:text-primary flex items-center gap-1"><span class="material-icons text-[12px]">thumb_up</span> 4</button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">ME</div>
+<div class="flex-1 relative">
+<textarea class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[80px]" placeholder="Add a comment..."></textarea>
+<button class="absolute bottom-3 right-3 text-primary"><span class="material-icons">send</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+
+
+```</body></html><!-- End of generated UI -->

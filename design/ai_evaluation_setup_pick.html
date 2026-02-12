@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Evaluation Setup - Pick</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "surface-dark": "#16222e",
+                        "card-dark": "#1c2a38",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d3e50;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #137fec;
+        }
+        /* Slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #2d3e50;
+            border-radius: 2px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #137fec;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col">
+<!-- Header / Nav -->
+<header class="h-16 border-b border-primary/10 bg-background-light dark:bg-background-dark flex items-center justify-between px-6 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons text-white text-xl">psychology</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">AI Evaluation Workspace</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-icons text-slate-400">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-semibold text-xs">
+                JD
+            </div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-8">
+<!-- Top Goal Selector -->
+<section class="max-w-4xl mx-auto mb-10">
+<label class="block text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">Evaluation Goal</label>
+<div class="relative">
+<select class="w-full bg-surface-dark border border-slate-700 rounded-xl py-4 px-5 text-lg appearance-none focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer">
+<option>Determine highest market potential for Q4 product launch</option>
+<option>Identify most sustainable packaging solutions</option>
+<option>Evaluate feasibility of remote-first engineering culture</option>
+<option>Rank feature requests by user impact vs cost</option>
+</select>
+<div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+<span class="material-icons text-slate-400">expand_more</span>
+</div>
+</div>
+<p class="mt-3 text-sm text-slate-500">The selected goal provides context for the AI scoring rubrics.</p>
+</section>
+<!-- Selection Bar -->
+<div class="max-w-4xl mx-auto mb-6 flex items-center justify-between bg-card-dark/50 p-4 rounded-xl border border-slate-800">
+<div class="flex items-center gap-4">
+<span class="text-sm font-medium"><span class="text-primary font-bold">12</span> Ideas Selected</span>
+<div class="h-4 w-[1px] bg-slate-700"></div>
+<button class="text-sm text-primary hover:underline font-medium">Select All</button>
+<button class="text-sm text-slate-400 hover:text-white transition-colors">Clear Selection</button>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors">
+<span class="material-icons text-sm">filter_list</span>
+</button>
+<button class="p-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors">
+<span class="material-icons text-sm">sort</span>
+</button>
+</div>
+</div>
+<!-- Candidate Ideas List -->
+<div class="max-w-4xl mx-auto grid grid-cols-1 gap-4">
+<!-- Idea Card 1 -->
+<div class="group bg-card-dark border border-slate-800 p-5 rounded-xl flex items-start gap-5 hover:border-primary/50 transition-all cursor-pointer">
+<div class="pt-1">
+<input checked="" class="w-5 h-5 rounded border-slate-700 bg-transparent text-primary focus:ring-primary transition-all" type="checkbox"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-semibold text-lg text-slate-100">Hyper-localized Subscription Boxes</h3>
+<span class="px-2 py-0.5 bg-green-500/10 text-green-500 text-[10px] font-bold uppercase rounded">Low Cost</span>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed">Partner with local artisans within a 50-mile radius to reduce shipping carbon footprint and support local economy.</p>
+<div class="flex gap-4 mt-3">
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">person</span> Shared by Sarah K.</span>
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">calendar_today</span> 2 days ago</span>
+</div>
+</div>
+</div>
+<!-- Idea Card 2 -->
+<div class="group bg-card-dark border border-slate-800 p-5 rounded-xl flex items-start gap-5 hover:border-primary/50 transition-all cursor-pointer">
+<div class="pt-1">
+<input checked="" class="w-5 h-5 rounded border-slate-700 bg-transparent text-primary focus:ring-primary transition-all" type="checkbox"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-semibold text-lg text-slate-100">AI-Powered Wardrobe Assistant</h3>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded">Tech Heavy</span>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed">A mobile app that uses computer vision to catalog user's current clothes and suggest daily outfits based on weather and schedule.</p>
+<div class="flex gap-4 mt-3">
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">person</span> Shared by Mike R.</span>
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">calendar_today</span> 5 days ago</span>
+</div>
+</div>
+</div>
+<!-- Idea Card 3 -->
+<div class="group bg-card-dark border border-slate-800 p-5 rounded-xl flex items-start gap-5 hover:border-primary/50 transition-all cursor-pointer">
+<div class="pt-1">
+<input checked="" class="w-5 h-5 rounded border-slate-700 bg-transparent text-primary focus:ring-primary transition-all" type="checkbox"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-semibold text-lg text-slate-100">Zero-Waste Grocery Kiosk</h3>
+<span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold uppercase rounded">Complex Op</span>
+</div>
+<p class="text-slate-400 text-sm leading-relaxed">Automated refill stations for dry goods and detergents in high-traffic urban areas, eliminating single-use plastic packaging.</p>
+<div class="flex gap-4 mt-3">
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">person</span> Shared by Alex T.</span>
+<span class="text-[11px] text-slate-500 flex items-center gap-1 uppercase tracking-tight"><span class="material-icons text-[14px]">calendar_today</span> 1 week ago</span>
+</div>
+</div>
+</div>
+<!-- Placeholder for more items -->
+<div class="h-24 border-2 border-dashed border-slate-800 rounded-xl flex items-center justify-center text-slate-600">
+<p class="text-sm italic">9 additional ideas below...</p>
+</div>
+</div>
+</main>
+<!-- Right Sidebar (Configuration) -->
+<aside class="w-96 bg-surface-dark border-l border-slate-800 flex flex-col h-full sticky top-0 shadow-2xl">
+<div class="p-6 border-b border-slate-800">
+<h2 class="text-lg font-bold flex items-center gap-2">
+<span class="material-icons text-primary">settings</span>
+                    Evaluation Configuration
+                </h2>
+<p class="text-xs text-slate-500 mt-1">Configure AI model parameters and weights.</p>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<!-- Model Selector -->
+<div>
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select AI Model</label>
+<div class="space-y-3">
+<label class="flex items-center gap-3 p-3 rounded-lg border border-primary bg-primary/5 cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary bg-transparent border-slate-600" name="model" type="radio"/>
+<div class="flex-1">
+<p class="text-sm font-semibold">GPT-4o</p>
+<p class="text-[10px] text-slate-400">Most intelligent, best for complex logic</p>
+</div>
+<span class="material-icons text-primary text-sm">bolt</span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700 hover:border-slate-500 cursor-pointer transition-colors">
+<input class="text-primary focus:ring-primary bg-transparent border-slate-600" name="model" type="radio"/>
+<div class="flex-1">
+<p class="text-sm font-semibold">Claude 3.5 Sonnet</p>
+<p class="text-[10px] text-slate-400">Highly creative and nuanced analysis</p>
+</div>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700 hover:border-slate-500 cursor-pointer transition-colors">
+<input class="text-primary focus:ring-primary bg-transparent border-slate-600" name="model" type="radio"/>
+<div class="flex-1">
+<p class="text-sm font-semibold">Gemini 1.5 Pro</p>
+<p class="text-[10px] text-slate-400">Largest context window for bulk ideas</p>
+</div>
+</label>
+</div>
+</div>
+<!-- Rubrics Sliders -->
+<div>
+<div class="flex justify-between items-center mb-4">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest block">Scoring Rubrics</label>
+<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-800 rounded text-slate-300">Total: 100%</span>
+</div>
+<div class="space-y-6">
+<!-- Impact -->
+<div class="space-y-2">
+<div class="flex justify-between">
+<span class="text-sm font-medium">Impact</span>
+<span class="text-sm font-bold text-primary">40%</span>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="40"/>
+<p class="text-[10px] text-slate-500">Value to customer and business ROI.</p>
+</div>
+<!-- Feasibility -->
+<div class="space-y-2">
+<div class="flex justify-between">
+<span class="text-sm font-medium">Feasibility</span>
+<span class="text-sm font-bold text-primary">35%</span>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="35"/>
+<p class="text-[10px] text-slate-500">Technical effort and resource availability.</p>
+</div>
+<!-- Originality -->
+<div class="space-y-2">
+<div class="flex justify-between">
+<span class="text-sm font-medium">Originality</span>
+<span class="text-sm font-bold text-primary">25%</span>
+</div>
+<input class="w-full" max="100" min="0" type="range" value="25"/>
+<p class="text-[10px] text-slate-500">Market uniqueness and competitive edge.</p>
+</div>
+</div>
+</div>
+<!-- Output Options -->
+<div>
+<label class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Output Format</label>
+<div class="flex gap-2">
+<button class="flex-1 py-2 px-3 border border-primary bg-primary text-xs font-bold rounded-lg text-white">
+                            Detailed Report
+                        </button>
+<button class="flex-1 py-2 px-3 border border-slate-700 text-xs font-bold rounded-lg text-slate-400 hover:border-slate-500">
+                            Score Only
+                        </button>
+</div>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="p-6 bg-slate-900/50 border-t border-slate-800">
+<button class="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
+<span class="material-icons">play_arrow</span>
+                    Run AI Pick
+                </button>
+<p class="text-center mt-3 text-[10px] text-slate-500">Estimated cost: ~0.45 credits</p>
+</div>
+</aside>
+</div>
+</body></html>

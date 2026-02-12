@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Group Goals Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(19, 127, 236, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(19, 127, 236, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation Bar -->
+<nav class="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-white dark:bg-background-dark z-20">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+<span class="material-icons text-white text-xl">insights</span>
+</div>
+<span class="font-bold text-lg tracking-tight">IdeationHub</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-sm">group</span>
+<span>Product Strategy Team</span>
+</div>
+<div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="text-xs font-bold text-primary">JD</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Split Pane -->
+<main class="flex-1 flex overflow-hidden">
+<!-- Left Pane: Goals Sidebar -->
+<aside class="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800">
+<div class="relative">
+<span class="material-icons absolute left-3 top-2.5 text-slate-400 text-sm">search</span>
+<input class="w-full pl-9 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/50 text-slate-200" placeholder="Search goals..." type="text"/>
+</div>
+<div class="flex mt-4 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+<button class="flex-1 text-xs font-semibold py-1.5 rounded-md bg-white dark:bg-slate-700 shadow-sm text-primary">Active</button>
+<button class="flex-1 text-xs font-semibold py-1.5 rounded-md text-slate-500 dark:text-slate-400">Archived</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+<!-- Goal Item (Active/Selected) -->
+<div class="p-3 bg-primary/10 border-l-4 border-primary rounded-r-lg cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] uppercase tracking-wider font-bold text-primary bg-primary/20 px-1.5 py-0.5 rounded">In Progress</span>
+<span class="text-[10px] text-slate-500">2h ago</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-900 dark:text-white leading-tight">Q4 Market Expansion Strategy</h3>
+<p class="text-xs text-slate-500 mt-1 line-clamp-1">Define core pillars for European entry...</p>
+</div>
+<!-- Goal Item -->
+<div class="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">Draft</span>
+<span class="text-[10px] text-slate-500">Yesterday</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-900 dark:text-slate-300 leading-tight">Customer Retention AI</h3>
+<p class="text-xs text-slate-500 mt-1 line-clamp-1">Evaluating churn prediction models...</p>
+</div>
+<!-- Goal Item -->
+<div class="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] uppercase tracking-wider font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">Paused</span>
+<span class="text-[10px] text-slate-500">Oct 12</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-900 dark:text-slate-300 leading-tight">Mobile App Redesign v3</h3>
+<p class="text-xs text-slate-500 mt-1 line-clamp-1">Focus on onboarding flow improvements...</p>
+</div>
+<!-- Goal Item -->
+<div class="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+<div class="flex justify-between items-start mb-1">
+<span class="text-[10px] uppercase tracking-wider font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">Planning</span>
+<span class="text-[10px] text-slate-500">Oct 10</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-900 dark:text-slate-300 leading-tight">Infrastructure Scaling</h3>
+<p class="text-xs text-slate-500 mt-1 line-clamp-1">Preparing for 10x user growth...</p>
+</div>
+</div>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<button class="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors">
+<span class="material-icons text-base">add</span>
+                    New Goal
+                </button>
+</div>
+</aside>
+<!-- Right Pane: Editor -->
+<div class="flex-1 flex flex-col bg-slate-50 dark:bg-background-dark">
+<!-- Editor Header -->
+<header class="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-bold text-slate-900 dark:text-white">Goal Editor</h2>
+<span class="text-xs text-slate-500 italic">Auto-saved at 14:23</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-icons text-base">archive</span>
+                        Archive
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors">
+<span class="material-icons text-base">auto_fix_high</span>
+                        AI Evaluate
+                    </button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<div class="max-w-4xl mx-auto py-10 px-8">
+<!-- Form Section -->
+<div class="space-y-8">
+<!-- Title Field -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Goal Title</label>
+<input class="w-full bg-transparent border-none text-3xl font-extrabold text-slate-900 dark:text-white focus:ring-0 p-0 placeholder-slate-700" type="text" value="Q4 Market Expansion Strategy"/>
+</div>
+<!-- Rich Text Description -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
+<div class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+<div class="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400"><span class="material-icons text-sm">format_bold</span></button>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400"><span class="material-icons text-sm">format_italic</span></button>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400"><span class="material-icons text-sm">format_list_bulleted</span></button>
+<div class="w-px h-4 bg-slate-300 dark:bg-slate-700 mx-1"></div>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400"><span class="material-icons text-sm">link</span></button>
+<button class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400"><span class="material-icons text-sm">image</span></button>
+</div>
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none" rows="6">Our primary focus for the fourth quarter is a structured entry into the DACH region. We need to evaluate our current SaaS offering against local competitors and ensure GDPR compliance is front-and-center. 
+
+Key pillars include:
+• Localized marketing campaigns
+• Strategic partnership with regional resellers
+• Technical infrastructure localization</textarea>
+</div>
+</div>
+<!-- Grid for Metrics and Constraints -->
+<div class="grid grid-cols-2 gap-8">
+<!-- Success Metrics -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Success Metrics</label>
+<div class="space-y-3">
+<div class="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+<span class="material-icons text-primary text-lg">check_circle</span>
+<input class="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" type="text" value="Acquire 50 enterprise leads"/>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+<span class="material-icons text-primary text-lg">check_circle</span>
+<input class="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" type="text" value="99.9% Regional Uptime"/>
+</div>
+<button class="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-1">
+<span class="material-icons text-sm">add</span> Add Metric
+                                    </button>
+</div>
+</div>
+<!-- Constraints -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Constraints</label>
+<div class="space-y-3">
+<div class="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+<span class="material-icons text-amber-500 text-lg">warning</span>
+<input class="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" type="text" value="Budget cap: $250k"/>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+<span class="material-icons text-amber-500 text-lg">warning</span>
+<input class="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0" type="text" value="Launch by Dec 15th"/>
+</div>
+<button class="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-1">
+<span class="material-icons text-sm">add</span> Add Constraint
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Linked Ideas Section -->
+<div class="pt-6 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Currently Linked Ideas</h3>
+<p class="text-xs text-slate-500">Collaborative ideas associated with this objective</p>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+<span class="material-icons text-sm">add_link</span>
+                                    Add Ideas
+                                </button>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<!-- Idea Card -->
+<div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="w-8 h-8 rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Abstract colorful geometric branding pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCvbcENEjw_mAn5cHWleFKdemPwqfSzEfSKoC-Q_A87RazAX6xI7Mo_d6IdUPtP_AaDhtnoxMf-UPVB3RUmhlkGiUhxBv3lsgp68UtACidoWo8evJavWd0Q65yx22OvLp4s0FDKmOLYAnoKC74h4wgjKYjVgL-6dhMGxMHlAPGM9w0b4KdUW84CmNQfQ-i6MUhoMTKkew8lepNyyM6X0z3KVmNdr6YtJUgt03b6_dVZNHXjwuWW5_o9znEeYaMfoBj_eOeeJQzvC4"/>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-opacity">
+<span class="material-icons text-sm">link_off</span>
+</button>
+</div>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white mb-1">Localized Ad Assets</h4>
+<p class="text-xs text-slate-500 line-clamp-2">Creating cultural-specific visual content for Berlin &amp; Munich...</p>
+</div>
+<!-- Idea Card -->
+<div class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl hover:border-primary/50 transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div class="w-8 h-8 rounded-lg overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Corporate office with modern glass architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACWaTw_qYl9EcSw30rR2tRUpOtjsgQV8HDsrfSDYYBYzRXmjv4wUjkEjlZ6rRsmpeQZua_Z515wYZOuG8KdE5aXGFtRS1nAsMW77VB-V2Eu_uNtVtyZs4my99KwiH4PNU3ei_Yez2RZZO71tl5SNNDKIcDOQ0SDPMDXGlCd4-qv3KgMVviYwb6ofojnWknnnbA2EO-gmFwif-HmTPmWiA8q-8tVs9rAKBow-x5NW4sLSpjmrR6wxHhfaDZARGoqdUOQlKKYnetz5E"/>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-opacity">
+<span class="material-icons text-sm">link_off</span>
+</button>
+</div>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white mb-1">Regional Data Centers</h4>
+<p class="text-xs text-slate-500 line-clamp-2">Lease infrastructure in Frankfurt to reduce latency...</p>
+</div>
+<!-- Idea Card (Empty Slot/Placeholder) -->
+<div class="border-2 border-dashed border-slate-200 dark:border-slate-800 p-4 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer">
+<span class="material-icons text-xl mb-1">tips_and_updates</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Browse Suggestions</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Action Bar -->
+<footer class="h-14 px-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark flex items-center justify-between">
+<div class="flex items-center gap-4 text-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="material-icons text-xs">history</span> Last edit 5m ago</span>
+<span class="flex items-center gap-1"><span class="material-icons text-xs text-emerald-500">cloud_done</span> Cloud Synced</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2 text-sm font-bold text-slate-600 dark:text-slate-400">Discard</button>
+<button class="px-8 py-2 bg-primary text-white text-sm font-bold rounded-lg shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">Save Changes</button>
+</div>
+</footer>
+</div>
+</main>
+</body></html>

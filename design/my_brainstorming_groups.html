@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WIDEA</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#137fec",
+                "background-light": "#f6f7f8",
+                "background-dark": "#101922",
+                "card-dark": "#1a242f",
+                "neutral-dark": "#1e293b",
+              },
+              fontFamily: {
+                "display": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
+<div class="flex h-screen overflow-hidden">
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Top Header Bar -->
+<header class="h-16 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-bottom border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4 flex-1">
+<h1 class="text-xl font-bold tracking-tight">WIDEA</h1>
+<div class="relative w-full max-w-md ml-8">
+<span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary transition-all" placeholder="Search groups..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
+<span class="material-icons text-sm">add</span>
+                        Create New Group
+                    </button>
+</div>
+</header>
+<!-- Grid Content -->
+<section class="flex-1 overflow-y-auto p-8 scrollbar-hide">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Group Card 1 -->
+<div class="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons">campaign</span>
+</div>
+<div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-100">Marketing Q4 Strategy</h3>
+<span class="text-xs text-slate-400">Marketing Department</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">more_vert</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">group</span> 12 Members
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">flag</span> 5 Active Goals
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 text-[10px] font-semibold text-primary">
+<span class="material-icons text-[12px]">auto_awesome</span> AI Syncing
+                            </div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-[11px] text-slate-400 italic">Last active: 2h ago</span>
+<div class="flex -space-x-2">
+<img alt="M1" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHT3Thtcvve5we8KuuONF41wM5Bh2rxFLC3lFrvXcFhvfstCI_bIkKD-J3X5q0TdAC0aVwmpdSRZoV2LZjJ_J1_9KkMcYrN3sfl6Xb_VyKC0MHQ1TX3iq01K8A53lytefMWag6eIAiGVmp6i3rf-sRW0iepn_ZupB2fsHBWLNGqNzrLNByj0cR2fCTnemhgVJrytLLuH8OAqkfMx9_Ah7wJpjAxPUbfRHG2hGkinV9FxDpiqRQuv1wtf-TkO5q7GJu0VbZuO-kZYU"/>
+<img alt="M2" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDST1A12vY5UOq3hMiSJV4V2G72-mTM3cNKMZJ-OSLAO5n1fiBqXvG55Xuzs0IWMd_h2f9XVtGnWutFJJ-hb1duPphj9z7IO7_qPfNI_JsI1SrxZTRYUXKO8j6AFGRXunhsUEZ2zs3eqQqJuZl9TdOWu1ps6y143QwHqwYU05o1mEQZ2qaJyZTA83DH7McniURdQkW858QUMYO_Nb_mg1DW7_zlqEQ04dHAeEvI9MWjgQfW8s3QsH0HKBoG7NCFzcyBy2C_Yd-V5ag"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">+10</div>
+</div>
+</div>
+</div>
+<!-- Group Card 2 -->
+<div class="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+<span class="material-icons">code</span>
+</div>
+<div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-100">Product Dev Roadmap</h3>
+<span class="text-xs text-slate-400">Engineering Team</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">more_vert</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">group</span> 8 Members
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">flag</span> 3 Active Goals
+                            </div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-[11px] text-slate-400 italic">Last active: Yesterday</span>
+<div class="flex -space-x-2">
+<img alt="M3" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb0YSam_Blb6Gq35Vguc5U5jMt3Aq2AQSGdR5Ths8TKnHStsVKwcbp8bC6aammphQr8MJogGSb9-cOSVqTsFWAPAuxSgZp1ifewnsFk7D15HDJB7FL8B4aCCxKQp_H1y1LROqANar9pGWla5iizxCFz_Kc0n-KeAXOzmxmFZJ3oearinMrLU_9hrmwohmvpbpsRRYcMTBvTPgpgIVWKcGpITHjN-ouPs5BNCa-Y_ULSbbDcXd-Taw57yDRiXl9Bu1z1fIOWQy84XI"/>
+<img alt="M4" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVxZVlNuEn4CDuqPJnT6A1YRB7csFRtaV3K3JPZ4P0srYSc_BDGAucrQIzdlSdEL-TX3YEwtL-xORtbimZYMzjHvqJ5pBCVlOQnXuGW8tR_c-ibDvvDJIKuWSOdHuuV4N6WxnGBi2hYs7XhClaxKnHdVRKdC5htR4KZDXgUDYsiYFvc4Jnc2R26XiGUa7dJOqEb614HOuI0cO4eIWu_wZco1JPNIVCJNN7qJQfSfcbDDOIbgpzpQXGUoqGzxeDYijZVSDCxlU_MD0"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">+6</div>
+</div>
+</div>
+</div>
+<!-- Group Card 3 -->
+<div class="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+<span class="material-icons">palette</span>
+</div>
+<div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-100">UX Design Critique</h3>
+<span class="text-xs text-slate-400">Design Ops</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">more_vert</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">group</span> 15 Members
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">flag</span> 7 Active Goals
+                            </div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-[11px] text-slate-400 italic">Last active: 10m ago</span>
+<div class="flex -space-x-2">
+<img alt="M5" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLqg-aU_pv-kHXzou2ebAC_e7tU_SRhqkUPbdkHJZPT0Q2RrkRr9DAqTsncJyzykr8nCpk0oedx3kOYQJ6TnOZMV1nBg3Te5prV0Ep7BiL6BMm6uL8cAzGXSDHlNwcfe8mqHvpQFa9NnfiocLRrk1BwBOvURVvOYT9JWq24tEmUsFqH6gdXxzAGxMo5SP_7sJsQSfuer6awzjK7on6N05PCM6ifDaETNxqpc9fL-LCZyxSzGQbbaj0AM4RzADHXNTr5jqdjHm1DBc"/>
+<img alt="M6" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf3rP-0MfJtmPVYv1Re21pAK-VEppXXCC0wwibu_HuOkAHtV9CMwaoNyWsrX8pdT9qpN8PhrT-aXo8OpinKW8uwuTJehX4v7_FOoHnlHC-GPIYqcb02xtTf6c_d0YEYifFai2Jb7L49K267xC55_6CN8y-0pEnliKI6MziyNLDdbmGZwJnhTNivt-T40EOHfBqKlgkMi-d55XqKCy4y40MygoCpyII3IOAL3bf6jkPMicdmvMA4F5miOXWUlBIGQtR625FnNtFh9M"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">+13</div>
+</div>
+</div>
+</div>
+<!-- Group Card 4 -->
+<div class="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
+<span class="material-icons">rocket_launch</span>
+</div>
+<div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-100">Project Phoenix</h3>
+<span class="text-xs text-slate-400">R&amp;D Core</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">more_vert</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">group</span> 4 Members
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">flag</span> 1 Active Goal
+                            </div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-[11px] text-slate-400 italic">Last active: 4d ago</span>
+<div class="flex -space-x-2">
+<img alt="M7" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 7" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACjUmx7G4kBUJljwSMt64icBNavd5p7ZKKYIlC949hN_Sv_cSI_9IeKwfWaju4AmwgT000UVcR0uh5yLIaNVXxY5Ev_g7yd_vRlHF88lbe-xE5JcncEImiklwUxNJrcY3wlDwc2r6yDApdjciS6fs84rrIInp0OdBGrkTQHtp8bZ_oR-LPSH8PeIP9991Fwb74NEVLjj3Z_m_OkUGneJrcZtiWFRYFGtYA0CX8MBkAgfswxg7oQVRd0Xp92vi8owEcK44A1GdIKI4"/>
+<img alt="M8" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 8" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEYAHstWi9iu_VVfPlXVx7LgVYH3aWIEMaCXUqBdzUJ2KCwB4MKB36XuSxXJ5SI6aBRstK829ajTVqWix0aEJfLB4ZtSGVqNkC281ChyoAKpzSxYddgVcH4b5pg7EIsp2cj8Ap9t8BqbB3m78hfJACnZOJ5C8vr1eiWfc95rHW9NXBcKbZ-qOExpH_AhEbBQBtbHuZs2VhU92G3O_XKgzgPYQbIsITEbwEXmpVP9t3hKpRZpg6VL6_cD2WgbCx96ohuEyomh5zVmM"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">+2</div>
+</div>
+</div>
+</div>
+<!-- Group Card 5 (AI Evaluation Active) -->
+<div class="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-primary/30 dark:border-primary/30 shadow-lg shadow-primary/5 transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-icons">bolt</span>
+</div>
+<div>
+<h3 class="font-semibold text-slate-800 dark:text-slate-100">Customer Retention Fix</h3>
+<span class="text-xs text-slate-400">Customer Success</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-primary transition-colors">
+<span class="material-icons">more_vert</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-2 mb-6">
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+<span class="material-icons text-[12px]">group</span> 6 Members
+                            </div>
+<div class="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/10 text-[10px] font-semibold text-primary">
+<span class="material-icons text-[12px]">auto_awesome</span> AI Evaluation In Progress
+                            </div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-[11px] text-primary font-medium animate-pulse">Processing ideas...</span>
+<div class="flex -space-x-2">
+<img alt="M9" class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark" data-alt="Team member profile picture 9" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"/>
+<div class="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">+5</div>
+</div>
+</div>
+</div>
+<!-- Create New Group Placeholder -->
+<div class="group relative bg-dashed border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-slate-800/30 hover:border-primary/50 transition-all cursor-pointer min-h-[180px]">
+<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+<span class="material-icons">add_circle_outline</span>
+</div>
+<h3 class="font-medium text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">Start a new group</h3>
+<p class="text-xs text-slate-400 mt-1">Invite collaborators and AI assistants</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

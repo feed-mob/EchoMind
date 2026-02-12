@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Evaluation Results Snapshot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation / Header -->
+<header class="border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-50">
+<div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-icons text-primary">analytics</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h1 class="text-xl font-bold tracking-tight">Expand Q4 Market Share</h1>
+<span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-semibold uppercase tracking-wider">AI Evaluation</span>
+</div>
+<div class="flex items-center gap-4 mt-1 text-sm text-slate-500 dark:text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons text-sm">settings_suggest</span> GPT-4o Model</span>
+<span class="flex items-center gap-1"><span class="material-icons text-sm">calendar_today</span> Oct 24, 2023</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 text-sm font-medium">
+<span class="material-icons text-sm">ios_share</span> Export
+                </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm font-medium shadow-lg shadow-primary/20">
+<span class="material-icons text-sm">refresh</span> Re-evaluate
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-[1600px] mx-auto px-6 py-8">
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Main Content: Leaderboard -->
+<div class="flex-grow">
+<div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-16 text-center">Rank</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Idea Proposal</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-24 text-center">Score</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-48">Dimensions</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reasoning Preview</th>
+<th class="px-6 py-4 w-12"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1: Winner -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-6 text-center">
+<span class="text-2xl font-black text-primary">1</span>
+</td>
+<td class="px-6 py-6">
+<div class="flex items-center gap-3">
+<span class="font-bold text-lg text-slate-900 dark:text-white">Hyper-Local Community Grants</span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary text-white">
+<span class="material-icons text-xs mr-1">emoji_events</span> WINNER
+                                        </span>
+</div>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-1 italic">Submitted by: Growth Team</p>
+</td>
+<td class="px-6 py-6 text-center">
+<div class="inline-flex flex-col items-center">
+<span class="text-xl font-bold text-primary">94</span>
+<span class="text-[10px] text-slate-400 font-medium">/100</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="space-y-2">
+<div class="w-full">
+<div class="flex justify-between text-[10px] mb-1 uppercase font-semibold">
+<span>Impact</span>
+<span class="text-primary">98</span>
+</div>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 98%"></div>
+</div>
+</div>
+<div class="w-full">
+<div class="flex justify-between text-[10px] mb-1 uppercase font-semibold">
+<span>Feasibility</span>
+<span class="text-primary">89</span>
+</div>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary/60 rounded-full" style="width: 89%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">This strategy shows the highest potential for brand loyalty conversion through grassroots engagement. The ROI is projected to...</p>
+</td>
+<td class="px-6 py-6 text-right">
+<button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-400">
+<span class="material-icons">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-6 text-center">
+<span class="text-xl font-bold text-slate-400">2</span>
+</td>
+<td class="px-6 py-6">
+<span class="font-semibold text-slate-800 dark:text-slate-200">AR Product Visualizer 2.0</span>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Submitted by: Product Design</p>
+</td>
+<td class="px-6 py-6 text-center">
+<div class="inline-flex flex-col items-center">
+<span class="text-lg font-bold text-slate-700 dark:text-slate-300">88</span>
+<span class="text-[10px] text-slate-400 font-medium">/100</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="space-y-2">
+<div class="w-full">
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<div class="w-full">
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary/40 rounded-full" style="width: 94%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">Excellent for online engagement but requires significant upfront development cost and multi-department coordination.</p>
+</td>
+<td class="px-6 py-6 text-right">
+<button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-400">
+<span class="material-icons">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-6 text-center">
+<span class="text-xl font-bold text-slate-400">3</span>
+</td>
+<td class="px-6 py-6">
+<span class="font-semibold text-slate-800 dark:text-slate-200">Influencer Affiliate Overhaul</span>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Submitted by: Marketing</p>
+</td>
+<td class="px-6 py-6 text-center">
+<div class="inline-flex flex-col items-center">
+<span class="text-lg font-bold text-slate-700 dark:text-slate-300">81</span>
+<span class="text-[10px] text-slate-400 font-medium">/100</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="space-y-2">
+<div class="w-full">
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary/30 rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<div class="w-full">
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary/30 rounded-full" style="width: 84%"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">Safe, predictable choice with moderate growth potential. Low novelty score prevents it from ranking higher.</p>
+</td>
+<td class="px-6 py-6 text-right">
+<button class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-400">
+<span class="material-icons">chevron_right</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Sidebar: Winner Spotlight -->
+<aside class="w-full lg:w-96 flex-shrink-0">
+<div class="sticky top-28 space-y-6">
+<div class="bg-primary/5 border border-primary/20 rounded-xl overflow-hidden shadow-sm">
+<div class="bg-primary p-4 text-white">
+<div class="flex justify-between items-center">
+<h2 class="font-bold flex items-center gap-2 tracking-wide">
+<span class="material-icons">auto_awesome</span> AI TOP PICK
+                                </h2>
+<span class="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold">BATCH #1204</span>
+</div>
+</div>
+<div class="p-6">
+<div class="aspect-video w-full rounded-lg mb-4 relative overflow-hidden bg-slate-200 dark:bg-slate-800">
+<img alt="Idea Illustration" class="w-full h-full object-cover mix-blend-overlay opacity-60" data-alt="Community engagement activity illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-SNRH7wFVc5NEmJoBchVcWkErJ74uS0SwinRCjwUWXSbv47LNvyaa5oUrTtmf0_Q9wcD-o5dilpmJRTLJ7pc0fWf-jxCL2I4ZgCoYXztIfFzyZY-dqnFwSKwrVKUfwbhYyrm9wUg0r5dyQt4Hhr9Ku42I5b1h_Axpv78JKAMQSFAQt0cr-EfETctdW4Z4qMmMIAyqkI3R9KtApHJJGl5Mo_Q4bnLIKqw8ZR969TB9XdSw34F6nHgemiaqrUpF6SpdhMfaAnZkOrg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark/80 to-transparent flex items-end p-4">
+<span class="text-white font-bold">Grassroots Strategy</span>
+</div>
+</div>
+<h3 class="text-lg font-bold mb-3">Why this idea won</h3>
+<div class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+<p>
+                                    The <span class="text-primary font-semibold">Hyper-Local Community Grants</span> program balances high social impact with minimal technical debt. AI analysis suggests a <span class="font-bold text-slate-900 dark:text-white">14.2% higher conversion rate</span> for long-term loyalty compared to digital-only ads.
+                                </p>
+<p>
+                                    The proposal leverages existing regional partnerships, drastically reducing the time-to-market.
+                                </p>
+</div>
+<div class="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Recommended Next Steps</h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-3 text-sm">
+<span class="material-icons text-primary text-lg">check_circle_outline</span>
+<span>Draft grant application guidelines</span>
+</li>
+<li class="flex items-start gap-3 text-sm">
+<span class="material-icons text-primary text-lg">check_circle_outline</span>
+<span>Identify top 5 pilot cities for Q4</span>
+</li>
+<li class="flex items-start gap-3 text-sm">
+<span class="material-icons text-slate-300 dark:text-slate-700 text-lg">radio_button_unchecked</span>
+<span>Review budget with Finance Lead</span>
+</li>
+</ul>
+<button class="w-full mt-6 py-3 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm hover:opacity-90 transition-opacity">
+                                    Implement Strategy
+                                </button>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Confidence Score</h4>
+<div class="flex items-end gap-3 mb-2">
+<span class="text-3xl font-bold">96%</span>
+<span class="text-green-500 text-sm font-bold flex items-center mb-1">
+<span class="material-icons text-sm">trending_up</span> +2.4%
+                            </span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400">Based on historical data of 400+ similar market expansions.</p>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Map/Region Breakdown (Footer Highlight) -->
+<section class="max-w-[1600px] mx-auto px-6 pb-12">
+<div class="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+<div>
+<h2 class="text-xl font-bold">Regional Compatibility</h2>
+<p class="text-sm text-slate-500">AI prediction of impact across global territories.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded bg-primary/10 text-primary text-xs font-bold">NORTH AMERICA</button>
+<button class="px-3 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-500">EUROPE</button>
+<button class="px-3 py-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold text-slate-500">ASIA PACIFIC</button>
+</div>
+</div>
+<div class="h-64 rounded-xl relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+<img alt="Global Map" class="w-full h-full object-cover opacity-20 grayscale brightness-50" data-alt="Abstract world map background" data-location="Global" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmrC_KpMMfqHtHWYmWlRIwnQxdlTOl774oVFYB5zMbbMzcLlIn-o3THgpkscjUN0zHQ1ulzkbmgfIGpzwsgdRTG-MvxS1_HxvcwWbsracF3Liq7hBTMA8rppnjQVZ-WIfKXnRcXa7O4Gj-YFXiHAO9KJAxHhgquQJ4EJ24rrvEIUhAbE0c0V1wJ5xyhhi86IXHP3wlFm3lW5mhlm2bo6U9WpPOinrY1RvP-sj_M8TMzCm3me5EN8AVTDhJHfPx99DXLoJ3SkCkBeM"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 w-full px-12">
+<div class="text-center">
+<div class="text-2xl font-black text-primary mb-1">High</div>
+<div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Impact Potential</div>
+</div>
+<div class="text-center">
+<div class="text-2xl font-black text-white mb-1">3.2 Weeks</div>
+<div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Est. Deployment</div>
+</div>
+<div class="text-center">
+<div class="text-2xl font-black text-white mb-1">Low</div>
+<div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Market Risk</div>
+</div>
+<div class="text-center">
+<div class="text-2xl font-black text-white mb-1">84%</div>
+<div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Adoption Rate</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</body></html>
