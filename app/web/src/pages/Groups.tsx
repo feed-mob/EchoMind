@@ -1,78 +1,99 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CreateGroupModal from '../components/CreateGroupModal';
+
+const API_URL = 'http://localhost:3001';
+
+interface GroupData {
+  id: string;
+  name: string;
+  department?: string | null;
+  icon?: string | null;
+  logo?: string | null;
+  status: string;
+  memberCount: number;
+  ideaCount: number;
+}
 
 export default function Groups() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [groups, setGroups] = useState([
-    {
-      id: 1,
-      name: "Marketing Q4 Strategy",
-      department: "Marketing Department",
-      icon: "campaign",
-      members: 8,
-      ideas: 24,
-      status: "active",
-      statusText: "3 New Ideas",
-      avatars: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"
-      ]
-    },
-    {
-      id: 2,
-      name: "Product Roadmap 2024",
-      department: "Product Team",
-      icon: "rocket_launch",
-      members: 12,
-      ideas: 45,
-      status: "completed",
-      statusText: "Evaluation Complete",
-      avatars: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"
-      ]
-    },
-    {
-      id: 3,
-      name: "Office Redesign Ideas",
-      department: "Operations",
-      icon: "apartment",
-      members: 5,
-      ideas: 18,
-      status: "active",
-      statusText: "5 New Ideas",
-      avatars: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"
-      ]
-    },
-    {
-      id: 4,
-      name: "Customer Feedback Analysis",
-      department: "Customer Success",
-      icon: "feedback",
-      members: 6,
-      ideas: 32,
-      status: "processing",
-      statusText: "AI Evaluation In Progress",
-      avatars: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"
-      ]
-    }
-  ]);
+  const [groups, setGroups] = useState<GroupData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreateGroup = (data: { name: string; logo?: File }) => {
-    const newGroup = {
-      id: groups.length + 1,
-      name: data.name,
-      department: "New Department",
-      icon: "groups",
-      members: 1,
-      ideas: 0,
-      status: "active" as const,
-      statusText: "Just created",
-      avatars: []
-    };
-    setGroups([...groups, newGroup]);
-    setIsModalOpen(false);
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/api/groups`);
+      if (!response.ok) throw new Error('Failed to fetch groups');
+      const data = await response.json();
+      setGroups(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load groups');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleCreateGroup = async (data: { name: string; logo?: File }) => {
+    try {
+      const response = await fetch(`${API_URL}/api/groups`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          icon: 'groups',
+          status: 'active'
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to create group');
+
+      await fetchGroups();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error('Error creating group:', err);
+    }
+  };
+
+  const getStatusText = (group: GroupData) => {
+    if (group.ideaCount === 0) return 'No ideas yet';
+    if (group.status === 'completed') return 'Evaluation Complete';
+    if (group.status === 'processing') return 'AI Evaluation In Progress';
+    return `${group.ideaCount} Ideas`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading groups...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="text-center">
+          <span className="material-icons text-red-500 text-5xl mb-4">error_outline</span>
+          <p className="text-slate-600 dark:text-slate-400">{error}</p>
+          <button
+            onClick={fetchGroups}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
@@ -112,11 +133,11 @@ export default function Groups() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                      <span className="material-icons">{group.icon}</span>
+                      <span className="material-icons">{group.icon || 'groups'}</span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-800 dark:text-slate-100">{group.name}</h3>
-                      <span className="text-xs text-slate-400">{group.department}</span>
+                      <span className="text-xs text-slate-400">{group.department || 'No department'}</span>
                     </div>
                   </div>
                   <button className="text-slate-400 hover:text-primary transition-colors">
@@ -126,7 +147,7 @@ export default function Groups() {
 
                 <div className="flex flex-wrap gap-2 mb-6">
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                    <span className="material-icons text-[12px]">group</span> {group.members} Members
+                    <span className="material-icons text-[12px]">group</span> {group.memberCount} Members
                   </div>
                   <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-semibold ${
                     group.status === 'processing'
@@ -138,7 +159,7 @@ export default function Groups() {
                     <span className="material-icons text-[12px]">
                       {group.status === 'processing' ? 'auto_awesome' : group.status === 'completed' ? 'check_circle' : 'lightbulb'}
                     </span>
-                    {group.statusText}
+                    {getStatusText(group)}
                   </div>
                 </div>
 
@@ -148,21 +169,15 @@ export default function Groups() {
                       ? 'text-primary animate-pulse'
                       : 'text-slate-500 dark:text-slate-400'
                   }`}>
-                    {group.status === 'processing' ? 'Processing ideas...' : `${group.ideas} ideas`}
+                    {group.status === 'processing' ? 'Processing ideas...' : `${group.ideaCount} ideas`}
                   </span>
                   <div className="flex -space-x-2">
-                    {group.avatars.map((avatar, idx) => (
-                      <img
-                        key={idx}
-                        alt={`Member ${idx + 1}`}
-                        className="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark"
-                        src={avatar}
-                      />
-                    ))}
-                    {group.members > group.avatars.length && (
+                    {group.memberCount > 0 ? (
                       <div className="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">
-                        +{group.members - group.avatars.length}
+                        {group.memberCount}
                       </div>
+                    ) : (
+                      <div className="text-xs text-slate-400">No members</div>
                     )}
                   </div>
                 </div>
