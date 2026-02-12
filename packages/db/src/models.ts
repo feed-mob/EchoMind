@@ -1,0 +1,260 @@
+import { db } from "./client";
+
+export interface User {
+  id: string;
+  email: string;
+  name?: string | null;
+  avatar?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  department?: string | null;
+  icon?: string | null;
+  logo?: string | null;
+  description?: string | null;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface GroupMember {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: string;
+  joinedAt: Date;
+}
+
+export interface Idea {
+  id: string;
+  title: string;
+  content?: string | null;
+  status: string;
+  groupId: string;
+  authorId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const users = {
+  async create(data: { email: string; name?: string; avatar?: string }) {
+    return await db.user.create({
+      data: {
+        email: data.email,
+        name: data.name,
+        avatar: data.avatar,
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await db.user.findUnique({
+      where: { id },
+    });
+  },
+
+  async findByEmail(email: string) {
+    return await db.user.findUnique({
+      where: { email },
+    });
+  },
+
+  async list() {
+    return await db.user.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  },
+};
+
+export const groups = {
+  async create(data: {
+    name: string;
+    department?: string;
+    icon?: string;
+    logo?: string;
+    description?: string;
+  }) {
+    return await db.group.create({
+      data: {
+        name: data.name,
+        department: data.department,
+        icon: data.icon,
+        logo: data.logo,
+        description: data.description,
+        status: "active",
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await db.group.findUnique({
+      where: { id },
+    });
+  },
+
+  async list() {
+    return await db.group.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  async listWithStats() {
+    const groups = await db.group.findMany({
+      include: {
+        _count: {
+          select: {
+            members: true,
+            ideas: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return groups.map((group) => ({
+      ...group,
+      memberCount: group._count.members,
+      ideaCount: group._count.ideas,
+      _count: undefined,
+    }));
+  },
+
+  async update(id: string, data: Partial<Group>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+
+    return await db.group.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await db.group.delete({
+      where: { id },
+    });
+  },
+};
+
+export const groupMembers = {
+  async add(data: { userId: string; groupId: string; role?: string }) {
+    return await db.groupMember.create({
+      data: {
+        userId: data.userId,
+        groupId: data.groupId,
+        role: data.role || "member",
+      },
+    });
+  },
+
+  async remove(userId: string, groupId: string) {
+    await db.groupMember.deleteMany({
+      where: {
+        userId,
+        groupId,
+      },
+    });
+  },
+
+  async listByGroup(groupId: string) {
+    return await db.groupMember.findMany({
+      where: { groupId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { joinedAt: "asc" },
+    });
+  },
+
+  async listByUser(userId: string) {
+    return await db.groupMember.findMany({
+      where: { userId },
+      include: {
+        group: {
+          select: {
+            id: true,
+            name: true,
+            department: true,
+            icon: true,
+            logo: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: { joinedAt: "desc" },
+    });
+  },
+};
+
+export const ideas = {
+  async create(data: {
+    title: string;
+    content?: string;
+    groupId: string;
+    authorId: string;
+  }) {
+    return await db.idea.create({
+      data: {
+        title: data.title,
+        content: data.content,
+        groupId: data.groupId,
+        authorId: data.authorId,
+        status: "pending",
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await db.idea.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByGroup(groupId: string) {
+    return await db.idea.findMany({
+      where: { groupId },
+      include: {
+        author: {
+          select: {
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  async update(id: string, data: Partial<Idea>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.groupId;
+    delete updateData.authorId;
+
+    return await db.idea.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await db.idea.delete({
+      where: { id },
+    });
+  },
+};

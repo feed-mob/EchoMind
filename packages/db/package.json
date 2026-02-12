@@ -5,12 +5,12 @@
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "^7.4.0"
+    "prisma": "^6.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@prisma/client": "^7.4.0"
+    "@prisma/client": "^6.0.0"
   }
 }

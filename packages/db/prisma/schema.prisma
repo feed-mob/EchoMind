@@ -11,11 +11,59 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  avatar    String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groups    GroupMember[]
+  ideas     Idea[]
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  department  String?
+  icon        String?
+  logo        String?
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     GroupMember[]
+  ideas       Idea[]
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  role      String   @default("member")
+  joinedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model Idea {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  status      String   @default("pending")
+  groupId     String
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
