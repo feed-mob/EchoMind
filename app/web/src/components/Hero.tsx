@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Hero() {
   return (
     <section className="relative hero-gradient min-h-[90vh] flex items-center overflow-hidden">

@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Features() {
   return (
     <section className="bg-slate-light py-32 border-y border-slate-100">

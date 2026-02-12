@@ -26,6 +26,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
 }
 
 h1 {
@@ -63,4 +65,25 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Landing page styles */
+.hero-gradient {
+  background: radial-gradient(circle at 70% 30%, #f0f9ff 0%, #ffffff 100%);
+}
+
+.idea-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.idea-card.winner {
+  border-color: #0ea5e9;
+  box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
+  background: #f0f9ff;
+}
+
+.score-pill {
+  background: linear-gradient(135deg, #0ea5e9, #14b8a6);
 }

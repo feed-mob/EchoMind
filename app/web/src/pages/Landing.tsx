@@ -1,6 +1,4 @@
-import React from 'react';
-import { Header, Hero, Features, Footer } from './components';
-import './landing.css';
+import { Header, Hero, Features, Footer } from '../components';
 
 export default function Landing() {
   return (
