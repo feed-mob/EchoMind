@@ -19,7 +19,7 @@ export const mockGroups: Group[] = [
   },
   {
     id: '2',
-    title: 'Product Roadmap 2024',
+    title: 'Product Roadmap 2026',
     department: 'Product Team',
     icon: 'rocket_launch',
     memberCount: 8,
