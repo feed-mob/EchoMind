@@ -1,4 +1,4 @@
-import Landing from '../../landing/Landing'
+import Landing from './landing/Landing'
 
 function App() {
   return <Landing />
