@@ -1,5 +1,9 @@
+import { useState } from 'react';
+import CreateGroupModal from '../components/CreateGroupModal';
+
 export default function Groups() {
-  const groups = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [groups, setGroups] = useState([
     {
       id: 1,
       name: "Marketing Q4 Strategy",
@@ -52,7 +56,23 @@ export default function Groups() {
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDHGXN8Y6hzYlCGQKogfljkJrLdsYywA9uCAIF0y1jiN8FC4i4JjoZrtjbBgELKuPDDJ_LvPEe1VnavWA2DDwec7uWBIWY7XHRw9DqfT4f-UEbcF4LJ7szkAsg3DCLVcbluIFOcyU0g87hWR4u5PVAsBdrgfXYb900PtT9YEKHwboavYJ5AJm_cUOyh2gnMUiXbR0d5_EJGdOMGWxz856BNhiw_UhatJCb88hrh0kpQ1mrltLlQVQ-G5l78a6Om6YK9EzjoomcNoZQ"
       ]
     }
-  ];
+  ]);
+
+  const handleCreateGroup = (data: { name: string; logo?: File }) => {
+    const newGroup = {
+      id: groups.length + 1,
+      name: data.name,
+      department: "New Department",
+      icon: "groups",
+      members: 1,
+      ideas: 0,
+      status: "active" as const,
+      statusText: "Just created",
+      avatars: []
+    };
+    setGroups([...groups, newGroup]);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
@@ -71,7 +91,10 @@ export default function Groups() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all shadow-lg shadow-primary/20"
+            >
               <span className="material-icons text-sm">add</span>
               Create New Group
             </button>
@@ -147,7 +170,10 @@ export default function Groups() {
             ))}
 
             {/* Create New Group Placeholder */}
-            <div className="group relative border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-slate-800/30 hover:border-primary/50 transition-all cursor-pointer min-h-[180px]">
+            <div
+              onClick={() => setIsModalOpen(true)}
+              className="group relative border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-slate-800/30 hover:border-primary/50 transition-all cursor-pointer min-h-[180px]"
+            >
               <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-primary/10 group-hover:text-primary transition-all">
                 <span className="material-icons">add_circle_outline</span>
               </div>
@@ -157,6 +183,12 @@ export default function Groups() {
           </div>
         </section>
       </main>
+
+      <CreateGroupModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateGroup}
+      />
     </div>
   );
 }
