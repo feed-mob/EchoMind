@@ -87,3 +87,12 @@ button:focus-visible {
 .score-pill {
   background: linear-gradient(135deg, #0ea5e9, #14b8a6);
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
