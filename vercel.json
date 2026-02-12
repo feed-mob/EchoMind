@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd app/web && bun install && bun run build",
+  "outputDirectory": "app/web/dist",
+  "installCommand": "bun install",
+  "framework": null,
+  "devCommand": "cd app/web && bun run dev"
+}
