@@ -1,4 +1,4 @@
-import { initDatabase, users, groups, groupMembers, ideas } from "./index";
+import { initDatabase, users, groups, groupMembers, ideas } from "./index.js";
 
 console.log("Initializing database...");
 await initDatabase();

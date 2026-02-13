@@ -1,4 +1,4 @@
-import { db, generateId } from "./client";
+import { db, generateId } from "./client.js";
 
 export interface User {
   id: string;
