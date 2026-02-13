@@ -174,7 +174,7 @@ export const groups = {
       orderBy: { createdAt: "desc" },
     });
 
-    return groups.map((group) => ({
+    return groups.map((group: any) => ({
       ...group,
       memberCount: group._count.members,
       ideaCount: group._count.ideas,

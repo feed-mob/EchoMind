@@ -1,4 +1,5 @@
 import { groups, groupMembers, groupInvitations, users } from "../../../../packages/db";
+type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 const ALLOWED_WORKSPACE_VISIBILITY = new Set([
   "Members only",
@@ -17,13 +18,20 @@ export const groupsController = {
   },
 
   async create(req: Request) {
-    const data = await req.json();
+    const data = (await req.json()) as {
+      name: string;
+      department?: string;
+      icon?: string;
+      logo?: string;
+      description?: string;
+    };
     const group = await groups.create(data);
     return Response.json(group, { status: 201 });
   },
 
   async getById(req: Request) {
-    const group = await groups.findById(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const group = await groups.findById(request.params.id);
     if (!group) {
       return Response.json({ error: "Group not found" }, { status: 404 });
     }
@@ -31,42 +39,56 @@ export const groupsController = {
   },
 
   async update(req: Request) {
-    const data = await req.json();
-    await groups.update(req.params.id, data);
-    const updated = await groups.findById(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const data = (await req.json()) as {
+      name?: string;
+      department?: string;
+      icon?: string;
+      logo?: string;
+      description?: string;
+      status?: string;
+    };
+    await groups.update(request.params.id, data);
+    const updated = await groups.findById(request.params.id);
     return Response.json(updated);
   },
 
   async delete(req: Request) {
-    await groups.delete(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    await groups.delete(request.params.id);
     return Response.json({ success: true });
   },
 
   async getMembers(req: Request) {
-    const members = await groupMembers.listByGroup(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const members = await groupMembers.listByGroup(request.params.id);
     return Response.json(members);
   },
 
   async addMember(req: Request) {
+    const request = req as RequestWithParams<{ id: string }>;
     const data = (await req.json()) as { userId: string; role?: string };
     const member = await groupMembers.add({
       ...data,
-      groupId: req.params.id,
+      groupId: request.params.id,
     });
     return Response.json(member, { status: 201 });
   },
 
   async removeMember(req: Request) {
-    await groupMembers.remove(req.params.userId, req.params.groupId);
+    const request = req as RequestWithParams<{ userId: string; groupId: string }>;
+    await groupMembers.remove(request.params.userId, request.params.groupId);
     return Response.json({ success: true });
   },
 
   async listInvitations(req: Request) {
-    const invitations = await groupInvitations.listByGroup(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const invitations = await groupInvitations.listByGroup(request.params.id);
     return Response.json(invitations);
   },
 
   async inviteByEmail(req: Request) {
+    const request = req as RequestWithParams<{ id: string }>;
     const data = (await req.json()) as { email?: string; invitedByUserId?: string };
     if (!data?.email || !String(data.email).trim()) {
       return Response.json({ error: "Email is required" }, { status: 400 });
@@ -77,10 +99,10 @@ export const groupsController = {
 
     if (user) {
       const member = await groupMembers.add({
-        groupId: req.params.id,
+        groupId: request.params.id,
         userId: user.id,
       });
-      await groupInvitations.removeByGroupAndEmail(req.params.id, email);
+      await groupInvitations.removeByGroupAndEmail(request.params.id, email);
 
       return Response.json(
         {
@@ -93,7 +115,7 @@ export const groupsController = {
     }
 
     const invitation = await groupInvitations.createOrRefresh({
-      groupId: req.params.id,
+      groupId: request.params.id,
       email,
       invitedByUserId: data.invitedByUserId,
     });
@@ -108,7 +130,8 @@ export const groupsController = {
   },
 
   async getSettings(req: Request) {
-    const settings = await groups.getSettings(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const settings = await groups.getSettings(request.params.id);
     if (!settings) {
       return Response.json({ error: "Group not found" }, { status: 404 });
     }
@@ -116,6 +139,7 @@ export const groupsController = {
   },
 
   async updateSettings(req: Request) {
+    const request = req as RequestWithParams<{ id: string }>;
     const body = (await req.json()) as {
       publicAccessEnabled?: unknown;
       aiCollaborationEnabled?: unknown;
@@ -141,7 +165,7 @@ export const groupsController = {
     }
 
     try {
-      const updated = await groups.updateSettings(req.params.id, {
+      const updated = await groups.updateSettings(request.params.id, {
         publicAccessEnabled: body.publicAccessEnabled,
         aiCollaborationEnabled: body.aiCollaborationEnabled,
         workspaceVisibility: body.workspaceVisibility,

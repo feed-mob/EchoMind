@@ -1,22 +1,32 @@
 import { goals } from "../../../../packages/db";
+type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 export const goalsController = {
   async listByGroup(req: Request) {
-    const groupGoals = await goals.listByGroup(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const groupGoals = await goals.listByGroup(request.params.id);
     return Response.json(groupGoals);
   },
 
   async create(req: Request) {
-    const data = await req.json();
+    const request = req as RequestWithParams<{ id: string }>;
+    const data = (await req.json()) as {
+      title: string;
+      description?: string;
+      status?: string;
+      successMetrics?: unknown;
+      constraints?: unknown;
+    };
     const goal = await goals.create({
       ...data,
-      groupId: req.params.id,
+      groupId: request.params.id,
     });
     return Response.json(goal, { status: 201 });
   },
 
   async getById(req: Request) {
-    const goal = await goals.findById(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const goal = await goals.findById(request.params.id);
     if (!goal) {
       return Response.json({ error: "Goal not found" }, { status: 404 });
     }
@@ -24,14 +34,22 @@ export const goalsController = {
   },
 
   async update(req: Request) {
-    const data = await req.json();
-    await goals.update(req.params.id, data);
-    const updated = await goals.findById(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const data = (await req.json()) as {
+      title?: string;
+      description?: string;
+      status?: string;
+      successMetrics?: unknown;
+      constraints?: unknown;
+    };
+    await goals.update(request.params.id, data);
+    const updated = await goals.findById(request.params.id);
     return Response.json(updated);
   },
 
   async delete(req: Request) {
-    await goals.delete(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    await goals.delete(request.params.id);
     return Response.json({ success: true });
   },
 };

@@ -1,4 +1,5 @@
 import { users, groupMembers, groupInvitations } from "../../../../packages/db";
+type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -119,7 +120,8 @@ export const usersController = {
   },
 
   async getById(req: Request) {
-    const user = await users.findById(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const user = await users.findById(request.params.id);
     if (!user) {
       return Response.json({ error: "User not found" }, { status: 404 });
     }
@@ -127,7 +129,8 @@ export const usersController = {
   },
 
   async getUserGroups(req: Request) {
-    const userGroups = await groupMembers.listByUser(req.params.id);
+    const request = req as RequestWithParams<{ id: string }>;
+    const userGroups = await groupMembers.listByUser(request.params.id);
     return Response.json(userGroups);
   },
 };
