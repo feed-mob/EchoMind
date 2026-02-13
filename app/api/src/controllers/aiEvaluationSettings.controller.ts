@@ -19,6 +19,8 @@ const reviewSchema = z.object({
   originalityScore: z.number().int().min(0).max(100),
 });
 
+const BATCH_SIZE = 5;
+
 function clampScore(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
@@ -73,6 +75,82 @@ Output JSON only, following the schema exactly.`,
   };
 }
 
+const batchReviewSchema = z.object({
+  results: z.array(
+    z.object({
+      id: z.string().min(1),
+      review: z.string().min(20).max(1200),
+      impactScore: z.number().int().min(0).max(100),
+      feasibilityScore: z.number().int().min(0).max(100),
+      originalityScore: z.number().int().min(0).max(100),
+    }),
+  ),
+});
+
+async function evaluateIdeasBatchWithGoogle(params: {
+  model: string;
+  goalTitle: string;
+  goalDescription: string;
+  ideas: Array<{ id: string; title: string; content: string }>;
+}) {
+  const modelName = params.model.startsWith("gemini-") ? params.model : "gemini-1.5-pro";
+
+  const ideasBlock = params.ideas
+    .map(
+      (idea, index) => `
+Idea ${index + 1}:
+- id: ${idea.id}
+- title: ${idea.title}
+- content: ${idea.content || "N/A"}
+`.trim(),
+    )
+    .join("\n\n");
+
+  const { object } = await generateObject({
+    model: google(modelName),
+    schema: batchReviewSchema,
+    prompt: `You are evaluating multiple product ideas against one goal.
+
+Goal title: ${params.goalTitle}
+Goal description: ${params.goalDescription || "N/A"}
+
+Evaluate each idea independently and return one result per input id.
+Do not drop or rename ids.
+
+Scoring rules:
+- impactScore: expected business/customer impact.
+- feasibilityScore: implementation feasibility with realistic resources.
+- originalityScore: uniqueness compared with typical market solutions.
+
+Ideas:
+${ideasBlock}
+
+Output JSON only, following the schema exactly.`,
+  });
+
+  const byId = new Map(
+    object.results.map((item) => [
+      item.id,
+      {
+        review: item.review.trim(),
+        impactScore: clampScore(item.impactScore),
+        feasibilityScore: clampScore(item.feasibilityScore),
+        originalityScore: clampScore(item.originalityScore),
+      },
+    ]),
+  );
+
+  return byId;
+}
+
+function chunkIdeas<T>(items: T[], size: number) {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
 export const aiEvaluationSettingsController = {
   async listByGroup(req: Request) {
     const request = req as Request & { params: { id: string } };
@@ -118,15 +196,39 @@ export const aiEvaluationSettingsController = {
       selectedIdeaIds: selectedIdeas.map((idea) => idea.id),
     });
 
-    const evaluated = await Promise.all(
-      selectedIdeas.map(async (idea) => {
-        const review = await evaluateIdeaWithGoogle({
-          model: selectedModel,
-          goalTitle: goal.title,
-          goalDescription: goal.description || "",
-          ideaTitle: idea.title,
-          ideaContent: idea.content || "",
-        });
+    const evaluated: Array<{
+      settingId: string;
+      ideaId: string;
+      review: string;
+      impactScore: number;
+      feasibilityScore: number;
+      originalityScore: number;
+      totalScore: number;
+    }> = [];
+
+    const ideaBatches = chunkIdeas(selectedIdeas, BATCH_SIZE);
+    for (const batch of ideaBatches) {
+      const batchResultMap = await evaluateIdeasBatchWithGoogle({
+        model: selectedModel,
+        goalTitle: goal.title,
+        goalDescription: goal.description || "",
+        ideas: batch.map((idea) => ({
+          id: idea.id,
+          title: idea.title,
+          content: idea.content || "",
+        })),
+      });
+
+      for (const idea of batch) {
+        const review =
+          batchResultMap.get(idea.id) ??
+          (await evaluateIdeaWithGoogle({
+            model: selectedModel,
+            goalTitle: goal.title,
+            goalDescription: goal.description || "",
+            ideaTitle: idea.title,
+            ideaContent: idea.content || "",
+          }));
 
         const totalScore = weightedTotal(
           review.impactScore,
@@ -137,7 +239,7 @@ export const aiEvaluationSettingsController = {
           data.originalityWeight,
         );
 
-        return {
+        evaluated.push({
           settingId: setting.id,
           ideaId: idea.id,
           review: review.review,
@@ -145,9 +247,9 @@ export const aiEvaluationSettingsController = {
           feasibilityScore: review.feasibilityScore,
           originalityScore: review.originalityScore,
           totalScore,
-        };
-      }),
-    );
+        });
+      }
+    }
 
     const ranked = evaluated
       .sort((a, b) => b.totalScore - a.totalScore)
