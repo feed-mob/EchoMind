@@ -52,6 +52,18 @@ export interface Goal {
   updatedAt: Date;
 }
 
+export interface AiEvaluationSetting {
+  id: string;
+  groupId: string;
+  goalId: string;
+  model: string;
+  impactWeight: number;
+  feasibilityWeight: number;
+  originalityWeight: number;
+  selectedIdeaIds: string[];
+  createdAt: Date;
+}
+
 export const users = {
   async create(data: { email: string; name?: string; avatar?: string }) {
     return await db.user.create({
@@ -285,8 +297,8 @@ export const goals = {
         title: data.title,
         description: data.description,
         status: data.status || "draft",
-        successMetrics: data.successMetrics,
-        constraints: data.constraints,
+        successMetrics: data.successMetrics as any,
+        constraints: data.constraints as any,
         groupId: data.groupId,
       },
     });
@@ -321,6 +333,43 @@ export const goals = {
   async delete(id: string) {
     await db.goal.delete({
       where: { id },
+    });
+  },
+};
+
+export const aiEvaluationSettings = {
+  async create(data: {
+    groupId: string;
+    goalId: string;
+    model: string;
+    impactWeight: number;
+    feasibilityWeight: number;
+    originalityWeight: number;
+    selectedIdeaIds: string[];
+  }) {
+    return await db.aiEvaluationSetting.create({
+      data: {
+        groupId: data.groupId,
+        goalId: data.goalId,
+        model: data.model,
+        impactWeight: data.impactWeight,
+        feasibilityWeight: data.feasibilityWeight,
+        originalityWeight: data.originalityWeight,
+        selectedIdeaIds: data.selectedIdeaIds,
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await db.aiEvaluationSetting.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByGroup(groupId: string) {
+    return await db.aiEvaluationSetting.findMany({
+      where: { groupId },
+      orderBy: { createdAt: "desc" },
     });
   },
 };

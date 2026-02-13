@@ -40,6 +40,7 @@ model Group {
   members     GroupMember[]
   ideas       Idea[]
   goals       Goal[]
+  aiEvaluationSettings AiEvaluationSetting[]
 }
 
 model GroupMember {
@@ -81,4 +82,23 @@ model Goal {
   updatedAt      DateTime @updatedAt
 
   group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  aiEvaluationSettings AiEvaluationSetting[]
+}
+
+model AiEvaluationSetting {
+  id              String   @id @default(cuid())
+  groupId         String
+  goalId          String
+  model           String
+  impactWeight    Int
+  feasibilityWeight Int
+  originalityWeight Int
+  selectedIdeaIds Json
+  createdAt       DateTime @default(now())
+
+  group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  goal            Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, createdAt(sort: Desc)])
+  @@index([goalId])
 }

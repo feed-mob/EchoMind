@@ -49,6 +49,18 @@ export interface Goal {
   updatedAt: string;
 }
 
+export interface AiEvaluationSetting {
+  id: string;
+  groupId: string;
+  goalId: string;
+  model: string;
+  impactWeight: number;
+  feasibilityWeight: number;
+  originalityWeight: number;
+  selectedIdeaIds: string[];
+  createdAt: string;
+}
+
 // API Service
 export const api = {
   // Groups
@@ -192,6 +204,35 @@ export const api = {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete goal');
+    },
+  },
+
+  // AI evaluation settings
+  aiEvaluationSettings: {
+    listByGroup: async (groupId: string): Promise<AiEvaluationSetting[]> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/ai-evaluation-settings`);
+      if (!response.ok) throw new Error('Failed to fetch AI evaluation settings');
+      return response.json();
+    },
+
+    create: async (
+      groupId: string,
+      data: {
+        goalId: string;
+        model: string;
+        impactWeight: number;
+        feasibilityWeight: number;
+        originalityWeight: number;
+        selectedIdeaIds: string[];
+      },
+    ): Promise<AiEvaluationSetting> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/ai-evaluation-settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to save AI evaluation settings');
+      return response.json();
     },
   },
 };

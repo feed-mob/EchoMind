@@ -13,12 +13,14 @@ export default function AIEvaluationSetup() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState(goalIdFromQuery);
   const [selectedIdeaIds, setSelectedIdeaIds] = useState<string[]>([]);
-  const [model, setModel] = useState('gpt-4o');
+  const [model, setModel] = useState('gemini-1.5-pro');
   const [impact, setImpact] = useState(40);
   const [feasibility, setFeasibility] = useState(35);
   const [originality, setOriginality] = useState(25);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!groupId) return;
@@ -86,7 +88,7 @@ export default function AIEvaluationSetup() {
     setSelectedIdeaIds([]);
   };
 
-  const handleRunPick = () => {
+  const handleRunPick = async () => {
     if (!groupId || !group || !selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100) {
       return;
     }
@@ -100,19 +102,37 @@ export default function AIEvaluationSetup() {
         authorName: idea.author?.name || 'Anonymous',
       }));
 
-    navigate(`/group/${groupId}/ai-evaluated`, {
-      state: {
+    try {
+      setSubmitting(true);
+      setSubmitError(null);
+
+      await api.aiEvaluationSettings.create(groupId, {
         goalId: selectedGoalId,
-        goalTitle: selectedGoal?.title || 'Evaluation Goal',
         model,
-        impact,
-        feasibility,
-        originality,
+        impactWeight: impact,
+        feasibilityWeight: feasibility,
+        originalityWeight: originality,
         selectedIdeaIds,
-        selectedIdeas,
-        evaluatedAt: new Date().toISOString(),
-      },
-    });
+      });
+
+      navigate(`/group/${groupId}/ai-evaluated`, {
+        state: {
+          goalId: selectedGoalId,
+          goalTitle: selectedGoal?.title || 'Evaluation Goal',
+          model,
+          impact,
+          feasibility,
+          originality,
+          selectedIdeaIds,
+          selectedIdeas,
+          evaluatedAt: new Date().toISOString(),
+        },
+      });
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to save AI evaluation settings');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -259,7 +279,7 @@ export default function AIEvaluationSetup() {
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select AI Model</label>
               <div className="space-y-3">
-                {[{ id: 'gpt-4o', name: 'GPT-4o', desc: 'Most intelligent, best for complex logic' }, { id: 'claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', desc: 'Highly creative and nuanced analysis' }, { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Largest context window for bulk ideas' }].map((item) => (
+                {[{ id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Largest context window for bulk ideas' }].map((item) => (
                   <label
                     key={item.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -325,12 +345,13 @@ export default function AIEvaluationSetup() {
           <div className="p-6 bg-slate-50 border-t border-slate-200 dark:bg-slate-900/50 dark:border-slate-800">
             <button
               className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all disabled:opacity-60"
-              onClick={handleRunPick}
-              disabled={!selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100}
+              onClick={() => void handleRunPick()}
+              disabled={!selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100 || submitting}
             >
               <span className="material-icons">play_arrow</span>
-              Run AI Pick
+              {submitting ? 'Saving...' : 'Run AI Pick'}
             </button>
+            {submitError && <p className="text-center mt-2 text-[10px] text-red-500">{submitError}</p>}
             <p className="text-center mt-3 text-[10px] text-slate-500">Estimated cost: ~0.45 credits</p>
           </div>
         </aside>

@@ -39,13 +39,6 @@ function deterministicScore(seed: string, min = 65, max = 98) {
   return min + (Math.abs(hash) % span);
 }
 
-function normalizeModel(model: string) {
-  if (model === 'gpt-4o') return 'GPT-4o';
-  if (model === 'claude-3.5-sonnet') return 'Claude 3.5 Sonnet';
-  if (model === 'gemini-1.5-pro') return 'Gemini 1.5 Pro';
-  return model;
-}
-
 function toReasoning(content: string) {
   const text = content.trim();
   if (!text) return 'Strong strategic fit with the selected goal and clear execution path.';
@@ -160,29 +153,6 @@ export default function AIEvaluationResults() {
   }, [ideas, selectedGoal?.id, selectedIdeaIds, state.selectedIdeas, weighted.feasibility, weighted.impact, weighted.originality]);
 
   const winner = rankedIdeas[0] || null;
-  const evaluatedAt = new Date(state.evaluatedAt || Date.now()).toLocaleDateString();
-  const modelLabel = normalizeModel(state.model || 'gpt-4o');
-
-  const handleExport = () => {
-    if (!winner) return;
-
-    const payload = {
-      group: group?.name || '',
-      goal: selectedGoal?.title || state.goalTitle || 'Evaluation Goal',
-      model: modelLabel,
-      evaluatedAt: state.evaluatedAt || new Date().toISOString(),
-      weights: weighted,
-      rankings: rankedIdeas,
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'ai-evaluation-results.json';
-    link.click();
-    URL.revokeObjectURL(url);
-  };
 
   if (loading) {
     return (
