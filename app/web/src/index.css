@@ -54,6 +54,30 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+
+/* Icon button styles */
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0.6em;
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.icon-button:focus,
+.icon-button:focus-visible {
+  outline: none;
+}
+
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

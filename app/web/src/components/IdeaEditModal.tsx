@@ -81,7 +81,7 @@ export default function IdeaEditModal({
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+            className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
             type="button"
           >
             <span className="material-icons">close</span>

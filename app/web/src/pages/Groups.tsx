@@ -1,23 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
-import { API_URL } from '../config/api';
-
-interface GroupData {
-  id: string;
-  name: string;
-  department?: string | null;
-  icon?: string | null;
-  logo?: string | null;
-  status: string;
-  memberCount: number;
-  ideaCount: number;
-}
+import { api, type Group } from '../services/api';
 
 export default function Groups() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [groups, setGroups] = useState<GroupData[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,9 +17,7 @@ export default function Groups() {
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/groups`);
-      if (!response.ok) throw new Error('Failed to fetch groups');
-      const data = await response.json();
+      const data = await api.groups.list();
       setGroups(data);
       setError(null);
     } catch (err) {
@@ -42,26 +29,20 @@ export default function Groups() {
 
   const handleCreateGroup = async (data: { name: string; logo?: File }) => {
     try {
-      const response = await fetch(`${API_URL}/api/groups`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name,
-          icon: 'groups',
-          status: 'active'
-        })
+      await api.groups.create({
+        name: data.name,
+        icon: 'groups',
       });
-
-      if (!response.ok) throw new Error('Failed to create group');
 
       await fetchGroups();
       setIsModalOpen(false);
     } catch (err) {
       console.error('Error creating group:', err);
+      alert('Failed to create group. Please try again.');
     }
   };
 
-  const getStatusText = (group: GroupData) => {
+  const getStatusText = (group: Group) => {
     if (group.ideaCount === 0) return 'No ideas yet';
     if (group.status === 'completed') return 'Evaluation Complete';
     if (group.status === 'processing') return 'AI Evaluation In Progress';

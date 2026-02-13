@@ -1,29 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API_URL } from '../config/api';
+import { api, type Idea, type Group } from '../services/api';
+import { TEST_USER_ID } from '../config/constants';
 import IdeaEditModal from '../components/IdeaEditModal';
 
-interface Idea {
-  id: string;
-  title: string;
-  description?: string;
-  status: string;
-  authorName?: string;
-  authorAvatar?: string;
-  tags?: string[];
-  commentCount?: number;
-  createdAt: string;
-}
-
-interface GroupDetail {
-  id: string;
-  name: string;
-  department?: string | null;
-  icon?: string | null;
-  status: string;
-  memberCount: number;
-  ideaCount: number;
-}
+interface GroupDetail extends Group {}
 
 export default function GroupDetail() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -45,21 +26,13 @@ export default function GroupDetail() {
   const fetchGroupData = async () => {
     try {
       setLoading(true);
-      const [groupRes, ideasRes] = await Promise.all([
-        fetch(`${API_URL}/api/groups/${groupId}`),
-        fetch(`${API_URL}/api/groups/${groupId}/ideas`)
+      const [groupData, ideasData] = await Promise.all([
+        api.groups.getById(groupId!),
+        api.ideas.listByGroup(groupId!)
       ]);
-
-      if (!groupRes.ok) throw new Error('Failed to fetch group');
-
-      const groupData = await groupRes.json();
-      const ideasData = ideasRes.ok ? await ideasRes.json() : [];
 
       setGroup(groupData);
       setIdeas(ideasData);
-      if (ideasData.length > 0) {
-        setSelectedIdea(ideasData[0]);
-      }
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -98,29 +71,40 @@ export default function GroupDetail() {
 
   const handleIdeaSubmit = async (data: { title: string; description: string; }) => {
     try {
-      const url = editingIdea
-        ? `${API_URL}/api/ideas/${editingIdea.id}`
-        : `${API_URL}/api/groups/${groupId}/ideas`;
-
-      const method = editingIdea ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          groupId,
-          status: 'draft'
-        })
-      });
-
-      if (!response.ok) throw new Error('Failed to save idea');
+      if (editingIdea) {
+        await api.ideas.update(editingIdea.id, {
+          title: data.title,
+          content: data.description,
+        });
+      } else {
+        await api.ideas.create(groupId!, {
+          title: data.title,
+          content: data.description,
+          authorId: TEST_USER_ID,
+        });
+      }
 
       await fetchGroupData();
       setIsIdeaModalOpen(false);
+      setEditingIdea(null);
     } catch (err) {
       console.error('Error saving idea:', err);
       alert('Failed to save idea. Please try again.');
+    }
+  };
+
+  const handleDeleteIdea = async (ideaId: string) => {
+    if (!confirm('Are you sure you want to delete this idea?')) return;
+
+    try {
+      await api.ideas.delete(ideaId);
+      await fetchGroupData();
+      if (selectedIdea?.id === ideaId) {
+        setSelectedIdea(null);
+      }
+    } catch (err) {
+      console.error('Error deleting idea:', err);
+      alert('Failed to delete idea. Please try again.');
     }
   };
 
@@ -236,6 +220,9 @@ export default function GroupDetail() {
                         )}
                         <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
                           <span className="flex items-center gap-1">
+                            <span className="material-icons text-xs">person</span> {idea.author?.name || 'Anonymous'}
+                          </span>
+                          <span className="flex items-center gap-1">
                             <span className="material-icons text-xs">comment</span> {idea.commentCount || 0}
                           </span>
                           <span>{new Date(idea.createdAt).toLocaleDateString()}</span>
@@ -248,35 +235,45 @@ export default function GroupDetail() {
             )}
           </div>
 
-          {selectedIdea && (
-            <aside className="w-[400px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
+          {selectedIdea ? (
+            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <img
                       alt="Author"
                       className="w-10 h-10 rounded-full"
-                      src={selectedIdea.authorAvatar || 'https://via.placeholder.com/40'}
+                      src={selectedIdea.author?.avatar || 'https://via.placeholder.com/40'}
                     />
                     <div>
-                      <h3 className="font-bold text-sm">{selectedIdea.authorName || 'Anonymous'}</h3>
+                      <h3 className="font-bold text-sm">{selectedIdea.author?.name || 'Anonymous'}</h3>
                       <span className="text-[10px] text-slate-500">{new Date(selectedIdea.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleEditIdea(selectedIdea)}
-                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                  >
-                    <span className="material-icons">edit</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditIdea(selectedIdea)}
+                      className="icon-button text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      title="Edit idea"
+                    >
+                      <span className="material-icons">edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteIdea(selectedIdea.id)}
+                      className="icon-button text-slate-400 hover:text-red-500"
+                      title="Delete idea"
+                    >
+                      <span className="material-icons">delete</span>
+                    </button>
+                  </div>
                 </div>
 
                 <h2 className="text-lg font-bold mb-4">{selectedIdea.title}</h2>
 
-                {selectedIdea.description && (
+                {selectedIdea.content && (
                   <div className="mb-6">
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {selectedIdea.description}
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
+                      {selectedIdea.content}
                     </p>
                   </div>
                 )}
@@ -308,12 +305,19 @@ export default function GroupDetail() {
                         className="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[80px]"
                         placeholder="Add a comment..."
                       />
-                      <button className="absolute bottom-3 right-3 text-primary">
+                      <button className="icon-button absolute bottom-3 right-3 text-primary">
                         <span className="material-icons">send</span>
                       </button>
                     </div>
                   </div>
                 </div>
+              </div>
+            </aside>
+          ) : (
+            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar flex items-center justify-center">
+              <div className="text-center text-slate-400">
+                <span className="material-icons text-6xl mb-4">lightbulb_outline</span>
+                <p className="text-sm">Select an idea to view details</p>
               </div>
             </aside>
           )}
@@ -327,7 +331,7 @@ export default function GroupDetail() {
         groupName={group.name}
         initialData={editingIdea ? {
           title: editingIdea.title,
-          description: editingIdea.description
+          description: editingIdea.content || ''
         } : undefined}
         mode={editingIdea ? 'edit' : 'create'}
       />
