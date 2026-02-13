@@ -21,18 +21,21 @@ export default function GoalsSidebar({
   onChangeViewMode,
   onCreateGoal,
 }: GoalsSidebarProps) {
-  const getInitial = (name?: string | null) => {
-    return (
-      (name || 'A')
-        .trim()
-        .charAt(0)
-        .toUpperCase() || 'A'
-    );
+  const getFallbackAvatar = (name?: string | null) => {
+    const initial = (name || 'A')
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('')
+      .charAt(0) || 'A';
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" rx="20" fill="#dbeafe"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#137fec">${initial}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   };
 
   return (
-    <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+    <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
         <div className="flex items-center gap-2 mb-3">
           <div className="relative flex-1">
             <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
@@ -75,45 +78,37 @@ export default function GoalsSidebar({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
         {visibleGoals.length === 0 ? (
           <div className="p-3 text-xs text-slate-400">No goals found.</div>
         ) : (
-          visibleGoals.map((goal) => {
-            const active = selectedGoalId === goal.id;
+          <div className="space-y-3">
+            {visibleGoals.map((goal) => {
+              const active = selectedGoalId === goal.id;
 
-            return (
+              return (
               <button
                 key={goal.id}
-                className={`w-full text-left p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm cursor-pointer group transition-all border-2 ${
+                className={`w-full text-left p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm cursor-pointer group transition-all ${
                   active
-                    ? 'border-primary'
+                    ? 'border-2 border-primary'
                     : 'border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
                 }`}
                 onClick={() => onSelectGoal(goal.id)}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                    {goal.creatorAvatar ? (
-                      <img
-                        src={goal.creatorAvatar}
-                        alt={goal.creatorName || 'Creator'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      getInitial(goal.creatorName)
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-2 mb-1">
-                      <h3 className={`font-semibold leading-tight line-clamp-1 ${
-                        active ? 'text-primary' : 'text-slate-900 dark:text-slate-100'
-                      }`}>
-                        {goal.title}
-                      </h3>
-                      <span className="text-[10px] text-slate-500 shrink-0">{new Date(goal.updatedAt).toLocaleDateString()}</span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
+                <div className="flex gap-4">
+                  <img
+                    alt={goal.creatorName || 'Creator'}
+                    className="w-10 h-10 rounded-full"
+                    src={goal.creatorAvatar || getFallbackAvatar(goal.creatorName)}
+                  />
+                  <div className="flex-1">
+                    <h3 className={`font-semibold ${active ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}`}>
+                      {goal.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                      {goal.description || 'No description yet.'}
+                    </p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
                         <span className="material-icons text-xs">person</span>
@@ -127,8 +122,9 @@ export default function GoalsSidebar({
                   </div>
                 </div>
               </button>
-            );
-          })
+              );
+            })}
+          </div>
         )}
       </div>
     </aside>

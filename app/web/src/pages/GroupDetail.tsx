@@ -255,6 +255,9 @@ export default function GroupDetail() {
                             {idea.title}
                           </h3>
                         </div>
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                          {idea.content || 'No description provided.'}
+                        </p>
                         {idea.tags && idea.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-2">
                             {idea.tags.map((tag, idx) => (
