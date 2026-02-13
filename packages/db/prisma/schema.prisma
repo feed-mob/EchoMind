@@ -24,6 +24,7 @@ model User {
 
   groups    GroupMember[]
   ideas     Idea[]
+  invitations GroupInvitation[] @relation("InvitedByUser")
 }
 
 model Group {
@@ -41,6 +42,22 @@ model Group {
   ideas       Idea[]
   goals       Goal[]
   aiEvaluationSettings AiEvaluationSetting[]
+  invitations GroupInvitation[]
+}
+
+model GroupInvitation {
+  id             String   @id
+  groupId        String
+  email          String
+  invitedByUserId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  invitedByUser  User?    @relation("InvitedByUser", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([groupId, email])
+  @@index([email])
 }
 
 model GroupMember {

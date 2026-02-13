@@ -33,6 +33,19 @@ CREATE TABLE IF NOT EXISTS "GroupMember" (
   UNIQUE("userId", "groupId")
 );
 
+-- GroupInvitation table
+CREATE TABLE IF NOT EXISTS "GroupInvitation" (
+  "id" TEXT PRIMARY KEY,
+  "groupId" TEXT NOT NULL,
+  "email" TEXT NOT NULL,
+  "invitedByUserId" TEXT,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE,
+  FOREIGN KEY ("invitedByUserId") REFERENCES "User"("id") ON DELETE SET NULL,
+  UNIQUE("groupId", "email")
+);
+
 -- Ideas table
 CREATE TABLE IF NOT EXISTS "Idea" (
   "id" TEXT PRIMARY KEY,
@@ -96,6 +109,7 @@ CREATE TABLE IF NOT EXISTS "AiEvaluationResult" (
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_group_member_user" ON "GroupMember"("userId");
 CREATE INDEX IF NOT EXISTS "idx_group_member_group" ON "GroupMember"("groupId");
+CREATE INDEX IF NOT EXISTS "idx_group_invitation_email" ON "GroupInvitation"("email");
 CREATE INDEX IF NOT EXISTS "idx_idea_group" ON "Idea"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");

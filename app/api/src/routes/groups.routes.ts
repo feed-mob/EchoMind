@@ -14,6 +14,10 @@ export const groupsRoutes = {
     GET: groupsController.getMembers,
     POST: groupsController.addMember,
   },
+  "/api/groups/:id/invitations": {
+    GET: groupsController.listInvitations,
+    POST: groupsController.inviteByEmail,
+  },
   "/api/groups/:groupId/members/:userId": {
     DELETE: groupsController.removeMember,
   },

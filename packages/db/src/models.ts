@@ -1,4 +1,4 @@
-import { db } from "./client";
+import { db, generateId } from "./client";
 
 export interface User {
   id: string;
@@ -27,6 +27,15 @@ export interface GroupMember {
   groupId: string;
   role: string;
   joinedAt: Date;
+}
+
+export interface GroupInvitation {
+  id: string;
+  groupId: string;
+  email: string;
+  invitedByUserId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Idea {
@@ -75,6 +84,10 @@ export interface AiEvaluationResult {
   totalScore: number;
   rank: number;
   createdAt: Date;
+}
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
 }
 
 export const users = {
@@ -181,8 +194,17 @@ export const groups = {
 
 export const groupMembers = {
   async add(data: { userId: string; groupId: string; role?: string }) {
-    return await db.groupMember.create({
-      data: {
+    return await db.groupMember.upsert({
+      where: {
+        userId_groupId: {
+          userId: data.userId,
+          groupId: data.groupId,
+        },
+      },
+      update: {
+        role: data.role || "member",
+      },
+      create: {
         userId: data.userId,
         groupId: data.groupId,
         role: data.role || "member",
@@ -233,6 +255,78 @@ export const groupMembers = {
       },
       orderBy: { joinedAt: "desc" },
     });
+  },
+};
+
+export const groupInvitations = {
+  async createOrRefresh(data: { groupId: string; email: string; invitedByUserId?: string }) {
+    const id = generateId();
+    const normalizedEmail = normalizeEmail(data.email);
+
+    await db.$executeRaw`
+      INSERT INTO "GroupInvitation" ("id", "groupId", "email", "invitedByUserId", "createdAt", "updatedAt")
+      VALUES (${id}, ${data.groupId}, ${normalizedEmail}, ${data.invitedByUserId || null}, NOW(), NOW())
+      ON CONFLICT ("groupId", "email")
+      DO UPDATE SET
+        "invitedByUserId" = EXCLUDED."invitedByUserId",
+        "updatedAt" = NOW()
+    `;
+
+    const rows = await db.$queryRaw<Array<GroupInvitation>>`
+      SELECT "id", "groupId", "email", "invitedByUserId", "createdAt", "updatedAt"
+      FROM "GroupInvitation"
+      WHERE "groupId" = ${data.groupId} AND "email" = ${normalizedEmail}
+      LIMIT 1
+    `;
+
+    return rows[0] || null;
+  },
+
+  async listByGroup(groupId: string) {
+    return await db.$queryRaw<Array<GroupInvitation>>`
+      SELECT "id", "groupId", "email", "invitedByUserId", "createdAt", "updatedAt"
+      FROM "GroupInvitation"
+      WHERE "groupId" = ${groupId}
+      ORDER BY "updatedAt" DESC
+    `;
+  },
+
+  async consumeByEmail(data: { email: string; userId: string }) {
+    const normalizedEmail = normalizeEmail(data.email);
+    const invitations = await db.$queryRaw<Array<{ id: string; groupId: string }>>`
+      SELECT "id", "groupId"
+      FROM "GroupInvitation"
+      WHERE "email" = ${normalizedEmail}
+    `;
+
+    const joinedGroupIds: string[] = [];
+    for (const invitation of invitations) {
+      await groupMembers.add({
+        userId: data.userId,
+        groupId: invitation.groupId,
+      });
+      joinedGroupIds.push(invitation.groupId);
+    }
+
+    if (invitations.length > 0) {
+      await db.$executeRaw`
+        DELETE FROM "GroupInvitation"
+        WHERE "email" = ${normalizedEmail}
+      `;
+    }
+
+    return {
+      joinedGroupIds: Array.from(new Set(joinedGroupIds)),
+      consumedCount: invitations.length,
+    };
+  },
+
+  async removeByGroupAndEmail(groupId: string, email: string) {
+    const normalizedEmail = normalizeEmail(email);
+    await db.$executeRaw`
+      DELETE FROM "GroupInvitation"
+      WHERE "groupId" = ${groupId} AND "email" = ${normalizedEmail}
+    `;
   },
 };
 

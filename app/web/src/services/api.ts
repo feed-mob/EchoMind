@@ -22,10 +22,35 @@ export interface Group {
   updatedAt: string;
 }
 
+export interface GroupInvitation {
+  id: string;
+  groupId: string;
+  email: string;
+  invitedByUserId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GroupMember {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: string;
+  joinedAt: string;
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    avatar: string | null;
+  };
+}
+
 export interface Idea {
   id: string;
   title: string;
   content?: string;
+  tags?: string[];
+  commentCount?: number;
   status: string;
   groupId: string;
   authorId: string;
@@ -84,6 +109,22 @@ export interface AiEvaluationResult {
 
 // API Service
 export const api = {
+  users: {
+    login: async (data: { email: string; name?: string; avatar?: string }): Promise<{
+      user: User;
+      isNewUser: boolean;
+      joinedGroupIds: string[];
+    }> => {
+      const response = await fetch(`${API_URL}/api/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to login');
+      return response.json();
+    },
+  },
+
   // Groups
   groups: {
     list: async (): Promise<Group[]> => {
@@ -123,6 +164,34 @@ export const api = {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete group');
+    },
+
+    listInvitations: async (groupId: string): Promise<GroupInvitation[]> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/invitations`);
+      if (!response.ok) throw new Error('Failed to fetch invitations');
+      return response.json();
+    },
+
+    listMembers: async (groupId: string): Promise<GroupMember[]> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/members`);
+      if (!response.ok) throw new Error('Failed to fetch members');
+      return response.json();
+    },
+
+    inviteByEmail: async (
+      groupId: string,
+      data: { email: string; invitedByUserId?: string },
+    ): Promise<
+      | { type: 'existing_user_added'; user: User }
+      | { type: 'invitation_created'; invitation: GroupInvitation }
+    > => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/invitations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to invite member');
+      return response.json();
     },
   },
 

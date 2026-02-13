@@ -5,6 +5,9 @@ export const usersRoutes = {
     GET: usersController.list,
     POST: usersController.create,
   },
+  "/api/users/login": {
+    POST: usersController.login,
+  },
   "/api/users/:id": {
     GET: usersController.getById,
   },

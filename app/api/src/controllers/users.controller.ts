@@ -1,4 +1,40 @@
-import { users, groupMembers } from "../../../../packages/db";
+import { users, groupMembers, groupInvitations } from "../../../../packages/db";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+async function loginOrCreateUser(payload: { email?: string; name?: string; avatar?: string }) {
+  if (!payload.email || !payload.email.trim()) {
+    return {
+      error: Response.json({ error: "Email is required" }, { status: 400 }),
+    };
+  }
+
+  const normalizedEmail = normalizeEmail(payload.email);
+  let user = await users.findByEmail(normalizedEmail);
+  let isNewUser = false;
+
+  if (!user) {
+    user = await users.create({
+      email: normalizedEmail,
+      name: payload.name,
+      avatar: payload.avatar,
+    });
+    isNewUser = true;
+  }
+
+  const invitationResult = await groupInvitations.consumeByEmail({
+    email: normalizedEmail,
+    userId: user.id,
+  });
+
+  return {
+    user,
+    isNewUser,
+    joinedGroupIds: invitationResult.joinedGroupIds,
+  };
+}
 
 export const usersController = {
   async list() {
@@ -7,9 +43,17 @@ export const usersController = {
   },
 
   async create(req: Request) {
-    const data = await req.json();
-    const user = await users.create(data);
-    return Response.json(user, { status: 201 });
+    const data = (await req.json()) as { email?: string; name?: string; avatar?: string };
+    const result = await loginOrCreateUser(data);
+    if ("error" in result) return result.error;
+    return Response.json(result, { status: result.isNewUser ? 201 : 200 });
+  },
+
+  async login(req: Request) {
+    const data = (await req.json()) as { email?: string; name?: string; avatar?: string };
+    const result = await loginOrCreateUser(data);
+    if ("error" in result) return result.error;
+    return Response.json(result);
   },
 
   async getById(req: Request) {

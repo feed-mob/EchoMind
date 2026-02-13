@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group } from '../services/api';
 import { TEST_USER_ID } from '../config/constants';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
+import GroupTopNav from '../components/GroupTopNav';
 
 interface GroupDetail extends Group {}
 interface IdeaDraft {
@@ -47,24 +48,6 @@ export default function GroupDetail() {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'in_review': return 'bg-green-500/10 text-green-500';
-      case 'approved': return 'bg-blue-500/10 text-blue-500';
-      case 'rejected': return 'bg-red-500/10 text-red-500';
-      default: return 'bg-slate-500/10 text-slate-500';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'in_review': return 'In Review';
-      case 'approved': return 'Approved';
-      case 'rejected': return 'Rejected';
-      default: return 'Draft';
     }
   };
 
@@ -173,38 +156,7 @@ export default function GroupDetail() {
   return (
     <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => navigate('/group')}
-              className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors group"
-              aria-label="Back to groups"
-            >
-              <span className="material-icons">arrow_back</span>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">WIDEA</h1>
-            </button>
-            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
-            <span className="text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>
-            <nav className="flex items-center gap-1 h-full">
-              <button className="px-4 h-full text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-all">
-                Ideas
-              </button>
-              <button
-                onClick={() => navigate(`/group/${group.id}/goals`)}
-                className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              >
-                Goals
-              </button>
-              <button
-                onClick={() => navigate(`/group/${group.id}/ai-evaluate`)}
-                className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all inline-flex items-center gap-1"
-              >
-                <span className="material-icons text-base">auto_fix_high</span>
-                AI Evaluate
-              </button>
-            </nav>
-          </div>
-        </header>
+        <GroupTopNav group={group} activeTab="ideas" />
 
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
@@ -418,6 +370,7 @@ export default function GroupDetail() {
           )}
         </div>
       </main>
+
     </div>
   );
 }

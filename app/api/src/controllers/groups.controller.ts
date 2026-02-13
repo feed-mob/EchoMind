@@ -1,4 +1,8 @@
-import { groups, groupMembers } from "../../../../packages/db";
+import { groups, groupMembers, groupInvitations, users } from "../../../../packages/db";
+
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
 
 export const groupsController = {
   async list() {
@@ -38,7 +42,7 @@ export const groupsController = {
   },
 
   async addMember(req: Request) {
-    const data = await req.json();
+    const data = (await req.json()) as { userId: string; role?: string };
     const member = await groupMembers.add({
       ...data,
       groupId: req.params.id,
@@ -49,5 +53,51 @@ export const groupsController = {
   async removeMember(req: Request) {
     await groupMembers.remove(req.params.userId, req.params.groupId);
     return Response.json({ success: true });
+  },
+
+  async listInvitations(req: Request) {
+    const invitations = await groupInvitations.listByGroup(req.params.id);
+    return Response.json(invitations);
+  },
+
+  async inviteByEmail(req: Request) {
+    const data = (await req.json()) as { email?: string; invitedByUserId?: string };
+    if (!data?.email || !String(data.email).trim()) {
+      return Response.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    const email = normalizeEmail(String(data.email));
+    const user = await users.findByEmail(email);
+
+    if (user) {
+      const member = await groupMembers.add({
+        groupId: req.params.id,
+        userId: user.id,
+      });
+      await groupInvitations.removeByGroupAndEmail(req.params.id, email);
+
+      return Response.json(
+        {
+          type: "existing_user_added",
+          user,
+          member,
+        },
+        { status: 201 },
+      );
+    }
+
+    const invitation = await groupInvitations.createOrRefresh({
+      groupId: req.params.id,
+      email,
+      invitedByUserId: data.invitedByUserId,
+    });
+
+    return Response.json(
+      {
+        type: "invitation_created",
+        invitation,
+      },
+      { status: 201 },
+    );
   },
 };
