@@ -78,4 +78,5 @@ Create `app/web/.env.local`:
 
 ```bash
 VITE_GOOGLE_CLIENT_ID=your_google_web_client_id
+VITE_API_URL=http://localhost:3001
 ```
