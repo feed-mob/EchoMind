@@ -248,17 +248,17 @@ export default function AIEvaluationResults() {
 
       <main className="max-w-[1600px] mx-auto px-6 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-grow min-w-0">
+          <div className="flex-grow min-w-0 overflow-x-hidden">
             <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[980px]">
+              <div>
+                <table className="w-full text-left border-collapse table-fixed">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-16 text-center">Rank</th>
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Idea Proposal</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-[24%]">Idea Proposal</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-24 text-center">Score</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-52">Dimensions</th>
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reasoning Preview</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-[28%]">Reasoning Preview</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -271,7 +271,7 @@ export default function AIEvaluationResults() {
                           </td>
                           <td className="px-6 py-6">
                             <div className="flex items-center gap-3">
-                              <span className={isWinner ? 'font-bold text-lg text-slate-900 dark:text-white' : 'font-semibold text-slate-800 dark:text-slate-200'}>{idea.title}</span>
+                              <span className={isWinner ? 'font-bold text-lg text-slate-900 dark:text-white break-words' : 'font-semibold text-slate-800 dark:text-slate-200 break-words'}>{idea.title}</span>
                               {isWinner && (
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary text-white">
                                   <span className="material-icons text-xs mr-1">emoji_events</span> WINNER
@@ -318,7 +318,7 @@ export default function AIEvaluationResults() {
                             </div>
                           </td>
                           <td className="px-6 py-6">
-                            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{idea.reasoning}</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 break-words">{idea.reasoning}</p>
                           </td>
                         </tr>
                       );
