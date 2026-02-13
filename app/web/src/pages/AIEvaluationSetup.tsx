@@ -87,8 +87,32 @@ export default function AIEvaluationSetup() {
   };
 
   const handleRunPick = () => {
-    const goalTitle = selectedGoal?.title || 'current goal';
-    alert(`AI Pick started for ${selectedIdeaIds.length} ideas under: ${goalTitle}`);
+    if (!groupId || !group || !selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100) {
+      return;
+    }
+
+    const selectedIdeas = ideas
+      .filter((idea) => selectedIdeaIds.includes(idea.id))
+      .map((idea) => ({
+        id: idea.id,
+        title: idea.title,
+        content: idea.content || '',
+        authorName: idea.author?.name || 'Anonymous',
+      }));
+
+    navigate(`/group/${groupId}/ai-evaluated`, {
+      state: {
+        goalId: selectedGoalId,
+        goalTitle: selectedGoal?.title || 'Evaluation Goal',
+        model,
+        impact,
+        feasibility,
+        originality,
+        selectedIdeaIds,
+        selectedIdeas,
+        evaluatedAt: new Date().toISOString(),
+      },
+    });
   };
 
   if (loading) {
