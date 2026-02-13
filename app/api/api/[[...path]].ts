@@ -2,6 +2,11 @@ import { initDatabase } from "../../../packages/db";
 import { handleRequest } from "../src/http/app";
 
 let dbReadyPromise: Promise<void> | null = null;
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 function ensureDbReady() {
   if (!dbReadyPromise) {
@@ -84,25 +89,40 @@ export default async function handler(
     setHeader: (name: string, value: string) => void;
   },
 ) {
-  await ensureDbReady();
-
-  const host = getHeaderValue(req.headers.host) || "localhost";
-  const protocol = getHeaderValue(req.headers["x-forwarded-proto"]) || "https";
-  const url = `${protocol}://${host}${req.url || "/"}`;
-  const body = await readBody(req);
-  const request = new Request(url, {
-    method: req.method || "GET",
-    headers: toHeaders(req),
-    body,
-  });
-
-  const response = await handleRequest(request);
-
-  response.headers.forEach((value, key) => {
+  Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
 
-  const payload = new Uint8Array(await response.arrayBuffer());
-  res.status(response.status).send(payload);
-}
+  if ((req.method || "GET").toUpperCase() === "OPTIONS") {
+    res.status(204).send("");
+    return;
+  }
 
+  try {
+    await ensureDbReady();
+
+    const host = getHeaderValue(req.headers.host) || "localhost";
+    const protocol = getHeaderValue(req.headers["x-forwarded-proto"]) || "https";
+    const url = `${protocol}://${host}${req.url || "/"}`;
+    const body = await readBody(req);
+    const request = new Request(url, {
+      method: req.method || "GET",
+      headers: toHeaders(req),
+      body,
+    });
+
+    const response = await handleRequest(request);
+
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
+
+    const payload = new Uint8Array(await response.arrayBuffer());
+    res.status(response.status).send(payload);
+  } catch (error) {
+    console.error("Unhandled Vercel API error:", error);
+    res.status(500).send(
+      JSON.stringify({ error: "Internal server error" }),
+    );
+  }
+}
