@@ -1,0 +1,4 @@
+{
+  "installCommand": "bun install && cd ../../packages/db && bun install",
+  "buildCommand": "echo \"No build step for API\""
+}
