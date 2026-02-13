@@ -7,7 +7,6 @@ interface GoalsSidebarProps {
   viewMode: GoalViewMode;
   onSelectGoal: (goalId: string) => void;
   onChangeViewMode: (mode: GoalViewMode) => void;
-  onCreateGoal: () => void;
 }
 
 export default function GoalsSidebar({
@@ -16,7 +15,6 @@ export default function GoalsSidebar({
   viewMode,
   onSelectGoal,
   onChangeViewMode,
-  onCreateGoal,
 }: GoalsSidebarProps) {
   return (
     <aside className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
@@ -75,16 +73,6 @@ export default function GoalsSidebar({
             );
           })
         )}
-      </div>
-
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-        <button
-          className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors"
-          onClick={onCreateGoal}
-        >
-          <span className="material-icons text-base">add</span>
-          New Goal
-        </button>
       </div>
     </aside>
   );

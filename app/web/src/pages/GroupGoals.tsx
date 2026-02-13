@@ -220,8 +220,13 @@ export default function GroupGoals() {
                 onChange={(event) => setSearchText(event.target.value)}
               />
             </div>
-            {saving && <span className="text-xs text-slate-500">Saving...</span>}
-            {saveError && <span className="text-xs text-red-500">{saveError}</span>}
+
+            <button
+              onClick={createGoal}
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
+            >
+              <span className="material-icons text-sm">add</span> New Idea
+            </button>
           </div>
         </header>
 
@@ -232,7 +237,6 @@ export default function GroupGoals() {
             viewMode={viewMode}
             onSelectGoal={setSelectedGoalId}
             onChangeViewMode={setViewMode}
-            onCreateGoal={() => void createGoal()}
           />
 
           <section className="flex-1 flex flex-col bg-slate-50 dark:bg-background-dark">
