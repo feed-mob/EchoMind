@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, type Group } from '../services/api';
 import GoalEditor from '../components/group-goals/GoalEditor';
+import GoalDetailView from '../components/group-goals/GoalDetailView';
 import GoalsSidebar from '../components/group-goals/GoalsSidebar';
 import type { GoalViewMode, GoalViewModel } from '../components/group-goals/types';
 import { normalizeGoal } from '../components/group-goals/utils';
@@ -19,6 +20,7 @@ export default function GroupGoals() {
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (!groupId) return;
@@ -34,7 +36,6 @@ export default function GroupGoals() {
         const mappedGoals = goalsData.map(normalizeGoal);
         setGroup(groupData);
         setGoals(mappedGoals);
-        setSelectedGoalId((current) => current || mappedGoals[0]?.id || '');
         setLoadError(null);
       } catch (err) {
         setLoadError(err instanceof Error ? err.message : 'Failed to load goals page');
@@ -65,10 +66,8 @@ export default function GroupGoals() {
   const selectedGoal = goals.find((goal) => goal.id === selectedGoalId) ?? null;
 
   useEffect(() => {
-    if (!selectedGoal) {
-      setSelectedGoalId(visibleGoals[0]?.id ?? '');
-    }
-  }, [selectedGoal, visibleGoals]);
+    setIsEditing(false);
+  }, [selectedGoalId]);
 
   const updateGoalLocal = (goalId: string, updater: (goal: GoalViewModel) => GoalViewModel) => {
     setGoals((prev) =>
@@ -114,6 +113,7 @@ export default function GroupGoals() {
       setGoals((prev) => [next, ...prev]);
       setViewMode('active');
       setSelectedGoalId(next.id);
+      setIsEditing(false);
       setSaveError(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to create goal');
@@ -225,7 +225,7 @@ export default function GroupGoals() {
               onClick={createGoal}
               className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
             >
-              <span className="material-icons text-sm">add</span> New Idea
+              <span className="material-icons text-sm">add</span> New Goal
             </button>
           </div>
         </header>
@@ -235,25 +235,37 @@ export default function GroupGoals() {
             visibleGoals={visibleGoals}
             selectedGoalId={selectedGoalId}
             viewMode={viewMode}
-            onSelectGoal={setSelectedGoalId}
+            onSelectGoal={(goalId) => {
+              setSelectedGoalId(goalId);
+              setIsEditing(false);
+            }}
             onChangeViewMode={setViewMode}
           />
 
-          <section className="flex-1 flex flex-col bg-slate-50 dark:bg-background-dark">
+          <section className="flex-1 border-l border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-background-dark">
             {selectedGoal ? (
-              <GoalEditor
-                selectedGoal={selectedGoal}
-                saving={saving}
-                onUpdateGoalLocal={updateGoalLocal}
-                onSaveGoal={() => void saveSelectedGoal()}
-                onArchiveGoal={() => void archiveGoal()}
-                onDeleteGoal={() => void deleteGoal()}
-              />
+              isEditing ? (
+                <GoalEditor
+                  selectedGoal={selectedGoal}
+                  saving={saving}
+                  onUpdateGoalLocal={updateGoalLocal}
+                  onSaveGoal={() => void saveSelectedGoal()}
+                  onArchiveGoal={() => void archiveGoal()}
+                  onDeleteGoal={() => void deleteGoal()}
+                />
+              ) : (
+                <GoalDetailView
+                  selectedGoal={selectedGoal}
+                  onEdit={() => setIsEditing(true)}
+                  onArchiveGoal={() => void archiveGoal()}
+                  onDeleteGoal={() => void deleteGoal()}
+                />
+              )
             ) : (
               <div className="flex-1 flex items-center justify-center text-slate-400">
                 <div className="text-center">
                   <span className="material-icons text-6xl mb-4">flag</span>
-                  <p className="text-sm">Select a goal to edit</p>
+                  <p className="text-sm">Select a goal to view details</p>
                 </div>
               </div>
             )}

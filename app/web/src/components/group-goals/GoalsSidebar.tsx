@@ -17,7 +17,7 @@ export default function GoalsSidebar({
   onChangeViewMode,
 }: GoalsSidebarProps) {
   return (
-    <aside className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
+    <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
         <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
           <button
