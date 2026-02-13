@@ -98,7 +98,7 @@ export default function GoogleLoginButton() {
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div>
       <div ref={buttonRef} aria-busy={loading} />
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
