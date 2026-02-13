@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/group/:groupId" element={<GroupDetail />} />
         <Route path="/group/:groupId/goals" element={<GroupGoals />} />
         <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
-        <Route path="/group/:groupId/ai-evaluated" element={<AIEvaluationResults />} />
+        <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
         <Route path="/group/:groupId/goals/ai-evaluate" element={<AIEvaluationSetup />} />
       </Routes>
     </BrowserRouter>

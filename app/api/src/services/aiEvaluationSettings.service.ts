@@ -13,13 +13,6 @@ type CreateSettingInput = {
   selectedIdeaIds: string[];
 };
 
-const reviewSchema = z.object({
-  review: z.string().min(20).max(1200),
-  impactScore: z.number().int().min(0).max(100),
-  feasibilityScore: z.number().int().min(0).max(100),
-  originalityScore: z.number().int().min(0).max(100),
-});
-
 const batchReviewSchema = z.object({
   results: z.array(
     z.object({
@@ -52,13 +45,10 @@ function clampScore(value: number) {
 function weightedTotal(
   impactScore: number,
   feasibilityScore: number,
-  originalityScore: number,
-  impactWeight: number,
-  feasibilityWeight: number,
-  originalityWeight: number,
+  originalityScore: number
 ) {
   return Math.round(
-    (impactScore * impactWeight + feasibilityScore * feasibilityWeight + originalityScore * originalityWeight) / 100,
+    (impactScore + feasibilityScore + originalityScore) / 100,
   );
 }
 
@@ -88,53 +78,15 @@ function normalizeGeminiModel(model: string) {
   return model;
 }
 
-async function evaluateIdeaWithGoogle(params: {
-  model: string;
-  goalTitle: string;
-  goalDescription: string;
-  goalSuccessMetrics?: unknown;
-  goalConstraints?: unknown;
-  ideaTitle: string;
-  ideaContent: string;
-}) {
-  const modelName = normalizeGeminiModel(params.model);
-
-  const { object } = await generateObject({
-    model: google(modelName),
-    schema: reviewSchema,
-    prompt: `You are evaluating one product idea against one goal.
-
-Goal title: ${params.goalTitle}
-Goal description: ${params.goalDescription || "N/A"}
-Goal success metrics: ${formatGoalField(params.goalSuccessMetrics)}
-Goal constraints: ${formatGoalField(params.goalConstraints)}
-
-Idea title: ${params.ideaTitle}
-Idea content: ${params.ideaContent || "N/A"}
-
-Return objective scoring and concise review.
-Scoring rules:
-- impactScore: expected business/customer impact.
-- feasibilityScore: implementation feasibility with realistic resources.
-- originalityScore: uniqueness compared with typical market solutions.
-
-Output JSON only, following the schema exactly.`,
-  });
-
-  return {
-    review: object.review.trim(),
-    impactScore: clampScore(object.impactScore),
-    feasibilityScore: clampScore(object.feasibilityScore),
-    originalityScore: clampScore(object.originalityScore),
-  };
-}
-
 async function evaluateIdeasBatchWithGoogle(params: {
   model: string;
   goalTitle: string;
   goalDescription: string;
   goalSuccessMetrics?: unknown;
   goalConstraints?: unknown;
+  impactWeight: number;
+  feasibilityWeight: number;
+  originalityWeight: number;
   ideas: Array<{ id: string; title: string; content: string }>;
 }) {
   const modelName = normalizeGeminiModel(params.model);
@@ -164,15 +116,17 @@ Evaluate each idea independently and return one result per input id.
 Do not drop or rename ids.
 
 Scoring rules:
-- impactScore: expected business/customer impact.
-- feasibilityScore: implementation feasibility with realistic resources.
-- originalityScore: uniqueness compared with typical market solutions.
+- impactScore: expected business/customer impact (0-${params.impactWeight}, ${params.impactWeight} is best).
+- feasibilityScore: implementation feasibility with realistic resources (0-${params.feasibilityWeight}, ${params.feasibilityWeight} is best).
+- originalityScore: uniqueness compared with typical market solutions (0-${params.originalityWeight}, ${params.originalityWeight} is best).
 
 Ideas:
 ${ideasBlock}
 
 Output JSON only, following the schema exactly.`,
   });
+
+  console.log("Raw AI evaluation response:", JSON.stringify(object, null, 2));
 
   return new Map(
     object.results.map((item) => [
@@ -252,6 +206,9 @@ export const aiEvaluationSettingsService = {
         goalDescription: goal.description || "",
         goalSuccessMetrics: goal.successMetrics,
         goalConstraints: goal.constraints,
+        impactWeight: setting.impactWeight,
+        feasibilityWeight: setting.feasibilityWeight,
+        originalityWeight: setting.originalityWeight,
         ideas: batch.map((idea) => ({
           id: idea.id,
           title: idea.title,
@@ -260,25 +217,15 @@ export const aiEvaluationSettingsService = {
       });
 
       for (const idea of batch) {
-        const review =
-          batchResultMap.get(idea.id) ??
-          (await evaluateIdeaWithGoogle({
-            model: selectedModel,
-            goalTitle: goal.title,
-            goalDescription: goal.description || "",
-            goalSuccessMetrics: goal.successMetrics,
-            goalConstraints: goal.constraints,
-            ideaTitle: idea.title,
-            ideaContent: idea.content || "",
-          }));
+        const review = batchResultMap.get(idea.id);
+        if (!review) {
+          throw new AiEvaluationServiceError(`Missing evaluation result for idea ${idea.id}`, 502);
+        }
 
         const totalScore = weightedTotal(
           review.impactScore,
           review.feasibilityScore,
-          review.originalityScore,
-          input.impactWeight,
-          input.feasibilityWeight,
-          input.originalityWeight,
+          review.originalityScore
         );
 
         evaluated.push({

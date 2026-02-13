@@ -152,7 +152,7 @@ export default function AIEvaluationSetup() {
         selectedIdeaIds,
       });
 
-      navigate(`/group/${groupId}/ai-evaluated`, {
+      navigate(`/group/${groupId}/ai-evaluated/${evaluation.setting.id}`, {
         state: {
           settingId: evaluation.setting.id,
           goalId: selectedGoalId,

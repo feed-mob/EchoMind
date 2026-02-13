@@ -47,10 +47,11 @@ function toReasoning(content: string) {
 }
 
 export default function AIEvaluationResults() {
-  const { groupId } = useParams<{ groupId: string }>();
+  const { groupId, settingId: settingIdFromParams } = useParams<{ groupId: string; settingId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state ?? {}) as EvaluationState;
+  const settingId = settingIdFromParams || state.settingId;
 
   const [group, setGroup] = useState<Group | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -86,11 +87,11 @@ export default function AIEvaluationResults() {
   }, [groupId]);
 
   useEffect(() => {
-    if (!state.settingId) return;
+    if (!settingId) return;
 
     const fetchStoredResults = async () => {
       try {
-        const results = await api.aiEvaluationResults.listBySetting(state.settingId as string);
+        const results = await api.aiEvaluationResults.listBySetting(settingId);
         setStoredResults(results);
       } catch {
         setStoredResults([]);
@@ -98,7 +99,7 @@ export default function AIEvaluationResults() {
     };
 
     void fetchStoredResults();
-  }, [state.settingId]);
+  }, [settingId]);
 
   const selectedGoal = useMemo(() => {
     if (goals.length === 0) return null;
