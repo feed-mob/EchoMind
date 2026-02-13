@@ -61,15 +61,15 @@ export default function GoalsSidebar({
             return (
               <button
                 key={goal.id}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${
+                className={`w-full text-left p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm cursor-pointer group transition-all border-2 ${
                   active
-                    ? 'bg-primary/10 border-l-4 border-primary rounded-r-lg'
-                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'border-primary'
+                    : 'border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
                 }`}
                 onClick={() => onSelectGoal(goal.id)}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
                     {goal.creatorAvatar ? (
                       <img
                         src={goal.creatorAvatar}
@@ -82,10 +82,23 @@ export default function GoalsSidebar({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight line-clamp-1">{goal.title}</h3>
-                      <span className="text-[10px] text-slate-500 shrink-0">{new Date(goal.updatedAt).toLocaleDateString()}</span>
-                    </div>
+                      <h3 className={`font-semibold leading-tight line-clamp-1 ${
+                        active ? 'text-primary' : 'text-slate-900 dark:text-slate-100'
+                      }`}>
+                        {goal.title}
+                      </h3>
+=                    </div>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
+                    <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
+                      <span className="flex items-center gap-1">
+                        <span className="material-icons text-xs">person</span>
+                        {goal.creatorName || 'Anonymous'}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="material-icons text-xs">schedule</span>
+                        {new Date(goal.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </button>
