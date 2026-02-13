@@ -10,11 +10,8 @@ type RouteDefinition = {
   handlers: Record<string, AppHandler>;
 };
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+const defaultAllowedHeaders = "Content-Type, Authorization";
+const allowedMethods = "GET, POST, PUT, DELETE, OPTIONS";
 
 function normalizePath(pathname: string) {
   if (pathname.length > 1 && pathname.endsWith("/")) {
@@ -36,11 +33,21 @@ function compilePath(path: string) {
   };
 }
 
-function withCors(response: Response) {
-  const headers = new Headers(response.headers);
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    headers.set(key, value);
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin");
+  const requestHeaders = req.headers.get("access-control-request-headers");
+  const headers = new Headers({
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Methods": allowedMethods,
+    "Access-Control-Allow-Headers": requestHeaders || defaultAllowedHeaders,
+    Vary: "Origin",
   });
+  return headers;
+}
+
+function withCors(req: Request, response: Response) {
+  const headers = new Headers(response.headers);
+  getCorsHeaders(req).forEach((value, key) => headers.set(key, value));
 
   return new Response(response.body, {
     status: response.status,
@@ -83,7 +90,7 @@ function matchRoute(method: string, pathname: string) {
 
 export async function handleRequest(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
-    return withCors(new Response(null, { status: 204 }));
+    return withCors(req, new Response(null, { status: 204 }));
   }
 
   const url = new URL(req.url);
@@ -91,11 +98,12 @@ export async function handleRequest(req: Request): Promise<Response> {
   const matched = matchRoute(req.method, pathname);
 
   if (matched.status === 404) {
-    return withCors(Response.json({ error: "Not found" }, { status: 404 }));
+    return withCors(req, Response.json({ error: "Not found" }, { status: 404 }));
   }
 
   if (matched.status === 405) {
     return withCors(
+      req,
       Response.json({ error: "Method not allowed" }, { status: 405 }),
     );
   }
@@ -107,16 +115,17 @@ export async function handleRequest(req: Request): Promise<Response> {
 
     if (!(response instanceof Response)) {
       return withCors(
+        req,
         Response.json({ error: "Invalid handler response" }, { status: 500 }),
       );
     }
 
-    return withCors(response);
+    return withCors(req, response);
   } catch (error) {
     console.error("Unhandled API error:", error);
     return withCors(
+      req,
       Response.json({ error: "Internal server error" }, { status: 500 }),
     );
   }
 }
-

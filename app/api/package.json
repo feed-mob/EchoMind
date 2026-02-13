@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot index.ts",
+    "db:generate": "cd ../../packages/db && bunx prisma generate --schema prisma/schema.prisma",
+    "dev": "bun run db:generate && bun --hot index.ts",
     "postinstall": "cd ../../packages/db && bun install && bunx prisma generate --schema prisma/schema.prisma"
   },
   "devDependencies": {

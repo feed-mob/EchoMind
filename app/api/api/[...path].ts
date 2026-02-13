@@ -2,11 +2,8 @@ import { initDatabase } from "../../../packages/db";
 import { handleRequest } from "../src/http/app";
 
 let dbReadyPromise: Promise<void> | null = null;
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+const defaultAllowedHeaders = "Content-Type, Authorization";
+const allowedMethods = "GET, POST, PUT, DELETE, OPTIONS";
 
 function ensureDbReady() {
   if (!dbReadyPromise) {
@@ -31,6 +28,21 @@ function toHeaders(req: { headers: Record<string, string | string[] | undefined>
     }
   }
   return headers;
+}
+
+function setCorsHeaders(
+  req: { headers: Record<string, string | string[] | undefined> },
+  res: { setHeader: (name: string, value: string) => void },
+) {
+  const origin = getHeaderValue(req.headers.origin) || "*";
+  const requestHeaders = getHeaderValue(req.headers["access-control-request-headers"]);
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader("Access-Control-Allow-Methods", allowedMethods);
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    requestHeaders || defaultAllowedHeaders,
+  );
+  res.setHeader("Vary", "Origin");
 }
 
 async function readBody(req: {
@@ -89,9 +101,7 @@ export default async function handler(
     setHeader: (name: string, value: string) => void;
   },
 ) {
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
+  setCorsHeaders(req, res);
 
   if ((req.method || "GET").toUpperCase() === "OPTIONS") {
     res.status(204).send("");
