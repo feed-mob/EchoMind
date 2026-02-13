@@ -1,5 +1,11 @@
 import { groups, groupMembers, groupInvitations, users } from "../../../../packages/db";
 
+const ALLOWED_WORKSPACE_VISIBILITY = new Set([
+  "Members only",
+  "Specific groups",
+  "Internal organization",
+]);
+
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -99,5 +105,50 @@ export const groupsController = {
       },
       { status: 201 },
     );
+  },
+
+  async getSettings(req: Request) {
+    const settings = await groups.getSettings(req.params.id);
+    if (!settings) {
+      return Response.json({ error: "Group not found" }, { status: 404 });
+    }
+    return Response.json(settings);
+  },
+
+  async updateSettings(req: Request) {
+    const body = (await req.json()) as {
+      publicAccessEnabled?: unknown;
+      aiCollaborationEnabled?: unknown;
+      workspaceVisibility?: unknown;
+    };
+
+    if (
+      typeof body.publicAccessEnabled !== "boolean" ||
+      typeof body.aiCollaborationEnabled !== "boolean" ||
+      typeof body.workspaceVisibility !== "string"
+    ) {
+      return Response.json(
+        { error: "Invalid payload for group settings" },
+        { status: 400 },
+      );
+    }
+
+    if (!ALLOWED_WORKSPACE_VISIBILITY.has(body.workspaceVisibility)) {
+      return Response.json(
+        { error: "Invalid workspaceVisibility value" },
+        { status: 400 },
+      );
+    }
+
+    try {
+      const updated = await groups.updateSettings(req.params.id, {
+        publicAccessEnabled: body.publicAccessEnabled,
+        aiCollaborationEnabled: body.aiCollaborationEnabled,
+        workspaceVisibility: body.workspaceVisibility,
+      });
+      return Response.json(updated);
+    } catch {
+      return Response.json({ error: "Group not found" }, { status: 404 });
+    }
   },
 };

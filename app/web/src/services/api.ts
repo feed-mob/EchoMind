@@ -16,10 +16,19 @@ export interface Group {
   logo?: string | null;
   description?: string | null;
   status: string;
+  publicAccessEnabled?: boolean;
+  aiCollaborationEnabled?: boolean;
+  workspaceVisibility?: string;
   memberCount: number;
   ideaCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GroupSettings {
+  publicAccessEnabled: boolean;
+  aiCollaborationEnabled: boolean;
+  workspaceVisibility: 'Members only' | 'Specific groups' | 'Internal organization';
 }
 
 export interface GroupInvitation {
@@ -191,6 +200,22 @@ export const api = {
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to invite member');
+      return response.json();
+    },
+
+    getSettings: async (groupId: string): Promise<GroupSettings> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/settings`);
+      if (!response.ok) throw new Error('Failed to fetch group settings');
+      return response.json();
+    },
+
+    updateSettings: async (groupId: string, data: GroupSettings): Promise<GroupSettings> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update group settings');
       return response.json();
     },
   },

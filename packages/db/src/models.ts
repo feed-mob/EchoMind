@@ -17,8 +17,17 @@ export interface Group {
   logo?: string | null;
   description?: string | null;
   status: string;
+  publicAccessEnabled: boolean;
+  aiCollaborationEnabled: boolean;
+  workspaceVisibility: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface GroupSettings {
+  publicAccessEnabled: boolean;
+  aiCollaborationEnabled: boolean;
+  workspaceVisibility: string;
 }
 
 export interface GroupMember {
@@ -189,6 +198,38 @@ export const groups = {
     await db.group.delete({
       where: { id },
     });
+  },
+
+  async getSettings(groupId: string): Promise<GroupSettings | null> {
+    const group = await db.group.findUnique({
+      where: { id: groupId },
+      select: {
+        publicAccessEnabled: true,
+        aiCollaborationEnabled: true,
+        workspaceVisibility: true,
+      },
+    });
+
+    if (!group) return null;
+    return group;
+  },
+
+  async updateSettings(groupId: string, data: GroupSettings): Promise<GroupSettings | null> {
+    const updated = await db.group.update({
+      where: { id: groupId },
+      data: {
+        publicAccessEnabled: data.publicAccessEnabled,
+        aiCollaborationEnabled: data.aiCollaborationEnabled,
+        workspaceVisibility: data.workspaceVisibility,
+      },
+      select: {
+        publicAccessEnabled: true,
+        aiCollaborationEnabled: true,
+        workspaceVisibility: true,
+      },
+    });
+
+    return updated;
   },
 };
 

@@ -18,6 +18,10 @@ export const groupsRoutes = {
     GET: groupsController.listInvitations,
     POST: groupsController.inviteByEmail,
   },
+  "/api/groups/:id/settings": {
+    GET: groupsController.getSettings,
+    PUT: groupsController.updateSettings,
+  },
   "/api/groups/:groupId/members/:userId": {
     DELETE: groupsController.removeMember,
   },

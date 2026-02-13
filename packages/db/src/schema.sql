@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS "Group" (
   "logo" TEXT,
   "description" TEXT,
   "status" TEXT NOT NULL DEFAULT 'active',
+  "publicAccessEnabled" BOOLEAN NOT NULL DEFAULT false,
+  "aiCollaborationEnabled" BOOLEAN NOT NULL DEFAULT true,
+  "workspaceVisibility" TEXT NOT NULL DEFAULT 'Members only',
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
