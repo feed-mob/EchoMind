@@ -1,45 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { api, type Goal as ApiGoal, type Group } from '../services/api';
-
-interface GoalViewModel {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  successMetrics: string[];
-  constraints: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-const goalStatusMeta: Record<string, { label: string; className: string }> = {
-  in_progress: { label: 'In Progress', className: 'text-primary bg-primary/20' },
-  draft: { label: 'Draft', className: 'text-slate-400 bg-slate-100 dark:bg-slate-800' },
-  paused: { label: 'Paused', className: 'text-amber-500 bg-amber-500/10' },
-  planning: { label: 'Planning', className: 'text-emerald-500 bg-emerald-500/10' },
-  archived: { label: 'Archived', className: 'text-slate-500 bg-slate-200 dark:bg-slate-700' },
-};
-
-const getStatusMeta = (status: string) => {
-  return goalStatusMeta[status] || { label: status || 'Draft', className: 'text-slate-500 bg-slate-200 dark:bg-slate-700' };
-};
-
-const toStringArray = (value: unknown): string[] => {
-  if (!Array.isArray(value)) return [];
-  return value.map((item) => String(item)).filter((item) => item.trim().length > 0);
-};
-
-const normalizeGoal = (goal: ApiGoal): GoalViewModel => ({
-  id: goal.id,
-  title: goal.title,
-  description: goal.description || '',
-  status: goal.status || 'draft',
-  successMetrics: toStringArray(goal.successMetrics),
-  constraints: toStringArray(goal.constraints),
-  createdAt: goal.createdAt,
-  updatedAt: goal.updatedAt,
-});
+import { api, type Group } from '../services/api';
+import GoalEditor from '../components/group-goals/GoalEditor';
+import GoalsSidebar from '../components/group-goals/GoalsSidebar';
+import type { GoalViewMode, GoalViewModel } from '../components/group-goals/types';
+import { normalizeGoal } from '../components/group-goals/utils';
 
 export default function GroupGoals() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -49,12 +14,11 @@ export default function GroupGoals() {
   const [goals, setGoals] = useState<GoalViewModel[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState('');
   const [searchText, setSearchText] = useState('');
-  const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
+  const [viewMode, setViewMode] = useState<GoalViewMode>('active');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!groupId) return;
@@ -126,7 +90,6 @@ export default function GroupGoals() {
         constraints: data.constraints,
       });
       setGoals((prev) => prev.map((goal) => (goal.id === goalId ? normalizeGoal(updated) : goal)));
-      setLastSavedAt(new Date());
       setSaveError(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to save goal');
@@ -144,14 +107,13 @@ export default function GroupGoals() {
         title: 'New Goal',
         description: '',
         status: 'draft',
-        successMetrics: [],
-        constraints: [],
+        successMetrics: [''],
+        constraints: [''],
       });
       const next = normalizeGoal(created);
       setGoals((prev) => [next, ...prev]);
       setViewMode('active');
       setSelectedGoalId(next.id);
-      setLastSavedAt(new Date());
       setSaveError(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to create goal');
@@ -165,6 +127,17 @@ export default function GroupGoals() {
     const goalId = selectedGoal.id;
     updateGoalLocal(goalId, (goal) => ({ ...goal, status: 'archived' }));
     await persistGoal(goalId, { status: 'archived' });
+  };
+
+  const saveSelectedGoal = async () => {
+    if (!selectedGoal) return;
+    await persistGoal(selectedGoal.id, {
+      title: selectedGoal.title,
+      description: selectedGoal.description,
+      status: selectedGoal.status,
+      successMetrics: selectedGoal.successMetrics,
+      constraints: selectedGoal.constraints,
+    });
   };
 
   const deleteGoal = async () => {
@@ -247,237 +220,31 @@ export default function GroupGoals() {
                 onChange={(event) => setSearchText(event.target.value)}
               />
             </div>
+            {saving && <span className="text-xs text-slate-500">Saving...</span>}
+            {saveError && <span className="text-xs text-red-500">{saveError}</span>}
           </div>
         </header>
 
         <div className="flex-1 flex overflow-hidden">
-          <aside className="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                <button
-                  className={`flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors ${
-                    viewMode === 'active'
-                      ? 'bg-white dark:bg-slate-700 shadow-sm text-primary'
-                      : 'text-slate-500 dark:text-slate-400'
-                  }`}
-                  onClick={() => setViewMode('active')}
-                >
-                  Active
-                </button>
-                <button
-                  className={`flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors ${
-                    viewMode === 'archived'
-                      ? 'bg-white dark:bg-slate-700 shadow-sm text-primary'
-                      : 'text-slate-500 dark:text-slate-400'
-                  }`}
-                  onClick={() => setViewMode('archived')}
-                >
-                  Archived
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-              {visibleGoals.length === 0 ? (
-                <div className="p-3 text-xs text-slate-400">No goals found.</div>
-              ) : (
-                visibleGoals.map((goal) => {
-                  const statusMeta = getStatusMeta(goal.status);
-                  const active = selectedGoalId === goal.id;
-
-                  return (
-                    <button
-                      key={goal.id}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        active
-                          ? 'bg-primary/10 border-l-4 border-primary rounded-r-lg'
-                          : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                      onClick={() => setSelectedGoalId(goal.id)}
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                        <span className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded ${statusMeta.className}`}>
-                          {statusMeta.label}
-                        </span>
-                        <span className="text-[10px] text-slate-500">{new Date(goal.updatedAt).toLocaleDateString()}</span>
-                      </div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">{goal.title}</h3>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-              <button
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm hover:bg-primary/90 transition-colors"
-                onClick={createGoal}
-              >
-                <span className="material-icons text-base">add</span>
-                New Goal
-              </button>
-            </div>
-          </aside>
+          <GoalsSidebar
+            visibleGoals={visibleGoals}
+            selectedGoalId={selectedGoalId}
+            viewMode={viewMode}
+            onSelectGoal={setSelectedGoalId}
+            onChangeViewMode={setViewMode}
+            onCreateGoal={() => void createGoal()}
+          />
 
           <section className="flex-1 flex flex-col bg-slate-50 dark:bg-background-dark">
             {selectedGoal ? (
-              <>
-                <header className="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-4">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Goal Editor</h2>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      onClick={archiveGoal}
-                    >
-                      <span className="material-icons text-base">archive</span>
-                      Archive
-                    </button>
-                    {selectedGoal.status === 'archived' && (
-                      <button
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                        onClick={deleteGoal}
-                      >
-                        <span className="material-icons text-base">delete</span>
-                        Delete
-                      </button>
-                    )}
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors">
-                      <span className="material-icons text-base">auto_fix_high</span>
-                      AI Evaluate
-                    </button>
-                  </div>
-                </header>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                  <div className="max-w-4xl mx-auto py-10 px-8 space-y-8">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Goal Title</label>
-                      <input
-                        className="w-full bg-transparent border-none text-3xl font-extrabold text-slate-900 dark:text-white focus:ring-0 p-0 placeholder-slate-700"
-                        type="text"
-                        value={selectedGoal.title}
-                        onChange={(event) => {
-                          const title = event.target.value;
-                          updateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, title }));
-                        }}
-                        onBlur={(event) => void persistGoal(selectedGoal.id, { title: event.target.value })}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
-                      <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-                        <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                          <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                            <span className="material-icons text-sm">format_bold</span>
-                          </button>
-                          <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                            <span className="material-icons text-sm">format_italic</span>
-                          </button>
-                          <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                            <span className="material-icons text-sm">format_list_bulleted</span>
-                          </button>
-                        </div>
-                        <textarea
-                          className="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none"
-                          rows={6}
-                          value={selectedGoal.description}
-                          onChange={(event) => {
-                            const description = event.target.value;
-                            updateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, description }));
-                          }}
-                          onBlur={(event) => void persistGoal(selectedGoal.id, { description: event.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Success Metrics</label>
-                        <div className="space-y-3">
-                          {selectedGoal.successMetrics.map((metric, index) => (
-                            <div
-                              key={`metric-${index}`}
-                              className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
-                            >
-                              <span className="material-icons text-primary text-lg">check_circle</span>
-                              <input
-                                className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
-                                type="text"
-                                value={metric}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  updateGoalLocal(selectedGoal.id, (goal) => {
-                                    const next = [...goal.successMetrics];
-                                    next[index] = value;
-                                    return { ...goal, successMetrics: next };
-                                  });
-                                }}
-                                onBlur={() => void persistGoal(selectedGoal.id, { successMetrics: selectedGoal.successMetrics })}
-                              />
-                            </div>
-                          ))}
-                          <button
-                            className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-1"
-                            type="button"
-                            onClick={() => {
-                              const nextMetrics = [...selectedGoal.successMetrics, ''];
-                              updateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, successMetrics: nextMetrics }));
-                              void persistGoal(selectedGoal.id, { successMetrics: nextMetrics });
-                            }}
-                          >
-                            <span className="material-icons text-sm">add</span>
-                            Add Metric
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Constraints</label>
-                        <div className="space-y-3">
-                          {selectedGoal.constraints.map((constraint, index) => (
-                            <div
-                              key={`constraint-${index}`}
-                              className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
-                            >
-                              <span className="material-icons text-amber-500 text-lg">warning</span>
-                              <input
-                                className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
-                                type="text"
-                                value={constraint}
-                                onChange={(event) => {
-                                  const value = event.target.value;
-                                  updateGoalLocal(selectedGoal.id, (goal) => {
-                                    const next = [...goal.constraints];
-                                    next[index] = value;
-                                    return { ...goal, constraints: next };
-                                  });
-                                }}
-                                onBlur={() => void persistGoal(selectedGoal.id, { constraints: selectedGoal.constraints })}
-                              />
-                            </div>
-                          ))}
-                          <button
-                            className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-1"
-                            type="button"
-                            onClick={() => {
-                              const nextConstraints = [...selectedGoal.constraints, ''];
-                              updateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, constraints: nextConstraints }));
-                              void persistGoal(selectedGoal.id, { constraints: nextConstraints });
-                            }}
-                          >
-                            <span className="material-icons text-sm">add</span>
-                            Add Constraint
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
+              <GoalEditor
+                selectedGoal={selectedGoal}
+                saving={saving}
+                onUpdateGoalLocal={updateGoalLocal}
+                onSaveGoal={() => void saveSelectedGoal()}
+                onArchiveGoal={() => void archiveGoal()}
+                onDeleteGoal={() => void deleteGoal()}
+              />
             ) : (
               <div className="flex-1 flex items-center justify-center text-slate-400">
                 <div className="text-center">

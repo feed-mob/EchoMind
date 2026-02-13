@@ -1,0 +1,215 @@
+import { useEffect, useState } from 'react';
+import type { GoalViewModel } from './types';
+
+interface GoalEditorProps {
+  selectedGoal: GoalViewModel;
+  saving: boolean;
+  onUpdateGoalLocal: (goalId: string, updater: (goal: GoalViewModel) => GoalViewModel) => void;
+  onSaveGoal: () => void;
+  onArchiveGoal: () => void;
+  onDeleteGoal: () => void;
+}
+
+export default function GoalEditor({
+  selectedGoal,
+  saving,
+  onUpdateGoalLocal,
+  onSaveGoal,
+  onArchiveGoal,
+  onDeleteGoal,
+}: GoalEditorProps) {
+  const [draftTitle, setDraftTitle] = useState(selectedGoal.title);
+
+  useEffect(() => {
+    setDraftTitle(selectedGoal.title);
+  }, [selectedGoal.id, selectedGoal.title]);
+
+  return (
+    <>
+      <header className="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Goal Editor</h2>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary text-white hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-60"
+            onClick={onSaveGoal}
+            disabled={saving}
+          >
+            <span className="material-icons text-base">save</span>
+            Save Goal
+          </button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            onClick={onArchiveGoal}
+          >
+            <span className="material-icons text-base">archive</span>
+            Archive
+          </button>
+          {selectedGoal.status === 'archived' && (
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+              onClick={onDeleteGoal}
+            >
+              <span className="material-icons text-base">delete</span>
+              Delete
+            </button>
+          )}
+          <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors">
+            <span className="material-icons text-base">auto_fix_high</span>
+            AI Evaluate
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="max-w-4xl mx-auto py-10 px-8 space-y-8">
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Goal Title</label>
+            <input
+              className="w-full bg-transparent border-none text-3xl font-extrabold text-slate-900 dark:text-white focus:ring-0 p-0 placeholder-slate-700"
+              type="text"
+              value={draftTitle}
+              placeholder="Untitled Goal"
+              onChange={(event) => {
+                const title = event.target.value;
+                setDraftTitle(title);
+                onUpdateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, title }));
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+              <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                  <span className="material-icons text-sm">format_bold</span>
+                </button>
+                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                  <span className="material-icons text-sm">format_italic</span>
+                </button>
+                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                  <span className="material-icons text-sm">format_list_bulleted</span>
+                </button>
+              </div>
+              <textarea
+                className="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none"
+                rows={6}
+                value={selectedGoal.description}
+                onChange={(event) => {
+                  const description = event.target.value;
+                  onUpdateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, description }));
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Success Metrics</label>
+              <div className="space-y-3">
+                {selectedGoal.successMetrics.map((metric, index) => (
+                  <div
+                    key={`metric-${index}`}
+                    className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
+                  >
+                    <span className="material-icons text-primary text-lg">check_circle</span>
+                    <input
+                      className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
+                      type="text"
+                      value={metric}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        onUpdateGoalLocal(selectedGoal.id, (goal) => {
+                          const next = [...goal.successMetrics];
+                          next[index] = value;
+                          return { ...goal, successMetrics: next };
+                        });
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="h-6 w-6 shrink-0 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      aria-label="Delete metric"
+                      onClick={() => {
+                        onUpdateGoalLocal(selectedGoal.id, (goal) => {
+                          const next = goal.successMetrics.filter((_, idx) => idx !== index);
+                          return { ...goal, successMetrics: next };
+                        });
+                      }}
+                    >
+                      <span className="material-icons text-base">close</span>
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-2"
+                  type="button"
+                  onClick={() => {
+                    const nextMetrics = [...selectedGoal.successMetrics, ''];
+                    onUpdateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, successMetrics: nextMetrics }));
+                  }}
+                >
+                  <span className="material-icons text-sm">add</span>
+                  Add Metric
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Constraints</label>
+              <div className="space-y-3">
+                {selectedGoal.constraints.map((constraint, index) => (
+                  <div
+                    key={`constraint-${index}`}
+                    className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
+                  >
+                    <span className="material-icons text-amber-500 text-lg">warning</span>
+                    <input
+                      className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
+                      type="text"
+                      value={constraint}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        onUpdateGoalLocal(selectedGoal.id, (goal) => {
+                          const next = [...goal.constraints];
+                          next[index] = value;
+                          return { ...goal, constraints: next };
+                        });
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="h-6 w-6 shrink-0 rounded flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      aria-label="Delete constraint"
+                      onClick={() => {
+                        onUpdateGoalLocal(selectedGoal.id, (goal) => {
+                          const next = goal.constraints.filter((_, idx) => idx !== index);
+                          return { ...goal, constraints: next };
+                        });
+                      }}
+                    >
+                      <span className="material-icons text-base">close</span>
+                    </button>
+                  </div>
+                ))}
+                <button
+                  className="text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1 px-2"
+                  type="button"
+                  onClick={() => {
+                    const nextConstraints = [...selectedGoal.constraints, ''];
+                    onUpdateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, constraints: nextConstraints }));
+                  }}
+                >
+                  <span className="material-icons text-sm">add</span>
+                  Add Constraint
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
