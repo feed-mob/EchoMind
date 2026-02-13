@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../config/api';
+import IdeaEditModal from '../components/IdeaEditModal';
 
 interface Idea {
   id: string;
@@ -33,6 +33,8 @@ export default function GroupDetail() {
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isIdeaModalOpen, setIsIdeaModalOpen] = useState(false);
+  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
 
   useEffect(() => {
     if (groupId) {
@@ -84,6 +86,44 @@ export default function GroupDetail() {
     }
   };
 
+  const handleCreateIdea = () => {
+    setEditingIdea(null);
+    setIsIdeaModalOpen(true);
+  };
+
+  const handleEditIdea = (idea: Idea) => {
+    setEditingIdea(idea);
+    setIsIdeaModalOpen(true);
+  };
+
+  const handleIdeaSubmit = async (data: { title: string; description: string; }) => {
+    try {
+      const url = editingIdea
+        ? `${API_URL}/api/ideas/${editingIdea.id}`
+        : `${API_URL}/api/groups/${groupId}/ideas`;
+
+      const method = editingIdea ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          groupId,
+          status: 'draft'
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to save idea');
+
+      await fetchGroupData();
+      setIsIdeaModalOpen(false);
+    } catch (err) {
+      console.error('Error saving idea:', err);
+      alert('Failed to save idea. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
@@ -114,25 +154,40 @@ export default function GroupDetail() {
   return (
     <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-background-dark">
-          <div className="flex items-center gap-4 flex-1 max-w-2xl">
+        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
+          <div className="flex items-center gap-6">
             <button
               onClick={() => navigate('/group')}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors group"
+              aria-label="Back to groups"
             >
               <span className="material-icons">arrow_back</span>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">WIDEA</h1>
             </button>
-            <div className="relative flex-1">
+            <div className="h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
+            <span className="text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>
+            <nav className="flex items-center gap-1 h-full">
+              <button className="px-4 h-full text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-all">
+                Ideas
+              </button>
+              <button className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                Goals
+              </button>
+            </nav>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
               <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
               <input
-                className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
+                className="w-64 pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
                 placeholder="Search ideas..."
                 type="text"
               />
             </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all">
+            <button
+              onClick={handleCreateIdea}
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
+            >
               <span className="material-icons text-sm">add</span> New Idea
             </button>
           </div>
@@ -140,16 +195,6 @@ export default function GroupDetail() {
 
         <div className="flex-1 flex overflow-hidden">
           <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-bold">{group.name}</h1>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <span>Sort by:</span>
-                <button className="text-primary font-medium flex items-center">
-                  Recent <span className="material-icons text-xs">arrow_drop_down</span>
-                </button>
-              </div>
-            </div>
-
             {ideas.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
                 <span className="material-icons text-5xl mb-4">lightbulb_outline</span>
@@ -218,8 +263,11 @@ export default function GroupDetail() {
                       <span className="text-[10px] text-slate-500">{new Date(selectedIdea.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                    <span className="material-icons">more_vert</span>
+                  <button
+                    onClick={() => handleEditIdea(selectedIdea)}
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  >
+                    <span className="material-icons">edit</span>
                   </button>
                 </div>
 
@@ -271,6 +319,18 @@ export default function GroupDetail() {
           )}
         </div>
       </main>
+
+      <IdeaEditModal
+        isOpen={isIdeaModalOpen}
+        onClose={() => setIsIdeaModalOpen(false)}
+        onSubmit={handleIdeaSubmit}
+        groupName={group.name}
+        initialData={editingIdea ? {
+          title: editingIdea.title,
+          description: editingIdea.description
+        } : undefined}
+        mode={editingIdea ? 'edit' : 'create'}
+      />
     </div>
   );
 }

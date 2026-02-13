@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
-
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../config/api';
 
 interface GroupData {
   id: string;
