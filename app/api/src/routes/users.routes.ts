@@ -8,6 +8,9 @@ export const usersRoutes = {
   "/api/users/login": {
     POST: usersController.login,
   },
+  "/api/users/google-login": {
+    POST: usersController.googleLogin,
+  },
   "/api/users/:id": {
     GET: usersController.getById,
   },

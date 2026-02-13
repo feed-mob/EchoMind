@@ -10,6 +10,19 @@ Install dependencies:
 bun install
 ```
 
+## Google Login Setup
+
+Create OAuth 2.0 Web Client credentials in Google Cloud Console, then set:
+
+- `app/web/.env.local`
+  - `VITE_GOOGLE_CLIENT_ID=your_google_web_client_id`
+- `app/api/.env`
+  - `GOOGLE_CLIENT_ID=your_google_web_client_id`
+
+Recommended Authorized JavaScript origins:
+
+- `http://localhost:5173`
+
 ## Database Setup
 
 Initialize and seed the database:

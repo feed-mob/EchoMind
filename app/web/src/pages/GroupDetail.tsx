@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group } from '../services/api';
-import { TEST_USER_ID } from '../config/constants';
+import { useAuth } from '../auth/AuthContext';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
 
@@ -14,6 +14,7 @@ interface IdeaDraft {
 export default function GroupDetail() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
@@ -75,10 +76,14 @@ export default function GroupDetail() {
           content: data.description,
         });
       } else {
+        if (!user?.id) {
+          alert('Please login first.');
+          return;
+        }
         await api.ideas.create(groupId!, {
           title: data.title,
           content: data.description,
-          authorId: TEST_USER_ID,
+          authorId: user.id,
         });
       }
 

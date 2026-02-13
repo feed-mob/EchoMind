@@ -132,6 +132,22 @@ export const api = {
       if (!response.ok) throw new Error('Failed to login');
       return response.json();
     },
+    loginWithGoogle: async (data: { credential: string }): Promise<{
+      user: User;
+      isNewUser: boolean;
+      joinedGroupIds: string[];
+    }> => {
+      const response = await fetch(`${API_URL}/api/users/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(payload?.error || 'Failed to login with Google');
+      }
+      return response.json();
+    },
   },
 
   // Groups

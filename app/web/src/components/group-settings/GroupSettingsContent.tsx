@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TEST_USER_ID } from '../../config/constants';
+import { useAuth } from '../../auth/AuthContext';
 import { api, type GroupInvitation, type GroupMember, type GroupSettings } from '../../services/api';
 
 type GroupSettingsContentProps = {
@@ -29,6 +29,7 @@ function getInitials(name: string) {
 }
 
 export default function GroupSettingsContent({ groupId }: GroupSettingsContentProps) {
+  const { user } = useAuth();
   const inviteInputRef = useRef<HTMLInputElement | null>(null);
   const [inviteDraft, setInviteDraft] = useState('');
   const [inviteEmails, setInviteEmails] = useState<string[]>([]);
@@ -153,7 +154,7 @@ export default function GroupSettingsContent({ groupId }: GroupSettingsContentPr
         payloadEmails.map((email) =>
           api.groups.inviteByEmail(groupId, {
             email,
-            invitedByUserId: TEST_USER_ID,
+            invitedByUserId: user?.id,
           }),
         ),
       );
