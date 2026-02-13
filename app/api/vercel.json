@@ -1,5 +1,5 @@
 {
   "framework": null,
-  "installCommand": "bun install && cd ../../packages/db && bun install && bunx prisma generate --schema prisma/schema.prisma",
+  "installCommand": "bun install",
   "buildCommand": "echo \"No build step for API\""
 }
