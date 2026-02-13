@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group } from '../services/api';
 import { TEST_USER_ID } from '../config/constants';
-import IdeaEditModal from '../components/IdeaEditModal';
 
 interface GroupDetail extends Group {}
+interface IdeaDraft {
+  title: string;
+  description: string;
+}
 
 export default function GroupDetail() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -14,8 +17,8 @@ export default function GroupDetail() {
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isIdeaModalOpen, setIsIdeaModalOpen] = useState(false);
-  const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
+  const [ideaEditorMode, setIdeaEditorMode] = useState<'create' | 'edit' | null>(null);
+  const [ideaDraft, setIdeaDraft] = useState<IdeaDraft>({ title: '', description: '' });
 
   useEffect(() => {
     if (groupId) {
@@ -60,19 +63,25 @@ export default function GroupDetail() {
   };
 
   const handleCreateIdea = () => {
-    setEditingIdea(null);
-    setIsIdeaModalOpen(true);
+    setIdeaDraft({ title: '', description: '' });
+    setIdeaEditorMode('create');
   };
 
   const handleEditIdea = (idea: Idea) => {
-    setEditingIdea(idea);
-    setIsIdeaModalOpen(true);
+    setIdeaDraft({
+      title: idea.title,
+      description: idea.content || '',
+    });
+    setIdeaEditorMode('edit');
   };
 
-  const handleIdeaSubmit = async (data: { title: string; description: string; }) => {
+  const handleIdeaSubmit = async () => {
+    const data = ideaDraft;
+    if (!data.title.trim()) return;
+
     try {
-      if (editingIdea) {
-        await api.ideas.update(editingIdea.id, {
+      if (ideaEditorMode === 'edit' && selectedIdea) {
+        await api.ideas.update(selectedIdea.id, {
           title: data.title,
           content: data.description,
         });
@@ -85,8 +94,7 @@ export default function GroupDetail() {
       }
 
       await fetchGroupData();
-      setIsIdeaModalOpen(false);
-      setEditingIdea(null);
+      setIdeaEditorMode(null);
     } catch (err) {
       console.error('Error saving idea:', err);
       alert('Failed to save idea. Please try again.');
@@ -204,7 +212,10 @@ export default function GroupDetail() {
                 {ideas.map((idea) => (
                   <div
                     key={idea.id}
-                    onClick={() => setSelectedIdea(idea)}
+                    onClick={() => {
+                      setSelectedIdea(idea);
+                      setIdeaEditorMode(null);
+                    }}
                     className={`p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm cursor-pointer group transition-all ${
                       selectedIdea?.id === idea.id ? 'border-2 border-primary' : 'border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
                     }`}
@@ -247,7 +258,62 @@ export default function GroupDetail() {
             )}
           </div>
 
-          {selectedIdea ? (
+          {ideaEditorMode ? (
+            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
+              <header className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
+                <h2 className="text-lg font-bold">{ideaEditorMode === 'edit' ? 'Edit Idea' : 'New Idea'}</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                    onClick={() => setIdeaEditorMode(null)}
+                  >
+                    {selectedIdea ? 'View Detail' : 'Cancel'}
+                  </button>
+                  <button
+                    className="px-3 py-2 text-sm font-semibold bg-primary text-white hover:bg-primary/90 rounded-lg"
+                    onClick={() => void handleIdeaSubmit()}
+                  >
+                    Save Idea
+                  </button>
+                </div>
+              </header>
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Idea Title</label>
+                  <input
+                    className="w-full bg-transparent border-none text-3xl font-extrabold text-slate-900 dark:text-white focus:ring-0 p-0 placeholder-slate-700"
+                    type="text"
+                    placeholder="Untitled Idea"
+                    value={ideaDraft.title}
+                    onChange={(event) => setIdeaDraft((prev) => ({ ...prev, title: event.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
+                  <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                        <span className="material-icons text-sm">format_bold</span>
+                      </button>
+                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                        <span className="material-icons text-sm">format_italic</span>
+                      </button>
+                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
+                        <span className="material-icons text-sm">format_list_bulleted</span>
+                      </button>
+                    </div>
+                    <textarea
+                      className="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none"
+                      rows={10}
+                      value={ideaDraft.description}
+                      onChange={(event) => setIdeaDraft((prev) => ({ ...prev, description: event.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            </aside>
+          ) : selectedIdea ? (
             <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
@@ -258,7 +324,7 @@ export default function GroupDetail() {
                       src={selectedIdea.author?.avatar || getFallbackAvatar(selectedIdea.author?.name)}
                     />
                     <div>
-                      <h3 className="font-bold text-sm">{selectedIdea.author?.name || 'Anonymous'}</h3>
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">{selectedIdea.author?.name || 'Anonymous'}</h3>
                       <span className="text-[10px] text-slate-500">{new Date(selectedIdea.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -280,7 +346,7 @@ export default function GroupDetail() {
                   </div>
                 </div>
 
-                <h2 className="text-lg font-bold mb-4">{selectedIdea.title}</h2>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">{selectedIdea.title}</h2>
 
                 {selectedIdea.content && (
                   <div className="mb-6">
@@ -335,18 +401,6 @@ export default function GroupDetail() {
           )}
         </div>
       </main>
-
-      <IdeaEditModal
-        isOpen={isIdeaModalOpen}
-        onClose={() => setIsIdeaModalOpen(false)}
-        onSubmit={handleIdeaSubmit}
-        groupName={group.name}
-        initialData={editingIdea ? {
-          title: editingIdea.title,
-          description: editingIdea.content || ''
-        } : undefined}
-        mode={editingIdea ? 'edit' : 'create'}
-      />
     </div>
   );
 }
