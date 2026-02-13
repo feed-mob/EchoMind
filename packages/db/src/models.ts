@@ -40,6 +40,18 @@ export interface Idea {
   updatedAt: Date;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  successMetrics?: unknown;
+  constraints?: unknown;
+  groupId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export const users = {
   async create(data: { email: string; name?: string; avatar?: string }) {
     return await db.user.create({
@@ -254,6 +266,60 @@ export const ideas = {
 
   async delete(id: string) {
     await db.idea.delete({
+      where: { id },
+    });
+  },
+};
+
+export const goals = {
+  async create(data: {
+    title: string;
+    description?: string;
+    status?: string;
+    successMetrics?: unknown;
+    constraints?: unknown;
+    groupId: string;
+  }) {
+    return await db.goal.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        status: data.status || "draft",
+        successMetrics: data.successMetrics,
+        constraints: data.constraints,
+        groupId: data.groupId,
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await db.goal.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByGroup(groupId: string) {
+    return await db.goal.findMany({
+      where: { groupId },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  async update(id: string, data: Partial<Goal>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.groupId;
+
+    return await db.goal.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await db.goal.delete({
       where: { id },
     });
   },

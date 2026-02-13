@@ -37,6 +37,18 @@ export interface Idea {
   updatedAt: string;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  successMetrics?: unknown;
+  constraints?: unknown;
+  groupId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // API Service
 export const api = {
   // Groups
@@ -120,6 +132,66 @@ export const api = {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete idea');
+    },
+  },
+
+  // Goals
+  goals: {
+    listByGroup: async (groupId: string): Promise<Goal[]> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/goals`);
+      if (!response.ok) throw new Error('Failed to fetch goals');
+      return response.json();
+    },
+
+    getById: async (id: string): Promise<Goal> => {
+      const response = await fetch(`${API_URL}/api/goals/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch goal');
+      return response.json();
+    },
+
+    create: async (
+      groupId: string,
+      data: {
+        title: string;
+        description?: string;
+        status?: string;
+        successMetrics?: unknown;
+        constraints?: unknown;
+      },
+    ): Promise<Goal> => {
+      const response = await fetch(`${API_URL}/api/groups/${groupId}/goals`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to create goal');
+      return response.json();
+    },
+
+    update: async (
+      id: string,
+      data: {
+        title?: string;
+        description?: string;
+        status?: string;
+        successMetrics?: unknown;
+        constraints?: unknown;
+      },
+    ): Promise<Goal> => {
+      const response = await fetch(`${API_URL}/api/goals/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update goal');
+      return response.json();
+    },
+
+    delete: async (id: string): Promise<void> => {
+      const response = await fetch(`${API_URL}/api/goals/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete goal');
     },
   },
 };

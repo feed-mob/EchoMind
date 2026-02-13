@@ -47,8 +47,23 @@ CREATE TABLE IF NOT EXISTS "Idea" (
   FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE
 );
 
+-- Goals table
+CREATE TABLE IF NOT EXISTS "Goal" (
+  "id" TEXT PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "description" TEXT,
+  "status" TEXT NOT NULL DEFAULT 'draft',
+  "successMetrics" JSONB,
+  "constraints" JSONB,
+  "groupId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_group_member_user" ON "GroupMember"("userId");
 CREATE INDEX IF NOT EXISTS "idx_group_member_group" ON "GroupMember"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_idea_group" ON "Idea"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
+CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");
