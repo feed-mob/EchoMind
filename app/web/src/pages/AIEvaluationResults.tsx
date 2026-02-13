@@ -330,14 +330,13 @@ export default function AIEvaluationResults() {
           </div>
 
           <aside className="w-full lg:w-96 flex-shrink-0">
-            <div className="sticky top-28 space-y-6">
+            <div className="sticky space-y-6">
               <div className="bg-primary/5 border border-primary/20 rounded-xl overflow-hidden shadow-sm">
                 <div className="bg-primary p-4 text-white">
                   <div className="flex justify-between items-center">
                     <h2 className="font-bold flex items-center gap-2 tracking-wide">
                       <span className="material-icons">auto_awesome</span> AI TOP PICK
                     </h2>
-                    <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold">BATCH #{new Date().getDate()}{rankedIdeas.length}</span>
                   </div>
                 </div>
                 <div className="p-6">

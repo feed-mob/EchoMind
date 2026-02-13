@@ -33,7 +33,7 @@ const batchReviewSchema = z.object({
 });
 
 const BATCH_SIZE = 5;
-const DEFAULT_GEMINI_MODEL = "gemini-1.5-flash";
+const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 
 export class AiEvaluationServiceError extends Error {
   status: number;
@@ -83,6 +83,7 @@ function formatGoalField(value: unknown) {
 
 function normalizeGeminiModel(model: string) {
   if (model === "gemini-1.5-pro") return DEFAULT_GEMINI_MODEL;
+  if (model === "gemini-1.5-flash") return DEFAULT_GEMINI_MODEL;
   if (!model.startsWith("gemini-")) return DEFAULT_GEMINI_MODEL;
   return model;
 }

@@ -13,7 +13,7 @@ export default function AIEvaluationSetup() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState(goalIdFromQuery);
   const [selectedIdeaIds, setSelectedIdeaIds] = useState<string[]>([]);
-  const [model, setModel] = useState('gemini-1.5-pro');
+  const [model, setModel] = useState('gemini-2.5-flash');
   const [impact, setImpact] = useState(40);
   const [feasibility, setFeasibility] = useState(35);
   const [originality, setOriginality] = useState(25);
@@ -343,7 +343,7 @@ export default function AIEvaluationSetup() {
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select AI Model</label>
               <div className="space-y-3">
-                {[{ id: 'gemini-1.5-pro', name: 'Gemini 1.5 Flash', desc: 'Largest context window for bulk ideas' }].map((item) => (
+                {[{ id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: 'Fast model for idea evaluation' }].map((item) => (
                   <label
                     key={item.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
