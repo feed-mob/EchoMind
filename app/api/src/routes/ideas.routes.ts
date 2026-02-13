@@ -1,4 +1,4 @@
-import { ideasController } from "../controllers";
+import { ideasController } from "../controllers/index.js";
 
 export const ideasRoutes = {
   "/api/groups/:id/ideas": {

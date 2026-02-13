@@ -1,4 +1,4 @@
-import { healthController } from "../controllers";
+import { healthController } from "../controllers/index.js";
 
 export const healthRoutes = {
   "/api/health": {

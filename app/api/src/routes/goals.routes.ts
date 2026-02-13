@@ -1,4 +1,4 @@
-import { goalsController } from "../controllers";
+import { goalsController } from "../controllers/index.js";
 
 export const goalsRoutes = {
   "/api/groups/:id/goals": {

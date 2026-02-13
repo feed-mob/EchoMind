@@ -1,4 +1,4 @@
-import { aiEvaluationSettingsController } from "../controllers";
+import { aiEvaluationSettingsController } from "../controllers/index.js";
 
 export const aiEvaluationSettingsRoutes = {
   "/api/groups/:id/ai-evaluation-settings": {

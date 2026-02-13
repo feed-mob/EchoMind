@@ -1,4 +1,4 @@
-import { AiEvaluationServiceError, aiEvaluationSettingsService } from "../services/aiEvaluationSettings.service";
+import { AiEvaluationServiceError, aiEvaluationSettingsService } from "../services/aiEvaluationSettings.service.js";
 
 type CreateSettingBody = {
   goalId: string;

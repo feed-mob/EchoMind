@@ -1,5 +1,5 @@
 import { initDatabase } from "../../../packages/db/index.js";
-import { handleRequest } from "../src/http/app";
+import { handleRequest } from "../src/http/app.js";
 
 let dbReadyPromise: Promise<void> | null = null;
 const defaultAllowedHeaders = "Content-Type, Authorization";

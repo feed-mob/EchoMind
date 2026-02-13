@@ -1,6 +1,6 @@
-export { usersController } from "./users.controller";
-export { groupsController } from "./groups.controller";
-export { ideasController } from "./ideas.controller";
-export { goalsController } from "./goals.controller";
-export { aiEvaluationSettingsController } from "./aiEvaluationSettings.controller";
-export { healthController } from "./health.controller";
+export { usersController } from "./users.controller.js";
+export { groupsController } from "./groups.controller.js";
+export { ideasController } from "./ideas.controller.js";
+export { goalsController } from "./goals.controller.js";
+export { aiEvaluationSettingsController } from "./aiEvaluationSettings.controller.js";
+export { healthController } from "./health.controller.js";

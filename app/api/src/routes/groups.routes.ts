@@ -1,4 +1,4 @@
-import { groupsController } from "../controllers";
+import { groupsController } from "../controllers/index.js";
 
 export const groupsRoutes = {
   "/api/groups": {

@@ -1,4 +1,4 @@
-import { usersController } from "../controllers";
+import { usersController } from "../controllers/index.js";
 
 export const usersRoutes = {
   "/api/users": {

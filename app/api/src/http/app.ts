@@ -1,4 +1,4 @@
-import { routes } from "../routes";
+import { routes } from "../routes/index.js";
 
 type RouteParams = Record<string, string>;
 type AppRequest = Request & { params: RouteParams };
