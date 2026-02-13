@@ -42,6 +42,8 @@ async function evaluateIdeaWithGoogle(params: {
   model: string;
   goalTitle: string;
   goalDescription: string;
+  goalSuccessMetrics?: unknown;
+  goalConstraints?: unknown;
   ideaTitle: string;
   ideaContent: string;
 }) {
@@ -54,6 +56,8 @@ async function evaluateIdeaWithGoogle(params: {
 
 Goal title: ${params.goalTitle}
 Goal description: ${params.goalDescription || "N/A"}
+Goal success metrics: ${formatGoalField(params.goalSuccessMetrics)}
+Goal constraints: ${formatGoalField(params.goalConstraints)}
 
 Idea title: ${params.ideaTitle}
 Idea content: ${params.ideaContent || "N/A"}
@@ -91,6 +95,8 @@ async function evaluateIdeasBatchWithGoogle(params: {
   model: string;
   goalTitle: string;
   goalDescription: string;
+  goalSuccessMetrics?: unknown;
+  goalConstraints?: unknown;
   ideas: Array<{ id: string; title: string; content: string }>;
 }) {
   const modelName = params.model.startsWith("gemini-") ? params.model : "gemini-1.5-pro";
@@ -113,6 +119,8 @@ Idea ${index + 1}:
 
 Goal title: ${params.goalTitle}
 Goal description: ${params.goalDescription || "N/A"}
+Goal success metrics: ${formatGoalField(params.goalSuccessMetrics)}
+Goal constraints: ${formatGoalField(params.goalConstraints)}
 
 Evaluate each idea independently and return one result per input id.
 Do not drop or rename ids.
@@ -149,6 +157,17 @@ function chunkIdeas<T>(items: T[], size: number) {
     chunks.push(items.slice(i, i + size));
   }
   return chunks;
+}
+
+function formatGoalField(value: unknown) {
+  if (value === null || value === undefined) return "N/A";
+  if (typeof value === "string") return value.trim() || "N/A";
+  try {
+    const serialized = JSON.stringify(value);
+    return serialized && serialized !== "{}" && serialized !== "[]" ? serialized : "N/A";
+  } catch {
+    return "N/A";
+  }
 }
 
 export const aiEvaluationSettingsController = {
@@ -212,6 +231,8 @@ export const aiEvaluationSettingsController = {
         model: selectedModel,
         goalTitle: goal.title,
         goalDescription: goal.description || "",
+        goalSuccessMetrics: goal.successMetrics,
+        goalConstraints: goal.constraints,
         ideas: batch.map((idea) => ({
           id: idea.id,
           title: idea.title,
@@ -226,6 +247,8 @@ export const aiEvaluationSettingsController = {
             model: selectedModel,
             goalTitle: goal.title,
             goalDescription: goal.description || "",
+            goalSuccessMetrics: goal.successMetrics,
+            goalConstraints: goal.constraints,
             ideaTitle: idea.title,
             ideaContent: idea.content || "",
           }));
