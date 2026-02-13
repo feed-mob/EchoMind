@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group } from '../services/api';
 import { TEST_USER_ID } from '../config/constants';
+import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 
 interface GroupDetail extends Group {}
 interface IdeaDraft {
@@ -19,6 +20,7 @@ export default function GroupDetail() {
   const [error, setError] = useState<string | null>(null);
   const [ideaEditorMode, setIdeaEditorMode] = useState<'create' | 'edit' | null>(null);
   const [ideaDraft, setIdeaDraft] = useState<IdeaDraft>({ title: '', description: '' });
+  const [ideaSearchText, setIdeaSearchText] = useState('');
 
   useEffect(() => {
     if (groupId) {
@@ -128,6 +130,15 @@ export default function GroupDetail() {
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   };
 
+  const filteredIdeas = ideas.filter((idea) => {
+    if (!ideaSearchText.trim()) return true;
+    const term = ideaSearchText.trim().toLowerCase();
+    return (
+      idea.title.toLowerCase().includes(term) ||
+      (idea.content || '').toLowerCase().includes(term)
+    );
+  });
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
@@ -158,7 +169,7 @@ export default function GroupDetail() {
   return (
     <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
+        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
           <div className="flex items-center gap-6">
             <button
               onClick={() => navigate('/group')}
@@ -180,36 +191,48 @@ export default function GroupDetail() {
               >
                 Goals
               </button>
+              <button
+                onClick={() => navigate(`/group/${group.id}/ai-evaluate`)}
+                className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all inline-flex items-center gap-1"
+              >
+                <span className="material-icons text-base">auto_fix_high</span>
+                AI Evaluate
+              </button>
             </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-              <input
-                className="w-64 pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
-                placeholder="Search ideas..."
-                type="text"
-              />
-            </div>
-            <button
-              onClick={handleCreateIdea}
-              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
-            >
-              <span className="material-icons text-sm">add</span> New Idea
-            </button>
           </div>
         </header>
 
         <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-            {ideas.length === 0 ? (
+          <div className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                  <input
+                    className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
+                    placeholder="Search ideas..."
+                    type="text"
+                    value={ideaSearchText}
+                    onChange={(event) => setIdeaSearchText(event.target.value)}
+                  />
+                </div>
+                <button
+                  onClick={handleCreateIdea}
+                  className="bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1 transition-all shrink-0"
+                >
+                  <span className="material-icons text-sm">add</span> New Idea
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+            {filteredIdeas.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
                 <span className="material-icons text-5xl mb-4">lightbulb_outline</span>
-                <p>No ideas yet. Create your first idea!</p>
+                <p>No ideas found.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {ideas.map((idea) => (
+                {filteredIdeas.map((idea) => (
                   <div
                     key={idea.id}
                     onClick={() => {
@@ -256,6 +279,7 @@ export default function GroupDetail() {
                 ))}
               </div>
             )}
+            </div>
           </div>
 
           {ideaEditorMode ? (
@@ -291,25 +315,11 @@ export default function GroupDetail() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
-                  <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-                    <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                        <span className="material-icons text-sm">format_bold</span>
-                      </button>
-                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                        <span className="material-icons text-sm">format_italic</span>
-                      </button>
-                      <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                        <span className="material-icons text-sm">format_list_bulleted</span>
-                      </button>
-                    </div>
-                    <textarea
-                      className="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none"
-                      rows={10}
-                      value={ideaDraft.description}
-                      onChange={(event) => setIdeaDraft((prev) => ({ ...prev, description: event.target.value }))}
-                    />
-                  </div>
+                  <SimpleMarkdownEditor
+                    value={ideaDraft.description}
+                    rows={12}
+                    onChange={(nextValue) => setIdeaDraft((prev) => ({ ...prev, description: nextValue }))}
+                  />
                 </div>
               </div>
             </aside>

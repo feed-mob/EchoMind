@@ -182,7 +182,7 @@ export default function GroupGoals() {
   return (
     <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
+        <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center bg-white/50 dark:bg-background-dark/50 backdrop-blur-md">
           <div className="flex items-center gap-6">
             <button
               onClick={() => navigate('/group')}
@@ -204,26 +204,18 @@ export default function GroupGoals() {
               <button className="px-4 h-full text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-all">
                 Goals
               </button>
+              <button
+                onClick={() =>
+                  navigate(
+                    `/group/${group.id}/ai-evaluate${selectedGoal ? `?goalId=${selectedGoal.id}` : ''}`
+                  )
+                }
+                className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all inline-flex items-center gap-1"
+              >
+                <span className="material-icons text-base">auto_fix_high</span>
+                AI Evaluate
+              </button>
             </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-              <input
-                className="w-64 pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
-                placeholder="Search goals..."
-                type="text"
-                value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
-              />
-            </div>
-
-            <button
-              onClick={createGoal}
-              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all"
-            >
-              <span className="material-icons text-sm">add</span> New Goal
-            </button>
           </div>
         </header>
 
@@ -232,11 +224,14 @@ export default function GroupGoals() {
             visibleGoals={visibleGoals}
             selectedGoalId={selectedGoalId}
             viewMode={viewMode}
+            searchText={searchText}
             onSelectGoal={(goalId) => {
               setSelectedGoalId(goalId);
               setIsEditing(false);
             }}
+            onSearchChange={setSearchText}
             onChangeViewMode={setViewMode}
+            onCreateGoal={() => void createGoal()}
           />
 
           <section className="flex-1 border-l border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-background-dark">
@@ -253,7 +248,7 @@ export default function GroupGoals() {
               ) : (
                 <GoalDetailView
                   selectedGoal={selectedGoal}
-                  onAiEvaluate={() => navigate(`/group/${group.id}/goals/ai-evaluate?goalId=${selectedGoal.id}`)}
+                  onAiEvaluate={() => navigate(`/group/${group.id}/ai-evaluate?goalId=${selectedGoal.id}`)}
                   onEdit={() => setIsEditing(true)}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}

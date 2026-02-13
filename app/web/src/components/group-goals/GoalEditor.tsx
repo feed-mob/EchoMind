@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import SimpleMarkdownEditor from '../SimpleMarkdownEditor';
 import type { GoalViewModel } from './types';
 
 interface GoalEditorProps {
@@ -39,13 +40,15 @@ export default function GoalEditor({
             <span className="material-icons text-base">save</span>
             Save Goal
           </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            onClick={onArchiveGoal}
-          >
-            <span className="material-icons text-base">archive</span>
-            Archive
-          </button>
+          {selectedGoal.status !== 'archived' && (
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              onClick={onArchiveGoal}
+            >
+              <span className="material-icons text-base">archive</span>
+              Archive
+            </button>
+          )}
           {selectedGoal.status === 'archived' && (
             <button
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
@@ -77,28 +80,16 @@ export default function GoalEditor({
 
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
-            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-              <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                  <span className="material-icons text-sm">format_bold</span>
-                </button>
-                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                  <span className="material-icons text-sm">format_italic</span>
-                </button>
-                <button className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-400" type="button">
-                  <span className="material-icons text-sm">format_list_bulleted</span>
-                </button>
-              </div>
-              <textarea
-                className="w-full bg-transparent border-none focus:ring-0 text-slate-600 dark:text-slate-300 p-4 leading-relaxed resize-none"
-                rows={6}
-                value={selectedGoal.description}
-                onChange={(event) => {
-                  const description = event.target.value;
-                  onUpdateGoalLocal(selectedGoal.id, (goal) => ({ ...goal, description }));
-                }}
-              />
-            </div>
+            <SimpleMarkdownEditor
+              value={selectedGoal.description}
+              rows={10}
+              onChange={(nextValue) => {
+                onUpdateGoalLocal(selectedGoal.id, (goal) => ({
+                  ...goal,
+                  description: nextValue,
+                }));
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -112,7 +103,7 @@ export default function GoalEditor({
                   >
                     <span className="material-icons text-primary text-lg">check_circle</span>
                     <input
-                      className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
+                      className="flex-1 bg-transparent border-none p-0 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-0"
                       type="text"
                       value={metric}
                       onChange={(event) => {
@@ -163,7 +154,7 @@ export default function GoalEditor({
                   >
                     <span className="material-icons text-amber-500 text-lg">warning</span>
                     <input
-                      className="flex-1 bg-transparent border-none p-0 text-sm focus:ring-0"
+                      className="flex-1 bg-transparent border-none p-0 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-0"
                       type="text"
                       value={constraint}
                       onChange={(event) => {

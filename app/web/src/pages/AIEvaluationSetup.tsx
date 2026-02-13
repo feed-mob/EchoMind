@@ -6,11 +6,12 @@ export default function AIEvaluationSetup() {
   const { groupId } = useParams<{ groupId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const goalIdFromQuery = searchParams.get('goalId') || '';
 
   const [group, setGroup] = useState<Group | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [ideas, setIdeas] = useState<Idea[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState(searchParams.get('goalId') || '');
+  const [selectedGoalId, setSelectedGoalId] = useState(goalIdFromQuery);
   const [selectedIdeaIds, setSelectedIdeaIds] = useState<string[]>([]);
   const [model, setModel] = useState('gpt-4o');
   const [impact, setImpact] = useState(40);
@@ -32,11 +33,9 @@ export default function AIEvaluationSetup() {
         ]);
 
         setGroup(groupData);
-        setGoals(goalsData);
+        setGoals(goalsData.filter((goal) => goal.status !== 'archived'));
         setIdeas(ideasData);
         setSelectedIdeaIds(ideasData.map((idea) => idea.id));
-
-        setSelectedGoalId((current) => current || searchParams.get('goalId') || goalsData[0]?.id || '');
 
         setError(null);
       } catch (err) {
@@ -47,7 +46,24 @@ export default function AIEvaluationSetup() {
     };
 
     void fetchData();
-  }, [groupId, searchParams]);
+  }, [groupId]);
+
+  useEffect(() => {
+    if (goals.length === 0) {
+      setSelectedGoalId('');
+      return;
+    }
+
+    if (goalIdFromQuery && goals.some((goal) => goal.id === goalIdFromQuery)) {
+      setSelectedGoalId(goalIdFromQuery);
+      return;
+    }
+
+    setSelectedGoalId((current) => {
+      if (current && goals.some((goal) => goal.id === current)) return current;
+      return goals[0]?.id || '';
+    });
+  }, [goalIdFromQuery, goals]);
 
   const selectedGoal = useMemo(
     () => goals.find((goal) => goal.id === selectedGoalId) || null,
@@ -92,10 +108,10 @@ export default function AIEvaluationSetup() {
         <div className="text-center">
           <p className="text-red-500 mb-4">{error || 'Group not found'}</p>
           <button
-            onClick={() => navigate(`/group/${groupId}/goals`)}
+            onClick={() => navigate('/group')}
             className="text-primary hover:underline"
           >
-            Back to Goals
+            Back to Groups
           </button>
         </div>
       </div>
@@ -104,22 +120,38 @@ export default function AIEvaluationSetup() {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
-      <header className="h-16 border-b border-primary/10 bg-background-light dark:bg-background-dark flex items-center justify-between px-6 sticky top-0 z-50">
-        <div className="flex items-center gap-3">
+      <header className="h-16 px-8 border-b border-slate-200 dark:border-slate-800 flex items-center bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-6">
           <button
-            onClick={() => navigate(`/group/${group.id}/goals`)}
-            className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
-            aria-label="Back to goals"
+            onClick={() => navigate('/group')}
+            className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors group"
+            aria-label="Back to groups"
           >
-            <span className="material-icons text-white text-lg">arrow_back</span>
+            <span className="material-icons">arrow_back</span>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">WIDEA</h1>
           </button>
-          <h1 className="text-xl font-bold tracking-tight">AI Evaluation Workspace</h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-500 dark:text-slate-400">{group.name}</span>
+          <div className="h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
+          <span className="text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>
+          <nav className="flex items-center gap-1 h-full">
+            <button
+              onClick={() => navigate(`/group/${group.id}`)}
+              className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Ideas
+            </button>
+            <button
+              onClick={() => navigate(`/group/${group.id}/goals`)}
+              className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Goals
+            </button>
+            <button className="px-4 h-full text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-all inline-flex items-center gap-1">
+              <span className="material-icons text-base">auto_fix_high</span>
+              AI Evaluate
+            </button>
+          </nav>
         </div>
       </header>
-
       <div className="flex flex-1 overflow-hidden">
         <main className="flex-1 overflow-y-auto p-8">
           <section className="max-w-4xl mx-auto mb-10">

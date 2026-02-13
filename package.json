@@ -8,5 +8,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@uiw/react-md-editor": "^4.0.11"
   }
 }

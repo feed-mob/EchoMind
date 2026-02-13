@@ -4,16 +4,22 @@ interface GoalsSidebarProps {
   visibleGoals: GoalViewModel[];
   selectedGoalId: string;
   viewMode: GoalViewMode;
+  searchText: string;
   onSelectGoal: (goalId: string) => void;
+  onSearchChange: (value: string) => void;
   onChangeViewMode: (mode: GoalViewMode) => void;
+  onCreateGoal: () => void;
 }
 
 export default function GoalsSidebar({
   visibleGoals,
   selectedGoalId,
   viewMode,
+  searchText,
   onSelectGoal,
+  onSearchChange,
   onChangeViewMode,
+  onCreateGoal,
 }: GoalsSidebarProps) {
   const getInitial = (name?: string | null) => {
     return (
@@ -27,6 +33,24 @@ export default function GoalsSidebar({
   return (
     <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="relative flex-1">
+            <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+            <input
+              className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all"
+              placeholder="Search goals..."
+              type="text"
+              value={searchText}
+              onChange={(event) => onSearchChange(event.target.value)}
+            />
+          </div>
+          <button
+            onClick={onCreateGoal}
+            className="bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1 transition-all shrink-0"
+          >
+            <span className="material-icons text-sm">add</span> New Goal
+          </button>
+        </div>
         <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
           <button
             className={`flex-1 text-xs font-semibold py-1.5 rounded-md transition-colors ${
@@ -87,7 +111,8 @@ export default function GoalsSidebar({
                       }`}>
                         {goal.title}
                       </h3>
-=                    </div>
+                      <span className="text-[10px] text-slate-500 shrink-0">{new Date(goal.updatedAt).toLocaleDateString()}</span>
+                    </div>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
