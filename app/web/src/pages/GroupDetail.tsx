@@ -154,7 +154,10 @@ export default function GroupDetail() {
               <button className="px-4 h-full text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 transition-all">
                 Ideas
               </button>
-              <button className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+              <button
+                onClick={() => navigate(`/group/${group.id}/goals`)}
+                className="px-4 h-full text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              >
                 Goals
               </button>
             </nav>

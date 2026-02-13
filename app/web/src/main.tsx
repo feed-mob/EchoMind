@@ -5,6 +5,7 @@ import './index.css'
 import Landing from './pages/Landing'
 import Groups from './pages/Groups'
 import GroupDetail from './pages/GroupDetail'
+import GroupGoals from './pages/GroupGoals'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -13,6 +14,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<Landing />} />
         <Route path="/group" element={<Groups />} />
         <Route path="/group/:groupId" element={<GroupDetail />} />
+        <Route path="/group/:groupId/goals" element={<GroupGoals />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
