@@ -256,6 +256,7 @@ export default function GroupGoals() {
               ) : (
                 <GoalDetailView
                   selectedGoal={selectedGoal}
+                  onAiEvaluate={() => navigate(`/group/${group.id}/goals/ai-evaluate?goalId=${selectedGoal.id}`)}
                   onEdit={() => setIsEditing(true)}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}

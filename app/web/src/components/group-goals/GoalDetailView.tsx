@@ -3,6 +3,7 @@ import { getStatusMeta } from './utils';
 
 interface GoalDetailViewProps {
   selectedGoal: GoalViewModel;
+  onAiEvaluate: () => void;
   onEdit: () => void;
   onArchiveGoal: () => void;
   onDeleteGoal: () => void;
@@ -10,6 +11,7 @@ interface GoalDetailViewProps {
 
 export default function GoalDetailView({
   selectedGoal,
+  onAiEvaluate,
   onEdit,
   onArchiveGoal,
   onDeleteGoal,
@@ -25,7 +27,10 @@ export default function GoalDetailView({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors">
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
+            onClick={onAiEvaluate}
+          >
             <span className="material-icons text-base">auto_fix_high</span>
             AI Evaluate
           </button>
