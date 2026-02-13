@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { aiEvaluationResults, aiEvaluationSettings, goals, ideas } from "../../../../packages/db";
+import type { Idea } from "../../../../packages/db";
 
 type CreateSettingInput = {
   groupId: string;
@@ -12,6 +13,8 @@ type CreateSettingInput = {
   originalityWeight: number;
   selectedIdeaIds: string[];
 };
+
+type GroupIdea = Pick<Idea, "id" | "title" | "content">;
 
 const batchReviewSchema = z.object({
   results: z.array(
@@ -169,9 +172,11 @@ export const aiEvaluationSettingsService = {
       throw new AiEvaluationServiceError("Goal not found in this group", 404);
     }
 
-    const groupIdeas = await ideas.listByGroup(input.groupId);
+    const groupIdeas = (await ideas.listByGroup(input.groupId)) as GroupIdea[];
     const selectedIdeaSet = new Set(input.selectedIdeaIds);
-    const selectedIdeas = groupIdeas.filter((idea) => selectedIdeaSet.has(idea.id));
+    const selectedIdeas: GroupIdea[] = groupIdeas.filter((idea: GroupIdea) =>
+      selectedIdeaSet.has(idea.id),
+    );
 
     if (selectedIdeas.length === 0) {
       throw new AiEvaluationServiceError("No valid ideas selected", 400);
@@ -185,7 +190,7 @@ export const aiEvaluationSettingsService = {
       impactWeight: input.impactWeight,
       feasibilityWeight: input.feasibilityWeight,
       originalityWeight: input.originalityWeight,
-      selectedIdeaIds: selectedIdeas.map((idea) => idea.id),
+      selectedIdeaIds: selectedIdeas.map((idea: GroupIdea) => idea.id),
     });
 
     const evaluated: Array<{
@@ -209,14 +214,14 @@ export const aiEvaluationSettingsService = {
         impactWeight: setting.impactWeight,
         feasibilityWeight: setting.feasibilityWeight,
         originalityWeight: setting.originalityWeight,
-        ideas: batch.map((idea) => ({
+        ideas: batch.map((idea: GroupIdea) => ({
           id: idea.id,
           title: idea.title,
           content: idea.content || "",
         })),
       });
 
-      for (const idea of batch) {
+      for (const idea of batch as GroupIdea[]) {
         const review = batchResultMap.get(idea.id);
         if (!review) {
           throw new AiEvaluationServiceError(`Missing evaluation result for idea ${idea.id}`, 502);
