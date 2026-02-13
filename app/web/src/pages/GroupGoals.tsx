@@ -184,6 +184,11 @@ export default function GroupGoals() {
     <div className="flex h-screen bg-background-light dark:bg-background-dark">
       <main className="flex-1 flex flex-col overflow-hidden">
         <GroupTopNav group={group} activeTab="goals" aiGoalId={selectedGoal?.id} />
+        {saveError && (
+          <div className="px-6 py-3 text-sm text-red-600 bg-red-50 border-b border-red-200 dark:bg-red-900/20 dark:border-red-900/40 dark:text-red-300">
+            {saveError}
+          </div>
+        )}
 
         <div className="flex-1 flex overflow-hidden">
           <GoalsSidebar
