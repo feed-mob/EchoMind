@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CreateGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: { name: string; logo?: File }) => void;
+  mode?: 'create' | 'edit';
+  initialName?: string;
+  initialLogo?: string | null;
 }
 
-export default function CreateGroupModal({ isOpen, onClose, onSubmit }: CreateGroupModalProps) {
+export default function CreateGroupModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  mode = 'create',
+  initialName = '',
+  initialLogo = null,
+}: CreateGroupModalProps) {
   const [groupName, setGroupName] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | undefined>();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setGroupName(initialName);
+    setLogoPreview(initialLogo);
+    setLogoFile(undefined);
+  }, [initialLogo, initialName, isOpen]);
 
   if (!isOpen) return null;
 
@@ -36,11 +53,13 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit }: CreateGr
   };
 
   const handleClose = () => {
-    setGroupName('');
-    setLogoPreview(null);
+    setGroupName(initialName);
+    setLogoPreview(initialLogo);
     setLogoFile(undefined);
     onClose();
   };
+
+  const isEditMode = mode === 'edit';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -55,9 +74,13 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit }: CreateGr
 
         <div className="p-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create New Group</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              {isEditMode ? 'Edit Group' : 'Create New Group'}
+            </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Set up a new group to start generating and evaluating ideas with your team.
+              {isEditMode
+                ? 'Update your group details.'
+                : 'Set up a new group to start generating and evaluating ideas with your team.'}
             </p>
           </div>
 
@@ -104,7 +127,7 @@ export default function CreateGroupModal({ isOpen, onClose, onSubmit }: CreateGr
                 type="submit"
                 className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/25 transition-all flex items-center justify-center gap-2 group"
               >
-                Create Group
+                {isEditMode ? 'Save Changes' : 'Create Group'}
                 <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </button>
               <button

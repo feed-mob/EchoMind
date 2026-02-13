@@ -9,9 +9,17 @@ export default function Groups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openMenuGroupId, setOpenMenuGroupId] = useState<string | null>(null);
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
 
   useEffect(() => {
     fetchGroups();
+  }, []);
+
+  useEffect(() => {
+    const handleDocumentClick = () => setOpenMenuGroupId(null);
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
   }, []);
 
   const fetchGroups = async () => {
@@ -47,6 +55,37 @@ export default function Groups() {
     if (group.status === 'completed') return 'Evaluation Complete';
     if (group.status === 'processing') return 'AI Evaluation In Progress';
     return `${group.ideaCount} Ideas`;
+  };
+
+  const handleOpenEdit = (group: Group) => {
+    setEditingGroup(group);
+    setOpenMenuGroupId(null);
+  };
+
+  const handleEditGroup = async (data: { name: string; logo?: File }) => {
+    if (!editingGroup || !data.name.trim()) return;
+
+    try {
+      await api.groups.update(editingGroup.id, { name: data.name.trim() });
+      await fetchGroups();
+      setEditingGroup(null);
+    } catch (err) {
+      console.error('Error updating group:', err);
+      alert('Failed to update group. Please try again.');
+    }
+  };
+
+  const handleDeleteGroup = async (group: Group) => {
+    setOpenMenuGroupId(null);
+    if (!confirm(`Delete group "${group.name}"?`)) return;
+
+    try {
+      await api.groups.delete(group.id);
+      await fetchGroups();
+    } catch (err) {
+      console.error('Error deleting group:', err);
+      alert('Failed to delete group. Please try again.');
+    }
   };
 
   if (loading) {
@@ -111,12 +150,44 @@ export default function Groups() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-800 dark:text-slate-100">{group.name}</h3>
-                      <span className="text-xs text-slate-400">{group.department || 'No department'}</span>
                     </div>
                   </div>
-                  <button className="text-slate-400 hover:text-primary transition-colors">
-                    <span className="material-icons">more_vert</span>
+                  <button
+                    className="text-slate-400 hover:text-primary transition-colors icon-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuGroupId((prev) => (prev === group.id ? null : group.id));
+                    }}
+                  >
+                    <span className="material-icons">
+                      more_vert
+                    </span>
                   </button>
+                  {openMenuGroupId === group.id && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-12 right-3 z-20 w-36 rounded-lg border border-slate-200 bg-white shadow-xl py-1"
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenEdit(group);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handleDeleteGroup(group);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -177,6 +248,13 @@ export default function Groups() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateGroup}
+      />
+      <CreateGroupModal
+        isOpen={!!editingGroup}
+        onClose={() => setEditingGroup(null)}
+        onSubmit={handleEditGroup}
+        mode="edit"
+        initialName={editingGroup?.name || ''}
       />
     </div>
   );

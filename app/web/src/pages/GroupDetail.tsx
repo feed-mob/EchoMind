@@ -108,6 +108,18 @@ export default function GroupDetail() {
     }
   };
 
+  const getFallbackAvatar = (name?: string | null) => {
+    const initial = (name || 'A')
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('')
+      .charAt(0) || 'A';
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" rx="20" fill="#dbeafe"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#137fec">${initial}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  };
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
@@ -201,16 +213,13 @@ export default function GroupDetail() {
                       <img
                         alt="Author"
                         className="w-10 h-10 rounded-full"
-                        src={idea.authorAvatar || 'https://via.placeholder.com/40'}
+                        src={idea.author?.avatar || getFallbackAvatar(idea.author?.name)}
                       />
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <h3 className={`font-semibold ${selectedIdea?.id === idea.id ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}`}>
                             {idea.title}
                           </h3>
-                          <span className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded tracking-wider ${getStatusColor(idea.status)}`}>
-                            {getStatusText(idea.status)}
-                          </span>
                         </div>
                         {idea.tags && idea.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-2">
@@ -246,7 +255,7 @@ export default function GroupDetail() {
                     <img
                       alt="Author"
                       className="w-10 h-10 rounded-full"
-                      src={selectedIdea.author?.avatar || 'https://via.placeholder.com/40'}
+                      src={selectedIdea.author?.avatar || getFallbackAvatar(selectedIdea.author?.name)}
                     />
                     <div>
                       <h3 className="font-bold text-sm">{selectedIdea.author?.name || 'Anonymous'}</h3>
