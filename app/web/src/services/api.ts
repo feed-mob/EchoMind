@@ -61,6 +61,27 @@ export interface AiEvaluationSetting {
   createdAt: string;
 }
 
+export interface AiEvaluationResult {
+  id: string;
+  settingId: string;
+  ideaId: string;
+  review: string;
+  impactScore: number;
+  feasibilityScore: number;
+  originalityScore: number;
+  totalScore: number;
+  rank: number;
+  createdAt: string;
+  idea: {
+    id: string;
+    title: string;
+    content: string | null;
+    author: {
+      name: string | null;
+    } | null;
+  };
+}
+
 // API Service
 export const api = {
   // Groups
@@ -225,13 +246,21 @@ export const api = {
         originalityWeight: number;
         selectedIdeaIds: string[];
       },
-    ): Promise<AiEvaluationSetting> => {
+    ): Promise<{ setting: AiEvaluationSetting; results: Array<Omit<AiEvaluationResult, 'id' | 'createdAt' | 'idea'>> }> => {
       const response = await fetch(`${API_URL}/api/groups/${groupId}/ai-evaluation-settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to save AI evaluation settings');
+      return response.json();
+    },
+  },
+
+  aiEvaluationResults: {
+    listBySetting: async (settingId: string): Promise<AiEvaluationResult[]> => {
+      const response = await fetch(`${API_URL}/api/ai-evaluation-settings/${settingId}/results`);
+      if (!response.ok) throw new Error('Failed to fetch AI evaluation results');
       return response.json();
     },
   },

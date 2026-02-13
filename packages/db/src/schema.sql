@@ -76,6 +76,23 @@ CREATE TABLE IF NOT EXISTS "AiEvaluationSetting" (
   FOREIGN KEY ("goalId") REFERENCES "Goal"("id") ON DELETE CASCADE
 );
 
+-- AI evaluation results table
+CREATE TABLE IF NOT EXISTS "AiEvaluationResult" (
+  "id" TEXT PRIMARY KEY,
+  "settingId" TEXT NOT NULL,
+  "ideaId" TEXT NOT NULL,
+  "review" TEXT NOT NULL,
+  "impactScore" INTEGER NOT NULL,
+  "feasibilityScore" INTEGER NOT NULL,
+  "originalityScore" INTEGER NOT NULL,
+  "totalScore" INTEGER NOT NULL,
+  "rank" INTEGER NOT NULL,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("settingId") REFERENCES "AiEvaluationSetting"("id") ON DELETE CASCADE,
+  FOREIGN KEY ("ideaId") REFERENCES "Idea"("id") ON DELETE CASCADE,
+  UNIQUE("settingId", "ideaId")
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_group_member_user" ON "GroupMember"("userId");
 CREATE INDEX IF NOT EXISTS "idx_group_member_group" ON "GroupMember"("groupId");
@@ -84,3 +101,4 @@ CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_group_created_at" ON "AiEvaluationSetting"("groupId", "createdAt" DESC);
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_goal" ON "AiEvaluationSetting"("goalId");
+CREATE INDEX IF NOT EXISTS "idx_ai_eval_result_setting_rank" ON "AiEvaluationResult"("settingId", "rank");

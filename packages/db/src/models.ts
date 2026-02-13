@@ -64,6 +64,19 @@ export interface AiEvaluationSetting {
   createdAt: Date;
 }
 
+export interface AiEvaluationResult {
+  id: string;
+  settingId: string;
+  ideaId: string;
+  review: string;
+  impactScore: number;
+  feasibilityScore: number;
+  originalityScore: number;
+  totalScore: number;
+  rank: number;
+  createdAt: Date;
+}
+
 export const users = {
   async create(data: { email: string; name?: string; avatar?: string }) {
     return await db.user.create({
@@ -370,6 +383,58 @@ export const aiEvaluationSettings = {
     return await db.aiEvaluationSetting.findMany({
       where: { groupId },
       orderBy: { createdAt: "desc" },
+    });
+  },
+};
+
+export const aiEvaluationResults = {
+  async createMany(
+    data: Array<{
+      settingId: string;
+      ideaId: string;
+      review: string;
+      impactScore: number;
+      feasibilityScore: number;
+      originalityScore: number;
+      totalScore: number;
+      rank: number;
+    }>,
+  ) {
+    if (data.length === 0) return { count: 0 };
+
+    return await db.aiEvaluationResult.createMany({
+      data: data.map((item) => ({
+        settingId: item.settingId,
+        ideaId: item.ideaId,
+        review: item.review,
+        impactScore: item.impactScore,
+        feasibilityScore: item.feasibilityScore,
+        originalityScore: item.originalityScore,
+        totalScore: item.totalScore,
+        rank: item.rank,
+      })),
+      skipDuplicates: true,
+    });
+  },
+
+  async listBySetting(settingId: string) {
+    return await db.aiEvaluationResult.findMany({
+      where: { settingId },
+      include: {
+        idea: {
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            author: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ rank: "asc" }, { totalScore: "desc" }],
     });
   },
 };

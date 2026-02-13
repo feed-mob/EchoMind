@@ -8,4 +8,7 @@ export const aiEvaluationSettingsRoutes = {
   "/api/ai-evaluation-settings/:id": {
     GET: aiEvaluationSettingsController.getById,
   },
+  "/api/ai-evaluation-settings/:id/results": {
+    GET: aiEvaluationSettingsController.listResultsBySetting,
+  },
 };

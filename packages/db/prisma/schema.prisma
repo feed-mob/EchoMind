@@ -68,6 +68,7 @@ model Idea {
 
   group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  aiEvaluationResults AiEvaluationResult[]
 }
 
 model Goal {
@@ -98,7 +99,27 @@ model AiEvaluationSetting {
 
   group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   goal            Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  results         AiEvaluationResult[]
 
   @@index([groupId, createdAt(sort: Desc)])
   @@index([goalId])
+}
+
+model AiEvaluationResult {
+  id                String   @id @default(cuid())
+  settingId         String
+  ideaId            String
+  review            String
+  impactScore       Int
+  feasibilityScore  Int
+  originalityScore  Int
+  totalScore        Int
+  rank              Int
+  createdAt         DateTime @default(now())
+
+  setting           AiEvaluationSetting @relation(fields: [settingId], references: [id], onDelete: Cascade)
+  idea              Idea                @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+
+  @@unique([settingId, ideaId])
+  @@index([settingId, rank])
 }

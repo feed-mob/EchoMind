@@ -38,6 +38,10 @@ export default function GroupDetail() {
 
       setGroup(groupData);
       setIdeas(ideasData);
+      setSelectedIdea((prev) => {
+        if (!prev) return null;
+        return ideasData.find((item) => item.id === prev.id) || null;
+      });
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');

@@ -21,6 +21,8 @@ export default function AIEvaluationSetup() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitProgress, setSubmitProgress] = useState(0);
+  const [estimatedSecondsLeft, setEstimatedSecondsLeft] = useState(0);
 
   useEffect(() => {
     if (!groupId) return;
@@ -73,6 +75,29 @@ export default function AIEvaluationSetup() {
   );
 
   const totalWeight = impact + feasibility + originality;
+  const canRunPick = Boolean(selectedGoal && selectedIdeaIds.length > 0 && totalWeight === 100 && !submitting);
+
+  useEffect(() => {
+    if (!submitting) {
+      setSubmitProgress(0);
+      setEstimatedSecondsLeft(0);
+      return;
+    }
+
+    const expectedSeconds = Math.max(8, selectedIdeaIds.length * 4);
+    const start = Date.now();
+    setEstimatedSecondsLeft(expectedSeconds);
+
+    const timer = setInterval(() => {
+      const elapsed = (Date.now() - start) / 1000;
+      const ratio = Math.min(elapsed / expectedSeconds, 1);
+      const nextProgress = Math.min(92, Math.round(ratio * 92));
+      setSubmitProgress(nextProgress);
+      setEstimatedSecondsLeft(Math.max(1, Math.ceil(expectedSeconds - elapsed)));
+    }, 300);
+
+    return () => clearInterval(timer);
+  }, [submitting, selectedIdeaIds.length]);
 
   const toggleIdeaSelection = (ideaId: string) => {
     setSelectedIdeaIds((prev) =>
@@ -88,8 +113,20 @@ export default function AIEvaluationSetup() {
     setSelectedIdeaIds([]);
   };
 
+  const clampWeight = (value: number) => Math.max(0, Math.min(100, value));
+  const parseWeightInput = (raw: string, setter: (value: number) => void) => {
+    if (raw.trim() === '') {
+      setter(0);
+      return;
+    }
+
+    const parsed = Number(raw);
+    if (Number.isNaN(parsed)) return;
+    setter(clampWeight(Math.round(parsed)));
+  };
+
   const handleRunPick = async () => {
-    if (!groupId || !group || !selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100) {
+    if (!groupId || !group || !selectedGoal || selectedIdeaIds.length === 0 || totalWeight !== 100) {
       return;
     }
 
@@ -106,7 +143,7 @@ export default function AIEvaluationSetup() {
       setSubmitting(true);
       setSubmitError(null);
 
-      await api.aiEvaluationSettings.create(groupId, {
+      const evaluation = await api.aiEvaluationSettings.create(groupId, {
         goalId: selectedGoalId,
         model,
         impactWeight: impact,
@@ -117,8 +154,9 @@ export default function AIEvaluationSetup() {
 
       navigate(`/group/${groupId}/ai-evaluated`, {
         state: {
+          settingId: evaluation.setting.id,
           goalId: selectedGoalId,
-          goalTitle: selectedGoal?.title || 'Evaluation Goal',
+          goalTitle: selectedGoal.title,
           model,
           impact,
           feasibility,
@@ -157,6 +195,32 @@ export default function AIEvaluationSetup() {
           >
             Back to Groups
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitting) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="text-center max-w-lg px-6">
+          <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-6"></div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Generating AI Evaluation</h2>
+          <p className="text-slate-600 dark:text-slate-400">
+            We are reviewing selected ideas and computing scores. This may take a few moments.
+          </p>
+          <div className="mt-6">
+            <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-300"
+                style={{ width: `${submitProgress}%` }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+              <span>{submitProgress}%</span>
+              <span>~{estimatedSecondsLeft}s left</span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -313,27 +377,57 @@ export default function AIEvaluationSetup() {
               </div>
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Impact</span>
-                    <span className="text-sm font-bold text-primary">{impact}%</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        className="w-16 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-right text-sm font-bold text-primary"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={impact}
+                        onChange={(event) => parseWeightInput(event.target.value, setImpact)}
+                      />
+                      <span className="text-xs text-slate-500">%</span>
+                    </div>
                   </div>
                   <input className="w-full" max="100" min="0" type="range" value={impact} onChange={(e) => setImpact(Number(e.target.value))} />
                   <p className="text-[10px] text-slate-500">Value to customer and business ROI.</p>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Feasibility</span>
-                    <span className="text-sm font-bold text-primary">{feasibility}%</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        className="w-16 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-right text-sm font-bold text-primary"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={feasibility}
+                        onChange={(event) => parseWeightInput(event.target.value, setFeasibility)}
+                      />
+                      <span className="text-xs text-slate-500">%</span>
+                    </div>
                   </div>
                   <input className="w-full" max="100" min="0" type="range" value={feasibility} onChange={(e) => setFeasibility(Number(e.target.value))} />
                   <p className="text-[10px] text-slate-500">Technical effort and resource availability.</p>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Originality</span>
-                    <span className="text-sm font-bold text-primary">{originality}%</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        className="w-16 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-right text-sm font-bold text-primary"
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={originality}
+                        onChange={(event) => parseWeightInput(event.target.value, setOriginality)}
+                      />
+                      <span className="text-xs text-slate-500">%</span>
+                    </div>
                   </div>
                   <input className="w-full" max="100" min="0" type="range" value={originality} onChange={(e) => setOriginality(Number(e.target.value))} />
                   <p className="text-[10px] text-slate-500">Market uniqueness and competitive edge.</p>
@@ -346,10 +440,10 @@ export default function AIEvaluationSetup() {
             <button
               className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all disabled:opacity-60"
               onClick={() => void handleRunPick()}
-              disabled={!selectedGoalId || selectedIdeaIds.length === 0 || totalWeight !== 100 || submitting}
+              disabled={!canRunPick}
             >
               <span className="material-icons">play_arrow</span>
-              {submitting ? 'Saving...' : 'Run AI Pick'}
+              Run AI Pick
             </button>
             {submitError && <p className="text-center mt-2 text-[10px] text-red-500">{submitError}</p>}
             <p className="text-center mt-3 text-[10px] text-slate-500">Estimated cost: ~0.45 credits</p>

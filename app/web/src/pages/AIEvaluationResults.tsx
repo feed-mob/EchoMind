@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { api, type Goal, type Group, type Idea } from '../services/api';
+import { api, type AiEvaluationResult, type Goal, type Group, type Idea } from '../services/api';
 
 type EvaluationState = {
+  settingId?: string;
   goalId?: string;
   goalTitle?: string;
   model?: string;
@@ -56,6 +57,7 @@ export default function AIEvaluationResults() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [storedResults, setStoredResults] = useState<AiEvaluationResult[]>([]);
 
   useEffect(() => {
     if (!groupId) return;
@@ -83,6 +85,21 @@ export default function AIEvaluationResults() {
     void fetchData();
   }, [groupId]);
 
+  useEffect(() => {
+    if (!state.settingId) return;
+
+    const fetchStoredResults = async () => {
+      try {
+        const results = await api.aiEvaluationResults.listBySetting(state.settingId as string);
+        setStoredResults(results);
+      } catch {
+        setStoredResults([]);
+      }
+    };
+
+    void fetchStoredResults();
+  }, [state.settingId]);
+
   const selectedGoal = useMemo(() => {
     if (goals.length === 0) return null;
     const targetId = state.goalId;
@@ -104,6 +121,19 @@ export default function AIEvaluationResults() {
   };
 
   const rankedIdeas = useMemo<RankedIdea[]>(() => {
+    if (storedResults.length > 0) {
+      return storedResults.map((item) => ({
+        id: item.ideaId,
+        title: item.idea?.title || 'Untitled',
+        authorName: item.idea?.author?.name || 'Anonymous',
+        reasoning: item.review,
+        impact: item.impactScore,
+        feasibility: item.feasibilityScore,
+        originality: item.originalityScore,
+        score: item.totalScore,
+      }));
+    }
+
     const byId = new Map(
       ideas.map((idea) => [
         idea.id,
@@ -150,7 +180,7 @@ export default function AIEvaluationResults() {
       .filter((idea): idea is RankedIdea => Boolean(idea));
 
     return list.sort((a, b) => b.score - a.score);
-  }, [ideas, selectedGoal?.id, selectedIdeaIds, state.selectedIdeas, weighted.feasibility, weighted.impact, weighted.originality]);
+  }, [ideas, selectedGoal?.id, selectedIdeaIds, state.selectedIdeas, storedResults, weighted.feasibility, weighted.impact, weighted.originality]);
 
   const winner = rankedIdeas[0] || null;
 
