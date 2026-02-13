@@ -1,4 +1,4 @@
-import { users, groupMembers, groupInvitations } from "../../../../packages/db";
+import { users, groupMembers, groupInvitations } from "../../../../packages/db/index.js";
 type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 function normalizeEmail(email: string) {

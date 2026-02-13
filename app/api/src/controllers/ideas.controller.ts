@@ -1,4 +1,4 @@
-import { ideas } from "../../../../packages/db";
+import { ideas } from "../../../../packages/db/index.js";
 type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 export const ideasController = {

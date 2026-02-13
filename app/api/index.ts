@@ -1,4 +1,4 @@
-import { initDatabase } from "../../packages/db";
+import { initDatabase } from "../../packages/db/index.js";
 import { handleRequest } from "./src/http/app";
 
 await initDatabase();
