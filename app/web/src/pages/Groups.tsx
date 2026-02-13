@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
 
 const API_URL = 'http://localhost:3001';
@@ -15,6 +16,7 @@ interface GroupData {
 }
 
 export default function Groups() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groups, setGroups] = useState<GroupData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,15 +113,6 @@ export default function Groups() {
               />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all shadow-lg shadow-primary/20"
-            >
-              <span className="material-icons text-sm">add</span>
-              Create New Group
-            </button>
-          </div>
         </header>
 
         {/* Grid Content */}
@@ -128,6 +121,7 @@ export default function Groups() {
             {groups.map((group) => (
               <div
                 key={group.id}
+                onClick={() => navigate(`/group/${group.id}`)}
                 className="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
               >
                 <div className="flex justify-between items-start mb-4">

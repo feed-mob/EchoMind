@@ -35,22 +35,7 @@
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex">
-<!-- Global Navigation Sidebar -->
-<aside class="w-16 flex flex-col items-center py-6 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50">
-<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mb-8">
-<span class="material-icons text-white">bolt</span>
-</div>
-<nav class="flex flex-col gap-6 flex-1">
-<button class="p-2 text-primary bg-primary/10 rounded-lg"><span class="material-icons">dashboard</span></button>
-<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">lightbulb</span></button>
-<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">groups</span></button>
-<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">assessment</span></button>
-</nav>
-<div class="flex flex-col gap-6">
-<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons">settings</span></button>
-<img alt="User Profile" class="w-8 h-8 rounded-full border border-slate-700" data-alt="User profile circular avatar image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJi6A1yBRxEMdu-fYyHrHhUSzMv08dPt09VTlzwXHozS1ffTGV0PxxWmYT_jw8Fq0P3HMfQYTsAeNaaBYgb9So72Dabp8CdPEn5-dYbxVxYPtDu5CpHzqYjSO--BmTQ6QJ7INMlx7g1_Bp3pSvfdo1OSKS949Nd4_KxFnUftB51Jrk2BDd3Bj-GX0zspY6UmGg63bI9hADCogum1nuBGOvNR9gFY9hnGTvSl1-a0xVuc6mPSFX50czQhqhj4M5P6uYxQS5nVj9Gug"/>
-</div>
-</aside>
+
 <!-- Main Content Area -->
 <main class="flex-1 flex flex-col h-screen overflow-hidden">
 <!-- Top Toolbar -->
@@ -60,24 +45,10 @@
 <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
 <input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary text-sm transition-all" placeholder="Search ideas..." type="text"/>
 </div>
-<div class="flex items-center gap-2">
-<button class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors">
-                        Goals <span class="material-icons text-xs">expand_more</span>
-</button>
-<button class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-medium flex items-center gap-2 transition-colors">
-                        Status <span class="material-icons text-xs">expand_more</span>
-</button>
-</div>
+
 </div>
 <div class="flex items-center gap-6">
-<div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-<button class="px-3 py-1 bg-white dark:bg-slate-700 shadow-sm rounded-md text-xs font-medium flex items-center gap-1">
-<span class="material-icons text-xs">view_list</span> List
-                    </button>
-<button class="px-3 py-1 text-slate-500 dark:text-slate-400 text-xs font-medium flex items-center gap-1 hover:text-primary">
-<span class="material-icons text-xs">dashboard</span> Board
-                    </button>
-</div>
+
 <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all">
 <span class="material-icons text-sm">add</span> New Idea
                 </button>
@@ -87,7 +58,7 @@
 <div class="flex-1 flex overflow-hidden">
 <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
 <div class="flex items-center justify-between mb-4">
-<h1 class="text-xl font-bold">Innovation Group <span class="text-slate-400 font-normal ml-2">24 Ideas</span></h1>
+<h1 class="text-xl font-bold">Innovation Group</h1>
 <div class="flex items-center gap-2 text-xs text-slate-400">
 <span>Sort by:</span>
 <button class="text-primary font-medium flex items-center">Recent <span class="material-icons text-xs">arrow_drop_down</span></button>
@@ -175,14 +146,13 @@
 </div>
 </div>
 <!-- Detail Drawer (Right Panel) -->
-<aside class="w-[500px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col shadow-2xl">
+<aside class="w-[600px] border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col shadow-2xl">
 <div class="h-16 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
 <div class="flex items-center gap-2">
 <button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400"><span class="material-icons">close</span></button>
 <span class="text-xs font-semibold uppercase tracking-widest text-slate-400">Idea Detail</span>
 </div>
 <div class="flex items-center gap-2">
-<button class="p-2 text-slate-400 hover:text-primary transition-colors"><span class="material-icons text-sm">share</span></button>
 <button class="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all">
 <span class="material-icons text-sm">edit</span> Edit
                         </button>
@@ -219,25 +189,11 @@
                                 This will integrate directly with our existing Intercom and Zendesk webhooks.
                             </p>
 </article>
-<div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
-<h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Linked Goals</h3>
-<div class="flex flex-wrap gap-2">
-<span class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-full">
-<span class="w-1.5 h-1.5 bg-primary rounded-full"></span> Q4 Retention
-                                </span>
-<span class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold rounded-full">
-<span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> AI/ML Strategy
-                                </span>
-<button class="w-8 h-8 rounded-full border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all">
-<span class="material-icons text-sm">add</span>
-</button>
-</div>
-</div>
+
 <!-- Comments Section -->
 <div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
 <div class="flex items-center justify-between mb-6">
 <h3 class="text-sm font-bold">Comments (12)</h3>
-<button class="text-primary text-xs font-semibold">View All</button>
 </div>
 <div class="space-y-6">
 <div class="flex gap-3">
