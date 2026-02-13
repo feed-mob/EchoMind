@@ -1,5 +1,4 @@
 import type { GoalViewModel } from './types';
-import { getStatusMeta } from './utils';
 
 interface GoalDetailViewProps {
   selectedGoal: GoalViewModel;
@@ -16,31 +15,12 @@ export default function GoalDetailView({
   onArchiveGoal,
   onDeleteGoal,
 }: GoalDetailViewProps) {
-  const statusMeta = getStatusMeta(selectedGoal.status);
-
   return (
     <>
       <header className="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded ${statusMeta.className}`}>
-            {statusMeta.label}
-          </span>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
-            onClick={onAiEvaluate}
-          >
-            <span className="material-icons text-base">auto_fix_high</span>
-            AI Evaluate
-          </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
-            onClick={onEdit}
-          >
-            <span className="material-icons text-base">edit</span>
-            Edit
-          </button>
           {selectedGoal.status !== 'archived' && (
             <button
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
@@ -50,6 +30,20 @@ export default function GoalDetailView({
               Archive
             </button>
           )}
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
+            onClick={onEdit}
+          >
+            <span className="material-icons text-base">edit</span>
+            Edit
+          </button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
+            onClick={onAiEvaluate}
+          >
+            <span className="material-icons text-base">auto_fix_high</span>
+            AI Evaluate
+          </button>
           {selectedGoal.status === 'archived' && (
             <button
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
