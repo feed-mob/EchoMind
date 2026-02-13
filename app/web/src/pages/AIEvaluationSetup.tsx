@@ -343,7 +343,7 @@ export default function AIEvaluationSetup() {
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select AI Model</label>
               <div className="space-y-3">
-                {[{ id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Largest context window for bulk ideas' }].map((item) => (
+                {[{ id: 'gemini-1.5-pro', name: 'Gemini 1.5 Flash', desc: 'Largest context window for bulk ideas' }].map((item) => (
                   <label
                     key={item.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
