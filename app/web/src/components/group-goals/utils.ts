@@ -15,6 +15,17 @@ const toStringArray = (value: unknown): string[] => {
 };
 
 export const normalizeGoal = (goal: ApiGoal): GoalViewModel => ({
+  ...(() => {
+    const raw = goal as ApiGoal & {
+      creator?: { name?: string | null; avatar?: string | null };
+      creatorName?: string | null;
+      creatorAvatar?: string | null;
+    };
+    return {
+      creatorName: raw.creator?.name ?? raw.creatorName ?? null,
+      creatorAvatar: raw.creator?.avatar ?? raw.creatorAvatar ?? null,
+    };
+  })(),
   id: goal.id,
   title: goal.title,
   description: goal.description || '',

@@ -1,4 +1,3 @@
-import { getStatusMeta } from './utils';
 import type { GoalViewMode, GoalViewModel } from './types';
 
 interface GoalsSidebarProps {
@@ -16,6 +15,15 @@ export default function GoalsSidebar({
   onSelectGoal,
   onChangeViewMode,
 }: GoalsSidebarProps) {
+  const getInitial = (name?: string | null) => {
+    return (
+      (name || 'A')
+        .trim()
+        .charAt(0)
+        .toUpperCase() || 'A'
+    );
+  };
+
   return (
     <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/50">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
@@ -48,7 +56,6 @@ export default function GoalsSidebar({
           <div className="p-3 text-xs text-slate-400">No goals found.</div>
         ) : (
           visibleGoals.map((goal) => {
-            const statusMeta = getStatusMeta(goal.status);
             const active = selectedGoalId === goal.id;
 
             return (
@@ -61,14 +68,26 @@ export default function GoalsSidebar({
                 }`}
                 onClick={() => onSelectGoal(goal.id)}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <span className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded ${statusMeta.className}`}>
-                    {statusMeta.label}
-                  </span>
-                  <span className="text-[10px] text-slate-500">{new Date(goal.updatedAt).toLocaleDateString()}</span>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                    {goal.creatorAvatar ? (
+                      <img
+                        src={goal.creatorAvatar}
+                        alt={goal.creatorName || 'Creator'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getInitial(goal.creatorName)
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2 mb-1">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight line-clamp-1">{goal.title}</h3>
+                      <span className="text-[10px] text-slate-500 shrink-0">{new Date(goal.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
+                  </div>
                 </div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">{goal.title}</h3>
-                <p className="text-xs text-slate-500 mt-1 line-clamp-1">{goal.description || 'No description yet'}</p>
               </button>
             );
           })

@@ -65,10 +65,6 @@ export default function GroupGoals() {
 
   const selectedGoal = goals.find((goal) => goal.id === selectedGoalId) ?? null;
 
-  useEffect(() => {
-    setIsEditing(false);
-  }, [selectedGoalId]);
-
   const updateGoalLocal = (goalId: string, updater: (goal: GoalViewModel) => GoalViewModel) => {
     setGoals((prev) =>
       prev.map((goal) => {
@@ -113,7 +109,7 @@ export default function GroupGoals() {
       setGoals((prev) => [next, ...prev]);
       setViewMode('active');
       setSelectedGoalId(next.id);
-      setIsEditing(false);
+      setIsEditing(true);
       setSaveError(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to create goal');
@@ -138,6 +134,7 @@ export default function GroupGoals() {
       successMetrics: selectedGoal.successMetrics,
       constraints: selectedGoal.constraints,
     });
+    setIsEditing(false);
   };
 
   const deleteGoal = async () => {
