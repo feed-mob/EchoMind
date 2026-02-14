@@ -127,7 +127,8 @@ export default async function handler(
       res.setHeader(key, value);
     });
 
-    const payload = new Uint8Array(await response.arrayBuffer());
+    const arrayBuffer = await response.arrayBuffer();
+    const payload = Buffer.from(arrayBuffer);
     res.status(response.status).send(payload);
   } catch (error) {
     console.error("Unhandled Vercel API error:", error);
