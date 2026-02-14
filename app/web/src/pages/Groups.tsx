@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
 import { api, type Group } from '../services/api';
+import { useAuth } from '../auth/AuthContext';
 
 export default function Groups() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,10 +38,16 @@ export default function Groups() {
   };
 
   const handleCreateGroup = async (data: { name: string; logo?: File }) => {
+    if (!user?.id) {
+      alert('Please login first.');
+      return;
+    }
+
     try {
       await api.groups.create({
         name: data.name,
         icon: 'groups',
+        creatorUserId: user.id,
       });
 
       await fetchGroups();

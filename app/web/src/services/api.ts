@@ -164,7 +164,7 @@ export const api = {
       return response.json();
     },
 
-    create: async (data: { name: string; department?: string; icon?: string }): Promise<Group> => {
+    create: async (data: { name: string; department?: string; icon?: string; creatorUserId: string }): Promise<Group> => {
       const response = await fetch(`${API_URL}/api/groups`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

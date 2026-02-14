@@ -24,8 +24,23 @@ export const groupsController = {
       icon?: string;
       logo?: string;
       description?: string;
+      creatorUserId?: string;
     };
-    const group = await groups.create(data);
+
+    if (!data.creatorUserId || !String(data.creatorUserId).trim()) {
+      return Response.json({ error: "creatorUserId is required" }, { status: 400 });
+    }
+
+    const creatorUserId = String(data.creatorUserId).trim();
+    const creator = await users.findById(creatorUserId);
+    if (!creator) {
+      return Response.json({ error: "Creator user not found" }, { status: 404 });
+    }
+
+    const group = await groups.create({
+      ...data,
+      creatorUserId,
+    });
     return Response.json(group, { status: 201 });
   },
 

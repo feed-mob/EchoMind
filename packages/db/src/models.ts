@@ -136,16 +136,40 @@ export const groups = {
     icon?: string;
     logo?: string;
     description?: string;
+    creatorUserId?: string;
   }) {
-    return await db.group.create({
-      data: {
-        name: data.name,
-        department: data.department,
-        icon: data.icon,
-        logo: data.logo,
-        description: data.description,
-        status: "active",
-      },
+    return await db.$transaction(async (tx: any) => {
+      const group = await tx.group.create({
+        data: {
+          name: data.name,
+          department: data.department,
+          icon: data.icon,
+          logo: data.logo,
+          description: data.description,
+          status: "active",
+        },
+      });
+
+      if (data.creatorUserId) {
+        await tx.groupMember.upsert({
+          where: {
+            userId_groupId: {
+              userId: data.creatorUserId,
+              groupId: group.id,
+            },
+          },
+          update: {
+            role: "admin",
+          },
+          create: {
+            userId: data.creatorUserId,
+            groupId: group.id,
+            role: "admin",
+          },
+        });
+      }
+
+      return group;
     });
   },
 
