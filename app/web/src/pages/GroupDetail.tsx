@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group, type IdeaComment } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
-import ConfirmBubble from '../components/ConfirmBubble';
+import ConfirmModal from '../components/ConfirmModal';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
 import { useToast } from '../components/ToastProvider';
@@ -33,6 +33,8 @@ export default function GroupDetail() {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentDraft, setEditingCommentDraft] = useState('');
   const [commentActionId, setCommentActionId] = useState<string | null>(null);
+  const [ideaActionId, setIdeaActionId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'idea' | 'comment'; id: string } | null>(null);
 
   useEffect(() => {
     if (groupId) {
@@ -118,6 +120,7 @@ export default function GroupDetail() {
 
   const handleDeleteIdea = async (ideaId: string) => {
     try {
+      setIdeaActionId(ideaId);
       await api.ideas.delete(ideaId);
       await fetchGroupData();
       if (selectedIdea?.id === ideaId) {
@@ -126,6 +129,8 @@ export default function GroupDetail() {
     } catch (err) {
       console.error('Error deleting idea:', err);
       toast.error('Failed to delete idea. Please try again.');
+    } finally {
+      setIdeaActionId(null);
     }
   };
 
@@ -239,6 +244,24 @@ export default function GroupDetail() {
       (idea.content || '').toLowerCase().includes(term)
     );
   });
+
+  const isDeleteConfirming =
+    deleteTarget?.type === 'idea'
+      ? ideaActionId === deleteTarget.id
+      : deleteTarget?.type === 'comment'
+      ? commentActionId === deleteTarget.id
+      : false;
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    if (deleteTarget.type === 'idea') {
+      await handleDeleteIdea(deleteTarget.id);
+    } else {
+      await handleDeleteComment(deleteTarget.id);
+    }
+    setDeleteTarget(null);
+  };
 
   if (loading) {
     return (
@@ -419,20 +442,14 @@ export default function GroupDetail() {
                     >
                       <span className="material-icons">edit</span>
                     </button>
-                    <ConfirmBubble
-                      message="Are you sure you want to delete this idea?"
-                      onConfirm={() => handleDeleteIdea(selectedIdea.id)}
-                      placement="bottom"
-                      confirmText="Delete"
-                      confirmTone="danger"
+                    <button
+                      className="icon-button text-slate-400 hover:text-red-500 disabled:opacity-40"
+                      title="Delete idea"
+                      disabled={ideaActionId === selectedIdea.id}
+                      onClick={() => setDeleteTarget({ type: 'idea', id: selectedIdea.id })}
                     >
-                      <button
-                        className="icon-button text-slate-400 hover:text-red-500"
-                        title="Delete idea"
-                      >
-                        <span className="material-icons">delete</span>
-                      </button>
-                    </ConfirmBubble>
+                      <span className="material-icons">delete</span>
+                    </button>
                   </div>
                 </div>
 
@@ -495,22 +512,15 @@ export default function GroupDetail() {
                                     >
                                       <span className="material-icons text-sm">edit</span>
                                     </button>
-                                    <ConfirmBubble
-                                      message="Are you sure you want to delete this comment?"
-                                      onConfirm={() => handleDeleteComment(comment.id)}
-                                      confirmText="Delete"
-                                      confirmTone="danger"
+                                    <button
+                                      className="icon-button text-slate-500 hover:text-red-500 disabled:opacity-40"
                                       disabled={commentActionId === comment.id}
+                                      onClick={() => setDeleteTarget({ type: 'comment', id: comment.id })}
+                                      title="Delete comment"
+                                      aria-label="Delete comment"
                                     >
-                                      <button
-                                        className="icon-button text-slate-500 hover:text-red-500 disabled:opacity-40"
-                                        disabled={commentActionId === comment.id}
-                                        title="Delete comment"
-                                        aria-label="Delete comment"
-                                      >
-                                        <span className="material-icons text-sm">delete</span>
-                                      </button>
-                                    </ConfirmBubble>
+                                      <span className="material-icons text-sm">delete</span>
+                                    </button>
                                   </>
                                 )}
                                 <span className="text-[11px] text-slate-400">
@@ -587,7 +597,16 @@ export default function GroupDetail() {
           )}
         </div>
       </main>
-
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Delete Confirmation"
+        message={deleteTarget?.type === 'idea' ? 'Are you sure you want to delete this idea?' : 'Are you sure you want to delete this comment?'}
+        confirmText="Delete"
+        confirmTone="danger"
+        confirmLoading={isDeleteConfirming}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

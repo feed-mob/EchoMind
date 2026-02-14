@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import SimpleMarkdownEditor from '../SimpleMarkdownEditor';
-import ConfirmBubble from '../ConfirmBubble';
+import ConfirmModal from '../ConfirmModal';
 import type { GoalViewModel } from './types';
 
 interface GoalEditorProps {
@@ -21,6 +21,7 @@ export default function GoalEditor({
   onDeleteGoal,
 }: GoalEditorProps) {
   const [draftTitle, setDraftTitle] = useState(selectedGoal.title);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     setDraftTitle(selectedGoal.title);
@@ -51,18 +52,13 @@ export default function GoalEditor({
             </button>
           )}
           {selectedGoal.status === 'archived' && (
-            <ConfirmBubble
-              message="Are you sure you want to delete this goal?"
-              onConfirm={onDeleteGoal}
-              placement="bottom"
-              confirmText="Delete"
-              confirmTone="danger"
+            <button
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+              onClick={() => setShowDeleteConfirm(true)}
             >
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                <span className="material-icons text-base">delete</span>
-                Delete
-              </button>
-            </ConfirmBubble>
+              <span className="material-icons text-base">delete</span>
+              Delete
+            </button>
           )}
         </div>
       </header>
@@ -203,6 +199,18 @@ export default function GoalEditor({
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Confirmation"
+        message="Are you sure you want to delete this goal?"
+        confirmText="Delete"
+        confirmTone="danger"
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={async () => {
+          await onDeleteGoal();
+          setShowDeleteConfirm(false);
+        }}
+      />
     </>
   );
 }
