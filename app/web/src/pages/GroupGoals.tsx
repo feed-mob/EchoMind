@@ -281,6 +281,7 @@ export default function GroupGoals() {
                     }))}
                   selectedSetting={settings.find((setting) => setting.id === selectedGoal.selectedSettingId) || null}
                   onAiEvaluate={() => navigate(`/group/${group.id}/ai-evaluate?goalId=${selectedGoal.id}`)}
+                  onShare={() => navigate(`/group/${group.id}/goals/${selectedGoal.id}/share`)}
                   onEdit={() => setIsEditing(true)}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}

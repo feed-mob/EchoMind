@@ -6,6 +6,7 @@ import Landing from './pages/Landing'
 import Groups from './pages/Groups'
 import GroupDetail from './pages/GroupDetail'
 import GroupGoals from './pages/GroupGoals'
+import GroupGoalShare from './pages/GroupGoalShare'
 import AIEvaluationSetup from './pages/AIEvaluationSetup'
 import AIEvaluationResults from './pages/AIEvaluationResults'
 import GroupSettings from './pages/GroupSettings'
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/group" element={<Groups />} />
               <Route path="/group/:groupId" element={<GroupDetail />} />
               <Route path="/group/:groupId/goals" element={<GroupGoals />} />
+              <Route path="/group/:groupId/goals/:goalId/share" element={<GroupGoalShare />} />
               <Route path="/group/:groupId/settings" element={<GroupSettings />} />
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
               <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />

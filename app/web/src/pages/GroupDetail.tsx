@@ -38,9 +38,9 @@ export default function GroupDetail() {
 
   useEffect(() => {
     if (groupId) {
-      fetchGroupData();
+      void fetchGroupData();
     }
-  }, [groupId]);
+  }, [groupId, user?.id]);
 
   useEffect(() => {
     if (!selectedIdea?.id) {
@@ -55,12 +55,29 @@ export default function GroupDetail() {
   }, [selectedIdea?.id]);
 
   const fetchGroupData = async () => {
+    if (!groupId) return;
+
     try {
       setLoading(true);
-      const [groupData, ideasData] = await Promise.all([
-        api.groups.getById(groupId!),
-        api.ideas.listByGroup(groupId!)
-      ]);
+      const groupData = await api.groups.getById(groupId);
+      let canAccessGroup = Boolean(groupData.publicAccessEnabled);
+
+      if (!canAccessGroup && user?.id) {
+        const memberships = await api.users.listGroups(user.id);
+        canAccessGroup = memberships.some((membership) => membership.groupId === groupId);
+      }
+
+      if (!canAccessGroup) {
+        setGroup(null);
+        setIdeas([]);
+        setSelectedIdea(null);
+        setError('You do not have access to this group.');
+        toast.error('You do not have access to this group.');
+        navigate('/group', { replace: true });
+        return;
+      }
+
+      const ideasData = await api.ideas.listByGroup(groupId);
 
       setGroup(groupData);
       setIdeas(ideasData);

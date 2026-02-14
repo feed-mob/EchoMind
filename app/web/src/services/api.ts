@@ -54,6 +54,22 @@ export interface GroupMember {
   };
 }
 
+export interface UserGroupMembership {
+  id: string;
+  userId: string;
+  groupId: string;
+  role: string;
+  joinedAt: string;
+  group: {
+    id: string;
+    name: string;
+    department?: string | null;
+    icon?: string | null;
+    logo?: string | null;
+    status: string;
+  };
+}
+
 export interface Idea {
   id: string;
   title: string;
@@ -162,6 +178,12 @@ export const api = {
         const payload = await response.json().catch(() => null) as { error?: string } | null;
         throw new Error(payload?.error || 'Failed to login with Google');
       }
+      return response.json();
+    },
+
+    listGroups: async (userId: string): Promise<UserGroupMembership[]> => {
+      const response = await fetch(`${API_URL}/api/users/${userId}/groups`);
+      if (!response.ok) throw new Error('Failed to fetch user groups');
       return response.json();
     },
   },
