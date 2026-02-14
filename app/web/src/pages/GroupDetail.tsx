@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import ConfirmModal from '../components/ConfirmModal';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
+import AnimatedLightbulb from '../components/AnimatedLightbulb';
 import { useToast } from '../components/ToastProvider';
 
 interface GroupDetail extends Group {}
@@ -337,8 +338,6 @@ export default function GroupDetail() {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
             {filteredIdeas.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
-                <span className="material-icons text-5xl mb-4">lightbulb_outline</span>
-                <p>No ideas found.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -607,8 +606,8 @@ export default function GroupDetail() {
           ) : (
             <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar flex items-center justify-center">
               <div className="text-center text-slate-400">
-                <span className="material-icons text-6xl mb-4">lightbulb_outline</span>
-                <p className="text-sm">Select an idea to view details</p>
+                <AnimatedLightbulb />
+                <p className="text-m">Jump into an idea, or create your next big one.</p>
               </div>
             </aside>
           )}

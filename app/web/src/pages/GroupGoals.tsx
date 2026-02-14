@@ -291,7 +291,7 @@ export default function GroupGoals() {
               <div className="flex-1 flex items-center justify-center text-slate-400">
                 <div className="text-center">
                   <span className="material-icons text-6xl mb-4">flag</span>
-                  <p className="text-sm">Select a goal to view details</p>
+                  <p className="text-m">Select a goal to track your progress</p>
                 </div>
               </div>
             )}

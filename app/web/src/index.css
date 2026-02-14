@@ -187,3 +187,97 @@ button:focus-visible {
     transform: translateY(0);
   }
 }
+
+.animated-lightbulb {
+  display: inline-flex;
+  line-height: 1;
+}
+
+.animated-lightbulb .bulb-canvas {
+  overflow: visible;
+}
+
+.animated-lightbulb .bulb-warm-glow {
+  fill: #fff7da;
+  opacity: 0.18;
+  filter: blur(8px);
+  animation: bulb-warm-glow-cycle 3.2s ease-in-out infinite;
+}
+
+.animated-lightbulb .bulb-fill {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: bulb-fill-cycle 3.2s ease-in-out infinite;
+}
+
+.animated-lightbulb .bulb-outline,
+.animated-lightbulb .bulb-base-line,
+.animated-lightbulb .bulb-highlight {
+  stroke: url(#bulbStrokeGradient);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.animated-lightbulb .bulb-outline {
+  opacity: 0.96;
+}
+
+.animated-lightbulb .bulb-highlight {
+  opacity: 0.7;
+}
+
+@keyframes bulb-fill-cycle {
+  0% {
+    transform: scaleY(0.9);
+    opacity: 0.52;
+    filter: brightness(1.12) saturate(0.55);
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 0.96;
+    filter: brightness(1.02) saturate(1.16);
+  }
+  100% {
+    transform: scaleY(0.9);
+    opacity: 0.52;
+    filter: brightness(1.12) saturate(0.55);
+  }
+}
+
+@keyframes bulb-warm-glow-cycle {
+  0% {
+    fill: #fff7da;
+    filter: blur(8px);
+    opacity: 0.12;
+  }
+  50% {
+    fill: #ffd54f;
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    fill: #fff7da;
+    filter: blur(8px);
+    opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-lightbulb .bulb-fill,
+  .animated-lightbulb .bulb-warm-glow {
+    animation: none;
+  }
+
+  .animated-lightbulb .bulb-warm-glow {
+    opacity: 0.22;
+    filter: blur(8px);
+  }
+
+  .animated-lightbulb .bulb-fill {
+    transform: scaleY(1);
+    opacity: 0.9;
+    filter: none;
+  }
+}
