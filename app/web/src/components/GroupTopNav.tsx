@@ -12,6 +12,7 @@ type GroupTopNavProps = {
 
 export default function GroupTopNav({ group, activeTab, aiGoalId, sticky = false }: GroupTopNavProps) {
   const navigate = useNavigate();
+  const tabPaddingFallback = { paddingLeft: '16px', paddingRight: '16px' };
 
   const navButtonClass = (tab: 'ideas' | 'goals' | 'ai') =>
     `px-4 h-full text-sm font-medium transition-all ${
@@ -39,15 +40,24 @@ export default function GroupTopNav({ group, activeTab, aiGoalId, sticky = false
           <div className="h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
           <span className="text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>
           <nav className="flex items-center gap-1 h-full">
-            <button onClick={() => navigate(`/group/${group.id}`)} className={navButtonClass('ideas')}>
+            <button
+              onClick={() => navigate(`/group/${group.id}`)}
+              className={navButtonClass('ideas')}
+              style={tabPaddingFallback}
+            >
               Ideas
             </button>
-            <button onClick={() => navigate(`/group/${group.id}/goals`)} className={navButtonClass('goals')}>
+            <button
+              onClick={() => navigate(`/group/${group.id}/goals`)}
+              className={navButtonClass('goals')}
+              style={tabPaddingFallback}
+            >
               Goals
             </button>
             <button
               onClick={() => navigate(`/group/${group.id}/ai-evaluate${aiGoalId ? `?goalId=${aiGoalId}` : ''}`)}
               className={`${navButtonClass('ai')} inline-flex items-center gap-1`}
+              style={tabPaddingFallback}
             >
               <span className="material-icons text-base">auto_fix_high</span>
               AI Evaluate
