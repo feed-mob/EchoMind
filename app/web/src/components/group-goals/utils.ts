@@ -30,6 +30,8 @@ export const normalizeGoal = (goal: ApiGoal): GoalViewModel => ({
   title: goal.title,
   description: goal.description || '',
   status: goal.status || 'draft',
+  selectedIdeaId: goal.selectedIdeaId ?? null,
+  selectedSettingId: goal.selectedSettingId ?? null,
   successMetrics: toStringArray(goal.successMetrics),
   constraints: toStringArray(goal.constraints),
   createdAt: goal.createdAt,

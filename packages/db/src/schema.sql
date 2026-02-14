@@ -71,10 +71,14 @@ CREATE TABLE IF NOT EXISTS "Goal" (
   "status" TEXT NOT NULL DEFAULT 'draft',
   "successMetrics" JSONB,
   "constraints" JSONB,
+  "selectedIdeaId" TEXT,
+  "selectedSettingId" TEXT,
   "groupId" TEXT NOT NULL,
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE
+  FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE,
+  FOREIGN KEY ("selectedIdeaId") REFERENCES "Idea"("id") ON DELETE SET NULL,
+  FOREIGN KEY ("selectedSettingId") REFERENCES "AiEvaluationSetting"("id") ON DELETE SET NULL
 );
 
 -- AI evaluation settings table
@@ -116,6 +120,8 @@ CREATE INDEX IF NOT EXISTS "idx_group_invitation_email" ON "GroupInvitation"("em
 CREATE INDEX IF NOT EXISTS "idx_idea_group" ON "Idea"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");
+CREATE INDEX IF NOT EXISTS "idx_goal_selected_idea" ON "Goal"("selectedIdeaId");
+CREATE INDEX IF NOT EXISTS "idx_goal_selected_setting" ON "Goal"("selectedSettingId");
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_group_created_at" ON "AiEvaluationSetting"("groupId", "createdAt" DESC);
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_goal" ON "AiEvaluationSetting"("goalId");
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_result_setting_rank" ON "AiEvaluationResult"("settingId", "rank");

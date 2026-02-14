@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { api, type Group } from '../services/api';
+import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, type Idea } from '../services/api';
 import GoalEditor from '../components/group-goals/GoalEditor';
 import GoalDetailView from '../components/group-goals/GoalDetailView';
 import GoalsSidebar from '../components/group-goals/GoalsSidebar';
@@ -14,6 +14,9 @@ export default function GroupGoals() {
 
   const [group, setGroup] = useState<Group | null>(null);
   const [goals, setGoals] = useState<GoalViewModel[]>([]);
+  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [settings, setSettings] = useState<AiEvaluationSetting[]>([]);
+  const [selectedSettingResults, setSelectedSettingResults] = useState<AiEvaluationResult[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState('');
   const [searchText, setSearchText] = useState('');
   const [viewMode, setViewMode] = useState<GoalViewMode>('active');
@@ -22,6 +25,7 @@ export default function GroupGoals() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const selectedGoal = goals.find((goal) => goal.id === selectedGoalId) ?? null;
 
   useEffect(() => {
     if (!groupId) return;
@@ -29,14 +33,18 @@ export default function GroupGoals() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [groupData, goalsData] = await Promise.all([
+        const [groupData, goalsData, ideasData, settingsData] = await Promise.all([
           api.groups.getById(groupId),
           api.goals.listByGroup(groupId),
+          api.ideas.listByGroup(groupId),
+          api.aiEvaluationSettings.listByGroup(groupId),
         ]);
 
         const mappedGoals = goalsData.map(normalizeGoal);
         setGroup(groupData);
         setGoals(mappedGoals);
+        setIdeas(ideasData);
+        setSettings(settingsData);
         setLoadError(null);
       } catch (err) {
         setLoadError(err instanceof Error ? err.message : 'Failed to load goals page');
@@ -47,6 +55,25 @@ export default function GroupGoals() {
 
     void fetchData();
   }, [groupId]);
+
+  useEffect(() => {
+    const selectedSettingId = selectedGoal?.selectedSettingId;
+    if (!selectedSettingId) {
+      setSelectedSettingResults([]);
+      return;
+    }
+
+    const fetchSettingResults = async () => {
+      try {
+        const results = await api.aiEvaluationResults.listBySetting(selectedSettingId);
+        setSelectedSettingResults(results);
+      } catch {
+        setSelectedSettingResults([]);
+      }
+    };
+
+    void fetchSettingResults();
+  }, [selectedGoal?.selectedSettingId]);
 
   const visibleGoals = useMemo(() => {
     const byMode = goals.filter((goal) =>
@@ -63,8 +90,6 @@ export default function GroupGoals() {
       );
     });
   }, [goals, searchText, viewMode]);
-
-  const selectedGoal = goals.find((goal) => goal.id === selectedGoalId) ?? null;
 
   const updateGoalLocal = (goalId: string, updater: (goal: GoalViewModel) => GoalViewModel) => {
     setGoals((prev) =>
@@ -84,6 +109,8 @@ export default function GroupGoals() {
         status: data.status,
         successMetrics: data.successMetrics,
         constraints: data.constraints,
+        selectedIdeaId: data.selectedIdeaId,
+        selectedSettingId: data.selectedSettingId,
       });
       setGoals((prev) => prev.map((goal) => (goal.id === goalId ? normalizeGoal(updated) : goal)));
       setSaveError(null);
@@ -219,6 +246,41 @@ export default function GroupGoals() {
               ) : (
                 <GoalDetailView
                   selectedGoal={selectedGoal}
+                  selectedIdea={
+                    selectedGoal.selectedIdeaId
+                      ? (() => {
+                          const fromResult = selectedSettingResults.find((item) => item.ideaId === selectedGoal.selectedIdeaId);
+                          if (fromResult) {
+                            return {
+                              id: fromResult.ideaId,
+                              title: fromResult.idea?.title || 'Untitled',
+                              rank: fromResult.rank,
+                              score: fromResult.totalScore,
+                              review: fromResult.review,
+                            };
+                          }
+                          const fallback = ideas.find((idea) => idea.id === selectedGoal.selectedIdeaId);
+                          if (!fallback) return null;
+                          return {
+                            id: fallback.id,
+                            title: fallback.title,
+                            rank: null,
+                            score: null,
+                            review: null,
+                          };
+                        })()
+                      : null
+                  }
+                  otherIdeas={selectedSettingResults
+                    .filter((item) => item.ideaId !== selectedGoal.selectedIdeaId)
+                    .map((item) => ({
+                      id: item.ideaId,
+                      title: item.idea?.title || 'Untitled',
+                      rank: item.rank,
+                      score: item.totalScore,
+                      review: item.review,
+                    }))}
+                  selectedSetting={settings.find((setting) => setting.id === selectedGoal.selectedSettingId) || null}
                   onAiEvaluate={() => navigate(`/group/${group.id}/ai-evaluate?goalId=${selectedGoal.id}`)}
                   onEdit={() => setIsEditing(true)}
                   onArchiveGoal={() => void archiveGoal()}

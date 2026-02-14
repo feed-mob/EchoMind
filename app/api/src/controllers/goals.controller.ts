@@ -16,6 +16,8 @@ export const goalsController = {
       status?: string;
       successMetrics?: unknown;
       constraints?: unknown;
+      selectedIdeaId?: string | null;
+      selectedSettingId?: string | null;
     };
     const goal = await goals.create({
       ...data,
@@ -41,6 +43,8 @@ export const goalsController = {
       status?: string;
       successMetrics?: unknown;
       constraints?: unknown;
+      selectedIdeaId?: string | null;
+      selectedSettingId?: string | null;
     };
     await goals.update(request.params.id, data);
     const updated = await goals.findById(request.params.id);

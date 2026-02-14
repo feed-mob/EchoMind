@@ -60,6 +60,8 @@ export default function AIEvaluationResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storedResults, setStoredResults] = useState<AiEvaluationResult[]>([]);
+  const [settingTopPick, setSettingTopPick] = useState(false);
+  const [setTopPickError, setSetTopPickError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!groupId) return;
@@ -185,6 +187,30 @@ export default function AIEvaluationResults() {
   }, [ideas, selectedGoal?.id, selectedIdeaIds, state.selectedIdeas, storedResults, weighted.feasibility, weighted.impact, weighted.originality]);
 
   const winner = rankedIdeas[0] || null;
+  const isAlreadyTopPick = Boolean(
+    winner &&
+    selectedGoal?.selectedIdeaId === winner.id &&
+    selectedGoal?.selectedSettingId === (settingId || null)
+  );
+
+  const handleSetTopPick = async () => {
+    if (!winner || !selectedGoal) return;
+
+    try {
+      setSettingTopPick(true);
+      setSetTopPickError(null);
+      const updatedGoal = await api.goals.update(selectedGoal.id, {
+        selectedIdeaId: winner.id,
+        selectedSettingId: settingId || null,
+        status: 'in_progress',
+      });
+      setGoals((prev) => prev.map((goal) => (goal.id === selectedGoal.id ? updatedGoal : goal)));
+    } catch (err) {
+      setSetTopPickError(err instanceof Error ? err.message : 'Failed to set top pick for goal');
+    } finally {
+      setSettingTopPick(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -317,6 +343,25 @@ export default function AIEvaluationResults() {
                       <p>
                         Weighted scoring ({weighted.impact}/{weighted.feasibility}/{weighted.originality}) puts it at <span className="font-bold text-slate-900 dark:text-white">{winner.score}/100</span>, ahead of other candidates in this batch.
                       </p>
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 disabled:opacity-60"
+                          onClick={() => void handleSetTopPick()}
+                          disabled={settingTopPick || isAlreadyTopPick || !settingId}
+                        >
+                          <span className="material-icons text-base">task_alt</span>
+                          {isAlreadyTopPick ? 'Already set as Top Pick for This Goal' : 'Set as Top Pick for This Goal'}
+                        </button>
+                        {!settingId && (
+                          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                            Missing evaluation setting id, cannot attach this pick to a goal setting.
+                          </p>
+                        )}
+                        {setTopPickError && (
+                          <p className="mt-2 text-xs text-red-600 dark:text-red-400">{setTopPickError}</p>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <p className="text-sm text-slate-600 dark:text-slate-300">No evaluated ideas in this run.</p>

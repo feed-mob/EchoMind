@@ -78,6 +78,8 @@ export interface Goal {
   status: string;
   successMetrics?: unknown;
   constraints?: unknown;
+  selectedIdeaId?: string | null;
+  selectedSettingId?: string | null;
   groupId: string;
   createdAt: string;
   updatedAt: string;
@@ -300,6 +302,8 @@ export const api = {
         status?: string;
         successMetrics?: unknown;
         constraints?: unknown;
+        selectedIdeaId?: string | null;
+        selectedSettingId?: string | null;
       },
     ): Promise<Goal> => {
       const response = await fetch(`${API_URL}/api/groups/${groupId}/goals`, {
@@ -319,6 +323,8 @@ export const api = {
         status?: string;
         successMetrics?: unknown;
         constraints?: unknown;
+        selectedIdeaId?: string | null;
+        selectedSettingId?: string | null;
       },
     ): Promise<Goal> => {
       const response = await fetch(`${API_URL}/api/goals/${id}`, {

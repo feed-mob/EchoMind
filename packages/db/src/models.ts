@@ -65,6 +65,8 @@ export interface Goal {
   status: string;
   successMetrics?: unknown;
   constraints?: unknown;
+  selectedIdeaId?: string | null;
+  selectedSettingId?: string | null;
   groupId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -462,6 +464,8 @@ export const goals = {
     status?: string;
     successMetrics?: unknown;
     constraints?: unknown;
+    selectedIdeaId?: string | null;
+    selectedSettingId?: string | null;
     groupId: string;
   }) {
     return await db.goal.create({
@@ -471,6 +475,8 @@ export const goals = {
         status: data.status || "draft",
         successMetrics: data.successMetrics as any,
         constraints: data.constraints as any,
+        selectedIdeaId: data.selectedIdeaId ?? null,
+        selectedSettingId: data.selectedSettingId ?? null,
         groupId: data.groupId,
       },
     });

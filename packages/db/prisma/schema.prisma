@@ -88,6 +88,7 @@ model Idea {
   group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   aiEvaluationResults AiEvaluationResult[]
+  selectedInGoals Goal[] @relation("GoalSelectedIdea")
 }
 
 model Goal {
@@ -97,12 +98,19 @@ model Goal {
   status         String   @default("draft")
   successMetrics Json?
   constraints    Json?
+  selectedIdeaId String?
+  selectedSettingId String?
   groupId        String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  aiEvaluationSettings AiEvaluationSetting[]
+  selectedIdea   Idea?    @relation("GoalSelectedIdea", fields: [selectedIdeaId], references: [id], onDelete: SetNull)
+  selectedSetting AiEvaluationSetting? @relation("GoalSelectedSetting", fields: [selectedSettingId], references: [id], onDelete: SetNull)
+  aiEvaluationSettings AiEvaluationSetting[] @relation("GoalEvaluationSettings")
+
+  @@index([selectedIdeaId])
+  @@index([selectedSettingId])
 }
 
 model AiEvaluationSetting {
@@ -117,8 +125,9 @@ model AiEvaluationSetting {
   createdAt       DateTime @default(now())
 
   group           Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  goal            Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goal            Goal     @relation("GoalEvaluationSettings", fields: [goalId], references: [id], onDelete: Cascade)
   results         AiEvaluationResult[]
+  selectedByGoals Goal[]   @relation("GoalSelectedSetting")
 
   @@index([groupId, createdAt(sort: Desc)])
   @@index([goalId])

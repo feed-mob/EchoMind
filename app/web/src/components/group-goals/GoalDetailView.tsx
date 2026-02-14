@@ -1,7 +1,11 @@
 import type { GoalViewModel } from './types';
+import type { AiEvaluationSetting } from '../../services/api';
 
 interface GoalDetailViewProps {
   selectedGoal: GoalViewModel;
+  selectedIdea: { id: string; title: string; rank: number | null; score: number | null; review: string | null } | null;
+  otherIdeas: Array<{ id: string; title: string; rank: number | null; score: number | null; review: string | null }>;
+  selectedSetting: AiEvaluationSetting | null;
   onAiEvaluate: () => void;
   onEdit: () => void;
   onArchiveGoal: () => void;
@@ -10,6 +14,9 @@ interface GoalDetailViewProps {
 
 export default function GoalDetailView({
   selectedGoal,
+  selectedIdea,
+  otherIdeas,
+  selectedSetting,
   onAiEvaluate,
   onEdit,
   onArchiveGoal,
@@ -107,6 +114,65 @@ export default function GoalDetailView({
                     >
                       <span className="material-icons text-amber-500 text-lg">warning</span>
                       <p className="text-sm text-slate-700 dark:text-slate-300">{constraint || '(empty)'}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Selected Top Pick</label>
+              {selectedIdea ? (
+                <div className="bg-white dark:bg-slate-900/50 p-4 rounded-lg border border-primary/30">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedIdea.title}</p>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                      Selected
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    {selectedIdea.rank ? `Rank #${selectedIdea.rank}` : 'Rank unavailable'}
+                    {selectedIdea.score !== null ? ` • Score ${selectedIdea.score}/100` : ''}
+                  </p>
+                  {selectedSetting && (
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      From setting: {selectedSetting.model}
+                    </p>
+                  )}
+                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    {selectedIdea.review || 'No review content.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="text-sm text-slate-400">No selected top pick yet.</div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Other Ideas In This Setting</label>
+              <div className="space-y-3">
+                {otherIdeas.length === 0 ? (
+                  <div className="text-sm text-slate-400">No other ideas in selected setting.</div>
+                ) : (
+                  otherIdeas.map((idea) => (
+                    <div
+                      key={idea.id}
+                      className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm text-slate-700 dark:text-slate-300">{idea.title}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                            {idea.rank ? `#${idea.rank}` : '-'}
+                            {idea.score !== null ? ` • ${idea.score}/100` : ''}
+                          </p>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                          {idea.review || 'No review content.'}
+                        </p>
+                      </div>
                     </div>
                   ))
                 )}
