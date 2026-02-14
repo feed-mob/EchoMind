@@ -112,7 +112,7 @@ Idea ${index + 1}:
 
 Goal title: ${params.goalTitle}
 Goal description: ${params.goalDescription || "N/A"}
-Goal success metrics: ${formatGoalField(params.goalSuccessMetrics)}
+Goal success metrics (important!): ${formatGoalField(params.goalSuccessMetrics)}
 Goal constraints: ${formatGoalField(params.goalConstraints)}
 
 Evaluate each idea independently and return one result per input id.

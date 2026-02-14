@@ -44,14 +44,14 @@ export default function Groups() {
     }
 
     try {
-      await api.groups.create({
+      const createdGroup = await api.groups.create({
         name: data.name,
         icon: 'groups',
         creatorUserId: user.id,
       });
 
-      await fetchGroups();
       setIsModalOpen(false);
+      navigate(`/group/${createdGroup.id}`);
     } catch (err) {
       console.error('Error creating group:', err);
       alert('Failed to create group. Please try again.');
