@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import SimpleMarkdownEditor from '../SimpleMarkdownEditor';
+import ConfirmBubble from '../ConfirmBubble';
 import type { GoalViewModel } from './types';
 
 interface GoalEditorProps {
@@ -50,13 +51,18 @@ export default function GoalEditor({
             </button>
           )}
           {selectedGoal.status === 'archived' && (
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-              onClick={onDeleteGoal}
+            <ConfirmBubble
+              message="Are you sure you want to delete this goal?"
+              onConfirm={onDeleteGoal}
+              placement="bottom"
+              confirmText="Delete"
+              confirmTone="danger"
             >
-              <span className="material-icons text-base">delete</span>
-              Delete
-            </button>
+              <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                <span className="material-icons text-base">delete</span>
+                Delete
+              </button>
+            </ConfirmBubble>
           )}
         </div>
       </header>

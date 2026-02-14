@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
+import ConfirmBubble from '../components/ConfirmBubble';
 import { api, type Group } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 
@@ -39,7 +40,6 @@ export default function Groups() {
 
   const handleCreateGroup = async (data: { name: string; logo?: File }) => {
     if (!user?.id) {
-      alert('Please login first.');
       return;
     }
 
@@ -85,7 +85,6 @@ export default function Groups() {
 
   const handleDeleteGroup = async (group: Group) => {
     setOpenMenuGroupId(null);
-    if (!confirm(`Delete group "${group.name}"?`)) return;
 
     try {
       await api.groups.delete(group.id);
@@ -185,15 +184,22 @@ export default function Groups() {
                       >
                         Edit
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handleDeleteGroup(group);
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                      <ConfirmBubble
+                        message={`Delete group "${group.name}"?`}
+                        onConfirm={() => handleDeleteGroup(group)}
+                        placement="bottom"
+                        confirmText="Delete"
+                        confirmTone="danger"
                       >
-                        Delete
-                      </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+                        >
+                          Delete
+                        </button>
+                      </ConfirmBubble>
                     </div>
                   )}
                 </div>

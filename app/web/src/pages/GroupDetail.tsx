@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api, type Idea, type Group, type IdeaComment } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import ConfirmBubble from '../components/ConfirmBubble';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
 
@@ -96,7 +97,6 @@ export default function GroupDetail() {
         });
       } else {
         if (!user?.id) {
-          alert('Please login first.');
           return;
         }
         await api.ideas.create(groupId!, {
@@ -115,8 +115,6 @@ export default function GroupDetail() {
   };
 
   const handleDeleteIdea = async (ideaId: string) => {
-    if (!confirm('Are you sure you want to delete this idea?')) return;
-
     try {
       await api.ideas.delete(ideaId);
       await fetchGroupData();
@@ -146,7 +144,6 @@ export default function GroupDetail() {
     const content = commentDraft.trim();
     if (!selectedIdea?.id || !content) return;
     if (!user?.id) {
-      alert('Please login first.');
       return;
     }
 
@@ -164,7 +161,6 @@ export default function GroupDetail() {
       ]);
     } catch (err) {
       console.error('Error creating comment:', err);
-      alert('Failed to add comment. Please try again.');
     } finally {
       setCommentSubmitting(false);
     }
@@ -202,7 +198,6 @@ export default function GroupDetail() {
 
   const handleDeleteComment = async (commentId: string) => {
     if (!selectedIdea?.id || !user?.id) return;
-    if (!confirm('Are you sure you want to delete this comment?')) return;
 
     try {
       setCommentActionId(commentId);
@@ -422,13 +417,20 @@ export default function GroupDetail() {
                     >
                       <span className="material-icons">edit</span>
                     </button>
-                    <button
-                      onClick={() => handleDeleteIdea(selectedIdea.id)}
-                      className="icon-button text-slate-400 hover:text-red-500"
-                      title="Delete idea"
+                    <ConfirmBubble
+                      message="Are you sure you want to delete this idea?"
+                      onConfirm={() => handleDeleteIdea(selectedIdea.id)}
+                      placement="bottom"
+                      confirmText="Delete"
+                      confirmTone="danger"
                     >
-                      <span className="material-icons">delete</span>
-                    </button>
+                      <button
+                        className="icon-button text-slate-400 hover:text-red-500"
+                        title="Delete idea"
+                      >
+                        <span className="material-icons">delete</span>
+                      </button>
+                    </ConfirmBubble>
                   </div>
                 </div>
 
@@ -491,15 +493,22 @@ export default function GroupDetail() {
                                     >
                                       <span className="material-icons text-sm">edit</span>
                                     </button>
-                                    <button
-                                      className="icon-button text-slate-500 hover:text-red-500 disabled:opacity-40"
-                                      onClick={() => void handleDeleteComment(comment.id)}
+                                    <ConfirmBubble
+                                      message="Are you sure you want to delete this comment?"
+                                      onConfirm={() => handleDeleteComment(comment.id)}
+                                      confirmText="Delete"
+                                      confirmTone="danger"
                                       disabled={commentActionId === comment.id}
-                                      title="Delete comment"
-                                      aria-label="Delete comment"
                                     >
-                                      <span className="material-icons text-sm">delete</span>
-                                    </button>
+                                      <button
+                                        className="icon-button text-slate-500 hover:text-red-500 disabled:opacity-40"
+                                        disabled={commentActionId === comment.id}
+                                        title="Delete comment"
+                                        aria-label="Delete comment"
+                                      >
+                                        <span className="material-icons text-sm">delete</span>
+                                      </button>
+                                    </ConfirmBubble>
                                   </>
                                 )}
                                 <span className="text-[11px] text-slate-400">

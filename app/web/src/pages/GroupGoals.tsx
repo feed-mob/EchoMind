@@ -167,7 +167,6 @@ export default function GroupGoals() {
 
   const deleteGoal = async () => {
     if (!selectedGoal) return;
-    if (!confirm('Are you sure you want to delete this goal?')) return;
 
     const goalId = selectedGoal.id;
     try {
