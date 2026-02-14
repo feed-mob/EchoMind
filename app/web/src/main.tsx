@@ -21,11 +21,11 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/group/:groupId/goals/:goalId/share" element={<GroupGoalShare />} />
             <Route element={<RequireAuth />}>
               <Route path="/group" element={<Groups />} />
               <Route path="/group/:groupId" element={<GroupDetail />} />
               <Route path="/group/:groupId/goals" element={<GroupGoals />} />
-              <Route path="/group/:groupId/goals/:goalId/share" element={<GroupGoalShare />} />
               <Route path="/group/:groupId/settings" element={<GroupSettings />} />
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
               <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />

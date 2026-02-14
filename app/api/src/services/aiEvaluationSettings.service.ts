@@ -50,9 +50,7 @@ function weightedTotal(
   feasibilityScore: number,
   originalityScore: number
 ) {
-  return Math.round(
-    (impactScore + feasibilityScore + originalityScore) / 100,
-  );
+  return clampScore(impactScore + feasibilityScore + originalityScore);
 }
 
 function chunkIdeas<T>(items: T[], size: number) {
