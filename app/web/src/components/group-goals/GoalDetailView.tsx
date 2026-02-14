@@ -127,7 +127,9 @@ export default function GoalDetailView({
               {selectedIdea ? (
                 <div className="bg-white dark:bg-slate-900/50 p-4 rounded-lg border border-primary/30">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedIdea.title}</p>
+                    <p className="text-base font-extrabold text-primary dark:text-primary-light tracking-tight">
+                      {selectedIdea.title}
+                    </p>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
                       Selected
                     </span>
@@ -138,7 +140,7 @@ export default function GoalDetailView({
                   </p>
                   {selectedSetting && (
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      From setting: {selectedSetting.model}
+                      By model: {selectedSetting.model}
                     </p>
                   )}
                   <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
