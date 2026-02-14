@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import ConfirmBubble from '../components/ConfirmBubble';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
+import { useToast } from '../components/ToastProvider';
 
 interface GroupDetail extends Group {}
 interface IdeaDraft {
@@ -16,6 +17,7 @@ export default function GroupDetail() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
   const [group, setGroup] = useState<GroupDetail | null>(null);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<Idea | null>(null);
@@ -110,7 +112,7 @@ export default function GroupDetail() {
       setIdeaEditorMode(null);
     } catch (err) {
       console.error('Error saving idea:', err);
-      alert('Failed to save idea. Please try again.');
+      toast.error('Failed to save idea. Please try again.');
     }
   };
 
@@ -123,7 +125,7 @@ export default function GroupDetail() {
       }
     } catch (err) {
       console.error('Error deleting idea:', err);
-      alert('Failed to delete idea. Please try again.');
+      toast.error('Failed to delete idea. Please try again.');
     }
   };
 
@@ -190,7 +192,7 @@ export default function GroupDetail() {
       handleCancelEditComment();
     } catch (err) {
       console.error('Error updating comment:', err);
-      alert('Failed to update comment. Please try again.');
+      toast.error('Failed to update comment. Please try again.');
     } finally {
       setCommentActionId(null);
     }
@@ -211,7 +213,7 @@ export default function GroupDetail() {
       ]);
     } catch (err) {
       console.error('Error deleting comment:', err);
-      alert('Failed to delete comment. Please try again.');
+      toast.error('Failed to delete comment. Please try again.');
     } finally {
       setCommentActionId(null);
     }

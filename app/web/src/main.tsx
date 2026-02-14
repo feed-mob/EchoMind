@@ -11,24 +11,27 @@ import AIEvaluationResults from './pages/AIEvaluationResults'
 import GroupSettings from './pages/GroupSettings'
 import { AuthProvider } from './auth/AuthContext'
 import RequireAuth from './components/RequireAuth'
+import { ToastProvider } from './components/ToastProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route element={<RequireAuth />}>
-            <Route path="/group" element={<Groups />} />
-            <Route path="/group/:groupId" element={<GroupDetail />} />
-            <Route path="/group/:groupId/goals" element={<GroupGoals />} />
-            <Route path="/group/:groupId/settings" element={<GroupSettings />} />
-            <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
-            <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
-            <Route path="/group/:groupId/goals/ai-evaluate" element={<AIEvaluationSetup />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route element={<RequireAuth />}>
+              <Route path="/group" element={<Groups />} />
+              <Route path="/group/:groupId" element={<GroupDetail />} />
+              <Route path="/group/:groupId/goals" element={<GroupGoals />} />
+              <Route path="/group/:groupId/settings" element={<GroupSettings />} />
+              <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
+              <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
+              <Route path="/group/:groupId/goals/ai-evaluate" element={<AIEvaluationSetup />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   </StrictMode>,
 )

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
 import ConfirmBubble from '../components/ConfirmBubble';
+import { useToast } from '../components/ToastProvider';
 import { api, type Group } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Groups() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function Groups() {
       navigate(`/group/${createdGroup.id}`);
     } catch (err) {
       console.error('Error creating group:', err);
-      alert('Failed to create group. Please try again.');
+      toast.error('Failed to create group. Please try again.');
     }
   };
 
@@ -79,7 +81,7 @@ export default function Groups() {
       setEditingGroup(null);
     } catch (err) {
       console.error('Error updating group:', err);
-      alert('Failed to update group. Please try again.');
+      toast.error('Failed to update group. Please try again.');
     }
   };
 
@@ -91,7 +93,7 @@ export default function Groups() {
       await fetchGroups();
     } catch (err) {
       console.error('Error deleting group:', err);
-      alert('Failed to delete group. Please try again.');
+      toast.error('Failed to delete group. Please try again.');
     }
   };
 
