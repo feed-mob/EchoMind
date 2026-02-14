@@ -3,6 +3,12 @@
   "installCommand": "bun install",
   "buildCommand": "echo \"No build step for API\"",
   "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/[...path]"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
