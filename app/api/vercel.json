@@ -2,6 +2,7 @@
   "framework": null,
   "installCommand": "bun install",
   "buildCommand": "echo \"No build step for API\"",
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/api/(.*)",
