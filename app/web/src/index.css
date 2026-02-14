@@ -58,7 +58,7 @@ button:focus-visible {
   justify-content: center;
   background: none;
   border: none;
-  padding: 0.6em;
+  padding: 0;
   cursor: pointer;
 }
 

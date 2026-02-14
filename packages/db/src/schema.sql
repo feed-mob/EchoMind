@@ -63,6 +63,18 @@ CREATE TABLE IF NOT EXISTS "Idea" (
   FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE
 );
 
+-- Comments table
+CREATE TABLE IF NOT EXISTS "Comment" (
+  "id" TEXT PRIMARY KEY,
+  "content" TEXT NOT NULL,
+  "ideaId" TEXT NOT NULL,
+  "authorId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY ("ideaId") REFERENCES "Idea"("id") ON DELETE CASCADE,
+  FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE
+);
+
 -- Goals table
 CREATE TABLE IF NOT EXISTS "Goal" (
   "id" TEXT PRIMARY KEY,
@@ -119,6 +131,8 @@ CREATE INDEX IF NOT EXISTS "idx_group_member_group" ON "GroupMember"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_group_invitation_email" ON "GroupInvitation"("email");
 CREATE INDEX IF NOT EXISTS "idx_idea_group" ON "Idea"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
+CREATE INDEX IF NOT EXISTS "idx_comment_idea_created_at" ON "Comment"("ideaId", "createdAt" DESC);
+CREATE INDEX IF NOT EXISTS "idx_comment_author" ON "Comment"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");
 CREATE INDEX IF NOT EXISTS "idx_goal_selected_idea" ON "Goal"("selectedIdeaId");
 CREATE INDEX IF NOT EXISTS "idx_goal_selected_setting" ON "Goal"("selectedSettingId");

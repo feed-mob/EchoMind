@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api, type Idea, type Group } from '../services/api';
+import { api, type Idea, type Group, type IdeaComment } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';
 import GroupTopNav from '../components/GroupTopNav';
@@ -23,12 +23,31 @@ export default function GroupDetail() {
   const [ideaEditorMode, setIdeaEditorMode] = useState<'create' | 'edit' | null>(null);
   const [ideaDraft, setIdeaDraft] = useState<IdeaDraft>({ title: '', description: '' });
   const [ideaSearchText, setIdeaSearchText] = useState('');
+  const [comments, setComments] = useState<IdeaComment[]>([]);
+  const [commentDraft, setCommentDraft] = useState('');
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentDraft, setEditingCommentDraft] = useState('');
+  const [commentActionId, setCommentActionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (groupId) {
       fetchGroupData();
     }
   }, [groupId]);
+
+  useEffect(() => {
+    if (!selectedIdea?.id) {
+      setComments([]);
+      setCommentDraft('');
+      setEditingCommentId(null);
+      setEditingCommentDraft('');
+      return;
+    }
+
+    void fetchComments(selectedIdea.id);
+  }, [selectedIdea?.id]);
 
   const fetchGroupData = async () => {
     try {
@@ -107,6 +126,99 @@ export default function GroupDetail() {
     } catch (err) {
       console.error('Error deleting idea:', err);
       alert('Failed to delete idea. Please try again.');
+    }
+  };
+
+  const fetchComments = async (ideaId: string) => {
+    try {
+      setCommentsLoading(true);
+      const data = await api.comments.listByIdea(ideaId);
+      setComments(data);
+    } catch (err) {
+      console.error('Error loading comments:', err);
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    const content = commentDraft.trim();
+    if (!selectedIdea?.id || !content) return;
+    if (!user?.id) {
+      alert('Please login first.');
+      return;
+    }
+
+    try {
+      setCommentSubmitting(true);
+      await api.comments.create(selectedIdea.id, {
+        content,
+        authorId: user.id,
+      });
+      setCommentDraft('');
+
+      await Promise.all([
+        fetchComments(selectedIdea.id),
+        fetchGroupData(),
+      ]);
+    } catch (err) {
+      console.error('Error creating comment:', err);
+      alert('Failed to add comment. Please try again.');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  const handleStartEditComment = (comment: IdeaComment) => {
+    setEditingCommentId(comment.id);
+    setEditingCommentDraft(comment.content);
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentDraft('');
+  };
+
+  const handleSaveEditedComment = async (commentId: string) => {
+    const content = editingCommentDraft.trim();
+    if (!selectedIdea?.id || !content || !user?.id) return;
+
+    try {
+      setCommentActionId(commentId);
+      await api.comments.update(commentId, {
+        content,
+        authorId: user.id,
+      });
+      await fetchComments(selectedIdea.id);
+      handleCancelEditComment();
+    } catch (err) {
+      console.error('Error updating comment:', err);
+      alert('Failed to update comment. Please try again.');
+    } finally {
+      setCommentActionId(null);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!selectedIdea?.id || !user?.id) return;
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      setCommentActionId(commentId);
+      await api.comments.delete(commentId, { authorId: user.id });
+      if (editingCommentId === commentId) {
+        handleCancelEditComment();
+      }
+      await Promise.all([
+        fetchComments(selectedIdea.id),
+        fetchGroupData(),
+      ]);
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+      alert('Failed to delete comment. Please try again.');
+    } finally {
+      setCommentActionId(null);
     }
   };
 
@@ -345,19 +457,108 @@ export default function GroupDetail() {
 
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
                   <h3 className="text-sm font-bold mb-4">Comments ({selectedIdea.commentCount || 0})</h3>
-                  <div className="text-center py-8 text-slate-400 text-sm">
-                    No comments yet
-                  </div>
-                  <div className="mt-6 flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
-                      ME
+                  {commentsLoading ? (
+                    <div className="text-center py-8 text-slate-400 text-sm">
+                      Loading comments...
                     </div>
+                  ) : comments.length === 0 ? (
+                    <div className="text-center py-8 text-slate-400 text-sm">
+                      No comments yet
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {comments.map((comment) => (
+                        <div key={comment.id} className="flex gap-3">
+                          <img
+                            alt="Author"
+                            className="w-8 h-8 rounded-full"
+                            src={comment.author?.avatar || getFallbackAvatar(comment.author?.name)}
+                          />
+                          <div className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-3">
+                            <div className="mb-1 flex items-center justify-between gap-2">
+                              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                                {comment.author?.name || 'Anonymous'}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {user?.id === comment.authorId && (
+                                  <>
+                                    <button
+                                      className="icon-button text-slate-500 hover:text-primary disabled:opacity-40"
+                                      onClick={() => handleStartEditComment(comment)}
+                                      disabled={commentActionId === comment.id}
+                                      title="Edit comment"
+                                      aria-label="Edit comment"
+                                    >
+                                      <span className="material-icons text-sm">edit</span>
+                                    </button>
+                                    <button
+                                      className="icon-button text-slate-500 hover:text-red-500 disabled:opacity-40"
+                                      onClick={() => void handleDeleteComment(comment.id)}
+                                      disabled={commentActionId === comment.id}
+                                      title="Delete comment"
+                                      aria-label="Delete comment"
+                                    >
+                                      <span className="material-icons text-sm">delete</span>
+                                    </button>
+                                  </>
+                                )}
+                                <span className="text-[11px] text-slate-400">
+                                  {new Date(comment.createdAt).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                            {editingCommentId === comment.id ? (
+                              <div>
+                                <textarea
+                                  className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[72px]"
+                                  value={editingCommentDraft}
+                                  onChange={(event) => setEditingCommentDraft(event.target.value)}
+                                />
+                                <div className="mt-2 flex items-center justify-end gap-2">
+                                  <button
+                                    className="px-2 py-1 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-100"
+                                    onClick={handleCancelEditComment}
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    className="px-2 py-1 text-xs font-semibold text-white bg-primary rounded-md disabled:opacity-40"
+                                    onClick={() => void handleSaveEditedComment(comment.id)}
+                                    disabled={commentActionId === comment.id || !editingCommentDraft.trim()}
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
+                                {comment.content}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-6 flex gap-3">
+                    <img
+                      alt="Me"
+                      className="w-8 h-8 rounded-full shrink-0"
+                      src={user?.avatar || getFallbackAvatar(user?.name)}
+                    />
                     <div className="flex-1 relative">
                       <textarea
-                        className="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[80px]"
+                        className="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[80px]"
                         placeholder="Add a comment..."
+                        value={commentDraft}
+                        onChange={(event) => setCommentDraft(event.target.value)}
                       />
-                      <button className="icon-button absolute bottom-3 right-3 text-primary">
+                      <button
+                        className="icon-button absolute bottom-3 right-3 text-primary disabled:opacity-40"
+                        onClick={() => void handleSubmitComment()}
+                        disabled={commentSubmitting || !commentDraft.trim()}
+                        title="Send comment"
+                      >
                         <span className="material-icons">send</span>
                       </button>
                     </div>

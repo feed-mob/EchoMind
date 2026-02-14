@@ -10,4 +10,12 @@ export const ideasRoutes = {
     PUT: ideasController.update,
     DELETE: ideasController.delete,
   },
+  "/api/ideas/:id/comments": {
+    GET: ideasController.listComments,
+    POST: ideasController.createComment,
+  },
+  "/api/comments/:id": {
+    PUT: ideasController.updateComment,
+    DELETE: ideasController.deleteComment,
+  },
 };

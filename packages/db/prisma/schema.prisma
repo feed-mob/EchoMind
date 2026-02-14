@@ -23,6 +23,7 @@ model User {
 
   groups    GroupMember[]
   ideas     Idea[]
+  comments  Comment[]
   invitations GroupInvitation[] @relation("InvitedByUser")
 }
 
@@ -87,8 +88,24 @@ model Idea {
 
   group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
   aiEvaluationResults AiEvaluationResult[]
   selectedInGoals Goal[] @relation("GoalSelectedIdea")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  ideaId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  idea      Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([ideaId, createdAt(sort: Desc)])
+  @@index([authorId])
 }
 
 model Goal {

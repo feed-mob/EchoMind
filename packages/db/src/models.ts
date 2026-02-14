@@ -58,6 +58,15 @@ export interface Idea {
   updatedAt: Date;
 }
 
+export interface Comment {
+  id: string;
+  content: string;
+  ideaId: string;
+  authorId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -422,7 +431,7 @@ export const ideas = {
   },
 
   async listByGroup(groupId: string) {
-    return await db.idea.findMany({
+    const rows = await (db.idea as any).findMany({
       where: { groupId },
       include: {
         author: {
@@ -431,9 +440,20 @@ export const ideas = {
             avatar: true,
           },
         },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
+
+    return rows.map((item: any) => ({
+      ...item,
+      commentCount: item._count.comments,
+      _count: undefined,
+    }));
   },
 
   async update(id: string, data: Partial<Idea>) {
@@ -452,6 +472,73 @@ export const ideas = {
 
   async delete(id: string) {
     await db.idea.delete({
+      where: { id },
+    });
+  },
+};
+
+export const comments = {
+  async create(data: { content: string; ideaId: string; authorId: string }) {
+    return await (db as any).comment.create({
+      data: {
+        content: data.content,
+        ideaId: data.ideaId,
+        authorId: data.authorId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  },
+
+  async listByIdea(ideaId: string) {
+    return await (db as any).comment.findMany({
+      where: { ideaId },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+  },
+
+  async findById(id: string) {
+    return await (db as any).comment.findUnique({
+      where: { id },
+    });
+  },
+
+  async update(id: string, data: { content: string }) {
+    return await (db as any).comment.update({
+      where: { id },
+      data: {
+        content: data.content,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  },
+
+  async delete(id: string) {
+    await (db as any).comment.delete({
       where: { id },
     });
   },

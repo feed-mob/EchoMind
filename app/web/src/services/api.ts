@@ -71,6 +71,20 @@ export interface Idea {
   updatedAt: string;
 }
 
+export interface IdeaComment {
+  id: string;
+  content: string;
+  ideaId: string;
+  authorId: string;
+  createdAt: string;
+  updatedAt: string;
+  author?: {
+    id: string;
+    name: string | null;
+    avatar: string | null;
+  };
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -277,6 +291,43 @@ export const api = {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete idea');
+    },
+  },
+
+  comments: {
+    listByIdea: async (ideaId: string): Promise<IdeaComment[]> => {
+      const response = await fetch(`${API_URL}/api/ideas/${ideaId}/comments`);
+      if (!response.ok) throw new Error('Failed to fetch comments');
+      return response.json();
+    },
+
+    create: async (ideaId: string, data: { content: string; authorId: string }): Promise<IdeaComment> => {
+      const response = await fetch(`${API_URL}/api/ideas/${ideaId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to create comment');
+      return response.json();
+    },
+
+    update: async (commentId: string, data: { content: string; authorId: string }): Promise<IdeaComment> => {
+      const response = await fetch(`${API_URL}/api/comments/${commentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update comment');
+      return response.json();
+    },
+
+    delete: async (commentId: string, data: { authorId: string }): Promise<void> => {
+      const response = await fetch(`${API_URL}/api/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to delete comment');
     },
   },
 
