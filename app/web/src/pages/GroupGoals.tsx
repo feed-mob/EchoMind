@@ -4,6 +4,7 @@ import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, typ
 import GoalEditor from '../components/group-goals/GoalEditor';
 import GoalDetailView from '../components/group-goals/GoalDetailView';
 import GoalsSidebar from '../components/group-goals/GoalsSidebar';
+import AnimatedSeedling from '../components/group-goals/AnimatedSeedling';
 import GroupTopNav from '../components/GroupTopNav';
 import type { GoalViewMode, GoalViewModel } from '../components/group-goals/types';
 import { normalizeGoal } from '../components/group-goals/utils';
@@ -290,7 +291,7 @@ export default function GroupGoals() {
             ) : (
               <div className="flex-1 flex items-center justify-center text-slate-400">
                 <div className="text-center">
-                  <span className="material-icons text-6xl mb-4">flag</span>
+                  <AnimatedSeedling className="mb-4" size={120} />
                   <p className="text-m">Select a goal to track your progress</p>
                 </div>
               </div>

@@ -32,23 +32,25 @@ export default function AnimatedLightbulb({
           </linearGradient>
         </defs>
 
-        <circle className="bulb-warm-glow" cx="60" cy="54" r="36" />
-        <path
-          className="bulb-fill"
-          d="M60 10C41.2 10 26 24.6 26 42.8C26 56.2 33.1 64.6 40.9 73C45.3 77.7 46 81.5 46 86V96H74V86C74 81.5 74.7 77.7 79.1 73C86.9 64.6 94 56.2 94 42.8C94 24.6 78.8 10 60 10Z"
-          fill="url(#bulbWarmFill)"
-        />
-        <path
-          className="bulb-outline"
-          d="M60 10C41.2 10 26 24.6 26 42.8C26 56.2 33.1 64.6 40.9 73C45.3 77.7 46 81.5 46 86V96H74V86C74 81.5 74.7 77.7 79.1 73C86.9 64.6 94 56.2 94 42.8C94 24.6 78.8 10 60 10Z"
-        />
-        <path
-          className="bulb-highlight"
-          d="M44 31C38.7 36.6 36.2 43.7 37 51"
-        />
+        <g transform="translate(60 60) scale(0.7) translate(-60 -60)">
+          <circle className="bulb-warm-glow" cx="60" cy="54" r="36" />
+          <path
+            className="bulb-fill"
+            d="M60 10C41.2 10 26 24.6 26 42.8C26 56.2 33.1 64.6 40.9 73C45.3 77.7 46 81.5 46 86V96H74V86C74 81.5 74.7 77.7 79.1 73C86.9 64.6 94 56.2 94 42.8C94 24.6 78.8 10 60 10Z"
+            fill="url(#bulbWarmFill)"
+          />
+          <path
+            className="bulb-outline"
+            d="M60 10C41.2 10 26 24.6 26 42.8C26 56.2 33.1 64.6 40.9 73C45.3 77.7 46 81.5 46 86V96H74V86C74 81.5 74.7 77.7 79.1 73C86.9 64.6 94 56.2 94 42.8C94 24.6 78.8 10 60 10Z"
+          />
+          <path
+            className="bulb-highlight"
+            d="M44 31C38.7 36.6 36.2 43.7 37 51"
+          />
 
-        <line className="bulb-base-line" x1="43" y1="103" x2="77" y2="103" />
-        <line className="bulb-base-line" x1="46" y1="109" x2="74" y2="109" />
+          <line className="bulb-base-line" x1="43" y1="103" x2="77" y2="103" />
+          <line className="bulb-base-line" x1="46" y1="109" x2="74" y2="109" />
+        </g>
       </svg>
     </span>
   );

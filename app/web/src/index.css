@@ -281,3 +281,60 @@ button:focus-visible {
     filter: none;
   }
 }
+
+.animated-seedling {
+  display: inline-flex;
+  line-height: 1;
+}
+
+.animated-seedling .seedling-canvas {
+  overflow: visible;
+}
+
+.animated-seedling .seedling-leaf {
+  transform-box: fill-box;
+  transform-origin: 60px 64px;
+}
+
+.animated-seedling .seedling-leaf-left {
+  animation: seedling-leaf-left-sway 2.8s ease-in-out infinite;
+}
+
+.animated-seedling .seedling-leaf-right {
+  animation: seedling-leaf-right-sway 3.1s ease-in-out infinite;
+}
+
+.animated-seedling .seedling-stem {
+  filter: drop-shadow(0 1px 1px rgba(20, 83, 45, 0.25));
+}
+
+@keyframes seedling-leaf-left-sway {
+  0% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+  100% {
+    transform: rotate(-3deg);
+  }
+}
+
+@keyframes seedling-leaf-right-sway {
+  0% {
+    transform: rotate(2.2deg);
+  }
+  50% {
+    transform: rotate(-1deg);
+  }
+  100% {
+    transform: rotate(2.2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-seedling .seedling-leaf-left,
+  .animated-seedling .seedling-leaf-right {
+    animation: none;
+  }
+}

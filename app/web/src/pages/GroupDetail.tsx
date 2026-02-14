@@ -606,7 +606,7 @@ export default function GroupDetail() {
           ) : (
             <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar flex items-center justify-center">
               <div className="text-center text-slate-400">
-                <AnimatedLightbulb />
+                <AnimatedLightbulb size={120} />
                 <p className="text-m">Jump into an idea, or create your next big one.</p>
               </div>
             </aside>
