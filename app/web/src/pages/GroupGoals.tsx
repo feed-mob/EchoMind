@@ -39,6 +39,17 @@ export default function GroupGoals() {
     setGoalDraft(null);
   };
 
+  const attachGoalCreator = (goal: GoalViewModel, ideaList: Idea[]): GoalViewModel => {
+    if (goal.creatorName || !goal.selectedIdeaId) return goal;
+    const matchedIdea = ideaList.find((idea) => idea.id === goal.selectedIdeaId);
+    if (!matchedIdea) return goal;
+    return {
+      ...goal,
+      creatorName: matchedIdea.author?.name ?? null,
+      creatorAvatar: matchedIdea.author?.avatar ?? null,
+    };
+  };
+
   useEffect(() => {
     if (!groupId) return;
 
@@ -52,7 +63,7 @@ export default function GroupGoals() {
           api.aiEvaluationSettings.listByGroup(groupId),
         ]);
 
-        const mappedGoals = goalsData.map(normalizeGoal);
+        const mappedGoals = goalsData.map((goal) => attachGoalCreator(normalizeGoal(goal), ideasData));
         setGroup(groupData);
         setGoals(mappedGoals);
         setIdeas(ideasData);
@@ -123,7 +134,11 @@ export default function GroupGoals() {
         selectedIdeaId: data.selectedIdeaId,
         selectedSettingId: data.selectedSettingId,
       });
-      setGoals((prev) => prev.map((goal) => (goal.id === goalId ? normalizeGoal(updated) : goal)));
+      setGoals((prev) =>
+        prev.map((goal) =>
+          goal.id === goalId ? attachGoalCreator(normalizeGoal(updated), ideas) : goal
+        )
+      );
       setSaveError(null);
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : 'Failed to save goal');
@@ -178,7 +193,7 @@ export default function GroupGoals() {
           successMetrics: selectedGoal.successMetrics,
           constraints: selectedGoal.constraints,
         });
-        const next = normalizeGoal(created);
+        const next = attachGoalCreator(normalizeGoal(created), ideas);
         setGoals((prev) => [next, ...prev]);
         setSelectedGoalId(next.id);
         setGoalDraft(null);

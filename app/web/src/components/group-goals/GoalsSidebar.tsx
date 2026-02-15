@@ -114,7 +114,7 @@ export default function GoalsSidebar({
                     <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
                         <span className="material-icons text-xs">person</span>
-                        {goal.creatorName || 'Anonymous'}
+                        {goal.creatorName || 'Unknown'}
                       </span>
                       <span className="flex items-center gap-1">
                         <span className="material-icons text-xs">schedule</span>
