@@ -25,8 +25,12 @@ export default function GroupGoals() {
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const selectedGoal = goals.find((goal) => goal.id === selectedGoalId) ?? null;
+  const [goalEditorMode, setGoalEditorMode] = useState<'create' | 'edit' | null>(null);
+  const [goalDraft, setGoalDraft] = useState<GoalViewModel | null>(null);
+  const selectedGoal =
+    goalEditorMode === 'create' || goalEditorMode === 'edit'
+      ? goalDraft
+      : goals.find((goal) => goal.id === selectedGoalId) ?? null;
 
   useEffect(() => {
     if (!groupId) return;
@@ -93,12 +97,11 @@ export default function GroupGoals() {
   }, [goals, searchText, viewMode]);
 
   const updateGoalLocal = (goalId: string, updater: (goal: GoalViewModel) => GoalViewModel) => {
-    setGoals((prev) =>
-      prev.map((goal) => {
-        if (goal.id !== goalId) return goal;
-        return updater(goal);
-      })
-    );
+    if (goalEditorMode === 'create' || goalEditorMode === 'edit') {
+      setGoalDraft((prev) => (prev ? updater(prev) : prev));
+      return;
+    }
+    setGoals((prev) => prev.map((goal) => (goal.id === goalId ? updater(goal) : goal)));
   };
 
   const persistGoal = async (goalId: string, data: Partial<GoalViewModel>) => {
@@ -122,29 +125,24 @@ export default function GroupGoals() {
     }
   };
 
-  const createGoal = async () => {
-    if (!groupId) return;
-
-    try {
-      setSaving(true);
-      const created = await api.goals.create(groupId, {
-        title: 'New Goal',
-        description: '',
-        status: 'draft',
-        successMetrics: [''],
-        constraints: [''],
-      });
-      const next = normalizeGoal(created);
-      setGoals((prev) => [next, ...prev]);
-      setViewMode('active');
-      setSelectedGoalId(next.id);
-      setIsEditing(true);
-      setSaveError(null);
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to create goal');
-    } finally {
-      setSaving(false);
-    }
+  const startCreateGoal = () => {
+    const now = new Date().toISOString();
+    setViewMode('active');
+    setSelectedGoalId('');
+    setGoalEditorMode('create');
+    setGoalDraft({
+      id: 'draft-goal',
+      title: '',
+      description: '',
+      status: 'draft',
+      selectedIdeaId: null,
+      selectedSettingId: null,
+      successMetrics: [''],
+      constraints: [''],
+      createdAt: now,
+      updatedAt: now,
+    });
+    setSaveError(null);
   };
 
   const archiveGoal = async () => {
@@ -155,19 +153,57 @@ export default function GroupGoals() {
   };
 
   const saveSelectedGoal = async () => {
-    if (!selectedGoal) return;
+    if (!groupId || !selectedGoal) return;
+
+    const title = selectedGoal.title.trim();
+    if (!title) {
+      setSaveError('Goal title is required');
+      return;
+    }
+
+    if (goalEditorMode === 'create') {
+      try {
+        setSaving(true);
+        const created = await api.goals.create(groupId, {
+          title,
+          description: selectedGoal.description,
+          status: selectedGoal.status,
+          successMetrics: selectedGoal.successMetrics,
+          constraints: selectedGoal.constraints,
+        });
+        const next = normalizeGoal(created);
+        setGoals((prev) => [next, ...prev]);
+        setSelectedGoalId(next.id);
+        setGoalDraft(null);
+        setGoalEditorMode(null);
+        setSaveError(null);
+      } catch (err) {
+        setSaveError(err instanceof Error ? err.message : 'Failed to create goal');
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     await persistGoal(selectedGoal.id, {
-      title: selectedGoal.title,
+      title,
       description: selectedGoal.description,
       status: selectedGoal.status,
       successMetrics: selectedGoal.successMetrics,
       constraints: selectedGoal.constraints,
     });
-    setIsEditing(false);
+    setGoalDraft(null);
+    setGoalEditorMode(null);
   };
 
   const deleteGoal = async () => {
     if (!selectedGoal) return;
+
+    if (goalEditorMode === 'create') {
+      setGoalDraft(null);
+      setGoalEditorMode(null);
+      return;
+    }
 
     const goalId = selectedGoal.id;
     try {
@@ -225,16 +261,17 @@ export default function GroupGoals() {
             searchText={searchText}
             onSelectGoal={(goalId) => {
               setSelectedGoalId(goalId);
-              setIsEditing(false);
+              setGoalDraft(null);
+              setGoalEditorMode(null);
             }}
             onSearchChange={setSearchText}
             onChangeViewMode={setViewMode}
-            onCreateGoal={() => void createGoal()}
+            onCreateGoal={startCreateGoal}
           />
 
           <section className="flex-1 border-l border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-background-dark">
             {selectedGoal ? (
-              isEditing ? (
+              goalEditorMode === 'create' || goalEditorMode === 'edit' ? (
                 <GoalEditor
                   selectedGoal={selectedGoal}
                   saving={saving}
@@ -283,7 +320,10 @@ export default function GroupGoals() {
                   selectedSetting={settings.find((setting) => setting.id === selectedGoal.selectedSettingId) || null}
                   onAiEvaluate={() => navigate(`/group/${group.id}/ai-evaluate?goalId=${selectedGoal.id}`)}
                   onShare={() => navigate(`/group/${group.id}/goals/${selectedGoal.id}/share`)}
-                  onEdit={() => setIsEditing(true)}
+                  onEdit={() => {
+                    setGoalEditorMode('edit');
+                    setGoalDraft({ ...selectedGoal });
+                  }}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}
                 />
