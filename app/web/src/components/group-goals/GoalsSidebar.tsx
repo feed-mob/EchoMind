@@ -5,6 +5,7 @@ interface GoalsSidebarProps {
   selectedGoalId: string;
   viewMode: GoalViewMode;
   searchText: string;
+  className?: string;
   onSelectGoal: (goalId: string) => void;
   onSearchChange: (value: string) => void;
   onChangeViewMode: (mode: GoalViewMode) => void;
@@ -16,6 +17,7 @@ export default function GoalsSidebar({
   selectedGoalId,
   viewMode,
   searchText,
+  className,
   onSelectGoal,
   onSearchChange,
   onChangeViewMode,
@@ -34,7 +36,7 @@ export default function GoalsSidebar({
   };
 
   return (
-    <aside className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+    <aside className={`flex-1 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden ${className || ''}`}>
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
         <div className="flex items-center gap-2 mb-3">
           <div className="relative flex-1">

@@ -262,6 +262,12 @@ export default function GroupDetail() {
       (idea.content || '').toLowerCase().includes(term)
     );
   });
+  const hasIdeaPanel = Boolean(ideaEditorMode || selectedIdea);
+
+  const closeIdeaPanel = () => {
+    setIdeaEditorMode(null);
+    setSelectedIdea(null);
+  };
 
   const isDeleteConfirming =
     deleteTarget?.type === 'idea'
@@ -313,8 +319,10 @@ export default function GroupDetail() {
       <main className="flex-1 flex flex-col overflow-hidden">
         <GroupTopNav group={group} activeTab="ideas" />
 
-        <div className="flex-1 flex overflow-hidden">
-          <div className="flex-1 border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div
+            className={`${hasIdeaPanel ? 'hidden lg:flex' : 'flex'} flex-1 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex-col overflow-hidden`}
+          >
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -395,12 +403,21 @@ export default function GroupDetail() {
           </div>
 
           {ideaEditorMode ? (
-            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
+            <aside className="flex-1 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
               <header className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
-                <h2 className="text-lg font-bold">{ideaEditorMode === 'edit' ? 'Edit Idea' : 'New Idea'}</h2>
                 <div className="flex items-center gap-2">
                   <button
-                    className="px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                    className="lg:hidden flex items-center gap-1 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/40 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                    onClick={closeIdeaPanel}
+                  >
+                    <span className="material-icons text-base">arrow_back</span>
+                    Back
+                  </button>
+                  <h2 className="text-lg font-bold">{ideaEditorMode === 'edit' ? 'Edit Idea' : 'New Idea'}</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="hidden lg:inline-flex px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
                     onClick={() => setIdeaEditorMode(null)}
                   >
                     {selectedIdea ? 'View Detail' : 'Cancel'}
@@ -436,10 +453,18 @@ export default function GroupDetail() {
               </div>
             </aside>
           ) : selectedIdea ? (
-            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
+            <aside className="flex-1 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
+                    <button
+                      className="lg:hidden icon-button text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-slate-100"
+                      onClick={closeIdeaPanel}
+                      title="Back to list"
+                      aria-label="Back to list"
+                    >
+                      <span className="material-icons">arrow_back</span>
+                    </button>
                     <img
                       alt="Author"
                       className="w-10 h-10 rounded-full"
@@ -604,7 +629,7 @@ export default function GroupDetail() {
               </div>
             </aside>
           ) : (
-            <aside className="flex-1 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar flex items-center justify-center">
+            <aside className="hidden lg:flex flex-1 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark overflow-y-auto custom-scrollbar items-center justify-center">
               <div className="text-center text-slate-400">
                 <AnimatedLightbulb size={120} />
                 <p className="text-m">Jump into an idea, or create your next big one.</p>

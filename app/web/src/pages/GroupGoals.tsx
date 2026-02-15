@@ -31,6 +31,13 @@ export default function GroupGoals() {
     goalEditorMode === 'create' || goalEditorMode === 'edit'
       ? goalDraft
       : goals.find((goal) => goal.id === selectedGoalId) ?? null;
+  const hasDetailPanel = Boolean(selectedGoal);
+
+  const closeDetailPanel = () => {
+    setSelectedGoalId('');
+    setGoalEditorMode(null);
+    setGoalDraft(null);
+  };
 
   useEffect(() => {
     if (!groupId) return;
@@ -253,8 +260,9 @@ export default function GroupGoals() {
           </div>
         )}
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <GoalsSidebar
+            className={hasDetailPanel ? 'hidden lg:flex' : 'flex'}
             visibleGoals={visibleGoals}
             selectedGoalId={selectedGoalId}
             viewMode={viewMode}
@@ -269,7 +277,7 @@ export default function GroupGoals() {
             onCreateGoal={startCreateGoal}
           />
 
-          <section className="flex-1 border-l border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50 dark:bg-background-dark">
+          <section className={`${hasDetailPanel ? 'flex' : 'hidden lg:flex'} flex-1 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-800 flex-col bg-slate-50 dark:bg-background-dark`}>
             {selectedGoal ? (
               goalEditorMode === 'create' || goalEditorMode === 'edit' ? (
                 <GoalEditor
@@ -279,6 +287,7 @@ export default function GroupGoals() {
                   onSaveGoal={() => void saveSelectedGoal()}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}
+                  onBackToList={closeDetailPanel}
                 />
               ) : (
                 <GoalDetailView
@@ -326,6 +335,7 @@ export default function GroupGoals() {
                   }}
                   onArchiveGoal={() => void archiveGoal()}
                   onDeleteGoal={() => void deleteGoal()}
+                  onBackToList={closeDetailPanel}
                 />
               )
             ) : (
