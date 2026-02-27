@@ -2,7 +2,7 @@
 
 ## 1. 运行环境
 
-- Node.js: `>=20`（推荐使用 LTS）
+- Node.js: `>=22.12`（Vite 7 需要）
 - 包管理器: 优先 `bun`（仓库包含 `bun.lock`）
 
 ## 2. 安装依赖
@@ -35,6 +35,9 @@ bun run build
 
 # 本地预览构建产物
 bun run preview
+
+# 生产启动（监听 0.0.0.0:${PORT:-3000}）
+bun run start
 ```
 
 ## 5. 目录说明（简要）
@@ -43,3 +46,10 @@ bun run preview
 - `public/`: 静态资源
 - `vite.config.ts`: Vite 配置
 - `eslint.config.js`: ESLint 配置
+
+## 6. Coolify（Nixpacks）部署
+
+- Build Pack: `Nixpacks`
+- Base Directory: `web`
+- 容器端口: `3000`
+- Start Command: 使用 `bun run start`（由 `nixpacks.toml` 配置）

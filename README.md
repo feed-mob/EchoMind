@@ -35,3 +35,18 @@ bun run dev
 
 - `api` 详细说明见：`api/README.md`
 - `web` 详细说明见：`web/README.md`
+
+## Coolify 分开部署（Nixpacks）
+
+在 Coolify 中创建两个 Service，均选择同一个仓库，但设置不同 Base Directory：
+
+- API Service
+  - Build Pack: `Nixpacks`
+  - Base Directory: `api`
+  - Port: `3000`
+- Web Service
+  - Build Pack: `Nixpacks`
+  - Base Directory: `web`
+  - Port: `3000`（容器内 `vite preview` 监听端口）
+
+仓库已在 `api/nixpacks.toml` 和 `web/nixpacks.toml` 提供独立构建/启动配置，Coolify 会按各自目录自动读取。
