@@ -25,7 +25,7 @@ function App() {
   return (
     <>
       <div className="card">
-        <h1>Backend Message</h1>
+        <h1>Hi</h1>
         {error ? <p>Failed to load: {error}</p> : <p>{message}</p>}
       </div>
     </>
