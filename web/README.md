@@ -1,55 +1,55 @@
-# web 开发环境配置说明
+# Web Development Environment Setup
 
-## 1. 运行环境
+## 1. Runtime Requirements
 
-- Node.js: `>=22.12`（Vite 7 需要）
-- 包管理器: 优先 `bun`（仓库包含 `bun.lock`）
+- Node.js: `>=22.12` (required by Vite 7)
+- Package manager: `bun` preferred (the repository includes `bun.lock`)
 
-## 2. 安装依赖
+## 2. Install Dependencies
 
-在 `web/` 目录执行：
+Run in the `web/` directory:
 
 ```bash
 bun install
 ```
 
-## 3. 本地开发启动
+## 3. Start Local Development
 
 ```bash
 bun run dev
 ```
 
-默认由 Vite 启动开发服务（通常为 `http://localhost:5173`）。
+Vite starts the dev server by default (usually `http://localhost:5173`).
 
-## 4. 常用脚本
+## 4. Common Scripts
 
 ```bash
-# 启动开发环境
+# Start development
 bun run dev
 
-# 代码检查
+# Lint
 bun run lint
 
-# 生产构建（TypeScript 编译 + Vite build）
+# Production build (TypeScript compile + Vite build)
 bun run build
 
-# 本地预览构建产物
+# Preview build output locally
 bun run preview
 
-# 生产启动（监听 0.0.0.0:${PORT:-3000}）
+# Production start (listens on 0.0.0.0:${PORT:-3000})
 bun run start
 ```
 
-## 5. 目录说明（简要）
+## 5. Directory Overview (Brief)
 
-- `src/`: 前端源码
-- `public/`: 静态资源
-- `vite.config.ts`: Vite 配置
-- `eslint.config.js`: ESLint 配置
+- `src/`: Frontend source code
+- `public/`: Static assets
+- `vite.config.ts`: Vite configuration
+- `eslint.config.js`: ESLint configuration
 
-## 6. Coolify（Nixpacks）部署
+## 6. Coolify (Nixpacks) Deployment
 
 - Build Pack: `Nixpacks`
 - Base Directory: `web`
-- 容器端口: `3000`
-- Start Command: 使用 `bun run start`（由 `nixpacks.toml` 配置）
+- Container Port: `3000`
+- Start Command: `bun run start` (configured in `nixpacks.toml`)

@@ -1,46 +1,46 @@
-# api 开发环境配置说明
+# API Development Environment Setup
 
-## 1. 运行环境
+## 1. Runtime Requirements
 
-- Bun: `>=1.0`（推荐使用最新稳定版）
-- Node.js: 建议安装 LTS（用于通用工具链兼容）
+- Bun: `>=1.0` (latest stable version recommended)
+- Node.js: LTS recommended (for general tooling compatibility)
 
-## 2. 安装依赖
+## 2. Install Dependencies
 
-在 `api/` 目录执行：
+Run in the `api/` directory:
 
 ```bash
 bun install
 ```
 
-## 3. 本地开发启动
+## 3. Start Local Development
 
 ```bash
 bun run dev
 ```
 
-当前脚本等价于：
+The current script is equivalent to:
 
 ```bash
 bun run --hot src/index.ts
 ```
 
-服务默认监听：
+The service listens by default on:
 
 - `http://localhost:3000`
-- 生产环境可通过 `PORT` 环境变量覆盖端口（默认 `3000`）
+- In production, the port can be overridden via the `PORT` environment variable (default: `3000`)
 
-## 4. 目录说明（简要）
+## 4. Directory Overview (Brief)
 
-- `src/index.ts`: API 入口文件
-- `src/routes/`: 路由定义
-- `src/controllers/`: 请求处理层
-- `src/services/`: 业务逻辑层
-- `src/middlewares/`: 通用中间件
+- `src/index.ts`: API entry file
+- `src/routes/`: Route definitions
+- `src/controllers/`: Request handling layer
+- `src/services/`: Business logic layer
+- `src/middlewares/`: Common middlewares
 
-## 5. Coolify（Nixpacks）部署
+## 5. Coolify (Nixpacks) Deployment
 
 - Build Pack: `Nixpacks`
 - Base Directory: `api`
-- 容器端口: `3000`
-- Start Command: 使用 `bun run start`（由 `nixpacks.toml` 配置）
+- Container Port: `3000`
+- Start Command: `bun run start` (configured in `nixpacks.toml`)
