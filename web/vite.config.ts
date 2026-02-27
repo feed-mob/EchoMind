@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['xo8k8g0wwkg8o8w40wsgs08w.184.73.145.124.sslip.io'],
+    allowedHosts: ['xo8k8g0wwkg8o8w40wsgs08w.184.73.145.124.sslip.io', 'echo-mind.coolify-tinca.tonob.net'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -14,6 +14,6 @@ export default defineConfig({
     },
   },
   preview: {
-    allowedHosts: ['xo8k8g0wwkg8o8w40wsgs08w.184.73.145.124.sslip.io'],
+    allowedHosts: ['xo8k8g0wwkg8o8w40wsgs08w.184.73.145.124.sslip.io', 'echo-mind.coolify-tinca.tonob.net'],
   },
 })
