@@ -2,6 +2,10 @@
 
 EchoMind is a separated frontend/backend project organized into `api` (server) and `web` (frontend).
 
+## Demo
+
+- Live Demo: http://echo-mind.coolify-tinca.tonob.net/
+
 ## Project Structure
 
 - `api/`: Backend service code (Bun + TypeScript), providing APIs and business logic.
