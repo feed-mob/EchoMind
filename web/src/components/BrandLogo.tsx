@@ -20,7 +20,7 @@ export default function BrandLogo({
       <div className={iconWrapperClassName}>
         <span className={iconClassName}>psychology</span>
       </div>
-      <span className={textClassName}>WIDEA</span>
+      <span className={textClassName}>EchoMind</span>
     </Link>
   );
 }

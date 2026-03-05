@@ -1,14 +1,59 @@
-# widea
+# EchoMind
 
-AI-Powered Ideation Platform
+EchoMind is a separated frontend/backend project organized into `api` (server) and `web` (frontend).
 
-## Setup
+## Demo
 
-Install dependencies:
+- Live Demo: http://echo-mind.coolify-tinca.tonob.net/
+
+## Project Structure
+
+- `api/`: Backend service code (Bun + TypeScript), providing APIs and business logic.
+- `web/`: Frontend app code (Vite + TypeScript), providing the user interface.
+- `packages/`: Reserved shared package directory (for common types, utilities, SDKs, etc.).
+- `CLAUDE.md`: Project collaboration and development conventions.
+
+## Quick Start
+
+### 1) Start the Backend
 
 ```bash
+cd api
 bun install
+bun run dev
 ```
+
+Default URL: `http://localhost:3000`
+
+### 2) Start the Frontend
+
+```bash
+cd web
+bun install
+bun run dev
+```
+
+Default URL (Vite): usually `http://localhost:5173`
+
+## Subdirectory Documentation
+
+- See `api/README.md` for API details.
+- See `web/README.md` for Web details.
+
+## Separate Coolify Deployment (Nixpacks)
+
+Create two services in Coolify from the same repository, with different Base Directories:
+
+- API Service
+  - Build Pack: `Nixpacks`
+  - Base Directory: `api`
+  - Port: `3000`
+- Web Service
+  - Build Pack: `Nixpacks`
+  - Base Directory: `web`
+  - Port: `3000` (the port used by `vite preview` inside the container)
+
+This repository already includes independent build/start settings in `api/nixpacks.toml` and `web/nixpacks.toml`, and Coolify will load them automatically based on each directory.
 
 ## Google Login Setup
 
@@ -18,45 +63,3 @@ Create OAuth 2.0 Web Client credentials in Google Cloud Console, then set:
   - `VITE_GOOGLE_CLIENT_ID=your_google_web_client_id`
 - `api/.env`
   - `GOOGLE_CLIENT_ID=your_google_web_client_id`
-
-Recommended Authorized JavaScript origins:
-
-- `http://localhost:5173`
-
-## Database Setup
-
-Initialize and seed the database:
-
-```bash
-bun packages/db/seed.ts
-```
-
-## Running the Application
-
-### Start the API Server
-
-```bash
-cd api
-bun run dev
-```
-
-The API will be available at http://localhost:3001
-
-### Start the Web App
-
-In a separate terminal:
-
-```bash
-cd web
-bun run dev
-```
-
-The web app will be available at http://localhost:5173
-
-## Project Structure
-
-- `api` - Backend API server (Bun + Bun.serve)
-- `web` - Frontend web application (React + Vite)
-- `packages/db` - Database models and utilities (Prisma)
-
-This project was created using `bun init` in bun v1.3.8. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.

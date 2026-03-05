@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { api, type User } from '../services/api';
 
-const AUTH_STORAGE_KEY = 'widea.auth.user';
+const AUTH_STORAGE_KEY = 'echomind.auth.user';
 
 type AuthContextValue = {
   user: User | null;

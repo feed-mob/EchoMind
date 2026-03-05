@@ -35,7 +35,7 @@ export default function GroupTopNav({ group, activeTab, aiGoalId, sticky = false
             aria-label="Back to groups"
           >
             <span className="material-icons">arrow_back</span>
-            <h1 className="hidden sm:block text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">WIDEA</h1>
+            <h1 className="hidden sm:block text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">EchoMind</h1>
           </button>
           <div className="hidden sm:block h-6 w-px bg-slate-300 dark:bg-slate-700"></div>
           <span className="hidden md:block text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>

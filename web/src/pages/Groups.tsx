@@ -243,7 +243,7 @@ export default function Groups() {
         {/* Top Header Bar */}
         <header className="h-16 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-4 flex-1">
-            <h1 className="text-xl font-bold tracking-tight">WIDEA</h1>
+            <h1 className="text-xl font-bold tracking-tight">EchoMind</h1>
             <div className="relative w-full max-w-md ml-8">
               <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
               <input

@@ -19,7 +19,7 @@ export default function Footer() {
         </div>
 
         <div className="w-full pt-10 border-t border-slate-100 flex flex-col md:row justify-between items-center gap-6">
-          <p className="text-sm text-slate-400">© 2026 WIDEA. Elevating collective intelligence.</p>
+          <p className="text-sm text-slate-400">© 2026 EchoMind. Elevating collective intelligence.</p>
         </div>
       </div>
     </footer>
