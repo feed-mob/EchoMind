@@ -88,4 +88,4 @@ await ideas.create({
 
 console.log("Created sample ideas");
 console.log("\nDatabase seeded successfully!");
-console.log("\nYou can now start the API server with: bun app/api/index.ts");
+console.log("\nYou can now start the API server with: bun api/index.ts");

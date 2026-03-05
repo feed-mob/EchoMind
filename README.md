@@ -14,9 +14,9 @@ bun install
 
 Create OAuth 2.0 Web Client credentials in Google Cloud Console, then set:
 
-- `app/web/.env.local`
+- `web/.env.local`
   - `VITE_GOOGLE_CLIENT_ID=your_google_web_client_id`
-- `app/api/.env`
+- `api/.env`
   - `GOOGLE_CLIENT_ID=your_google_web_client_id`
 
 Recommended Authorized JavaScript origins:
@@ -36,7 +36,7 @@ bun packages/db/seed.ts
 ### Start the API Server
 
 ```bash
-cd app/api
+cd api
 bun run dev
 ```
 
@@ -47,7 +47,7 @@ The API will be available at http://localhost:3001
 In a separate terminal:
 
 ```bash
-cd app/web
+cd web
 bun run dev
 ```
 
@@ -55,8 +55,8 @@ The web app will be available at http://localhost:5173
 
 ## Project Structure
 
-- `app/api` - Backend API server (Bun + Bun.serve)
-- `app/web` - Frontend web application (React + Vite)
+- `api` - Backend API server (Bun + Bun.serve)
+- `web` - Frontend web application (React + Vite)
 - `packages/db` - Database models and utilities (Prisma)
 
 This project was created using `bun init` in bun v1.3.8. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.

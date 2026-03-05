@@ -1,8 +1,8 @@
 import { generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
-import { aiEvaluationResults, aiEvaluationSettings, goals, ideas } from "../../../../packages/db/index.js";
-import type { Idea } from "../../../../packages/db/index.js";
+import { aiEvaluationResults, aiEvaluationSettings, goals, ideas } from "../../../packages/db/index.js";
+import type { Idea } from "../../../packages/db/index.js";
 
 type CreateSettingInput = {
   groupId: string;

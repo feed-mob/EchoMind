@@ -1,4 +1,4 @@
-import { groups, groupMembers, groupInvitations, users } from "../../../../packages/db/index.js";
+import { groups, groupMembers, groupInvitations, users } from "../../../packages/db/index.js";
 type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 const ALLOWED_WORKSPACE_VISIBILITY = new Set([

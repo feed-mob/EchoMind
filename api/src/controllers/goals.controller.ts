@@ -1,4 +1,4 @@
-import { goals } from "../../../../packages/db/index.js";
+import { goals } from "../../../packages/db/index.js";
 type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
 
 export const goalsController = {

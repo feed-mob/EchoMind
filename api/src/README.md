@@ -1,6 +1,6 @@
 # `src` Folder Overview
 
-This file briefly explains the purpose of each folder in `app/api/src`.
+This file briefly explains the purpose of each folder in `api/src`.
 
 ## Folder Purposes
 

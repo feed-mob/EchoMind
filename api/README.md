@@ -6,7 +6,7 @@ To install dependencies:
 bun install
 ```
 
-Create `app/api/.env`:
+Create `api/.env`:
 
 ```bash
 GOOGLE_CLIENT_ID=your_google_web_client_id
