@@ -4,7 +4,7 @@ import { handleRequest } from "./src/http/app.js";
 await initDatabase();
 
 Bun.serve({
-  port: 3001,
+  port: 3000,
   fetch: handleRequest,
   development: {
     hmr: true,
@@ -12,4 +12,4 @@ Bun.serve({
   },
 });
 
-console.log("API server running on http://localhost:3001");
+console.log("API server running on http://localhost:3000");
