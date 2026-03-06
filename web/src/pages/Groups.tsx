@@ -295,8 +295,8 @@ export default function Groups() {
                         <span className="material-icons text-xl">add</span>
                       </div>
                       <div className="text-center">
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">Start a new group</h3>
-                        <p className="text-[10px] text-slate-500">Collaborate and share ideas</p>
+                        <h3 className="font-bold text-slate-900 dark:text-white">Start a new group</h3>
+                        <p className="text-sm text-slate-500">Collaborate and share ideas</p>
                       </div>
                     </div>
                   </div>
