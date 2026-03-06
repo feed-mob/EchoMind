@@ -66,7 +66,7 @@ export default function Groups() {
       navigate(`/group/${createdGroup.id}`);
     } catch (err) {
       console.error('Error creating group:', err);
-      toast.error('Failed to create group. Please try again.');
+      toast.error(err instanceof Error ? err.message : 'Failed to create group. Please try again.');
     }
   };
 

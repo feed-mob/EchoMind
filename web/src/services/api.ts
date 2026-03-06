@@ -186,6 +186,15 @@ export const api = {
       if (!response.ok) throw new Error('Failed to fetch user groups');
       return response.json();
     },
+
+    getById: async (id: string): Promise<User> => {
+      const response = await fetch(`${API_URL}/api/users/${id}`);
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(payload?.error || 'Failed to fetch user');
+      }
+      return response.json();
+    },
   },
 
   // Groups
@@ -208,7 +217,10 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to create group');
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(payload?.error || 'Failed to create group');
+      }
       return response.json();
     },
 
