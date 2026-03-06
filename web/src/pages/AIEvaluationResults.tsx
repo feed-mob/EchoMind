@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { api, type AiEvaluationResult, type Goal, type Group, type Idea } from '../services/api';
+import { api, type AiEvaluationResult, type Goal, type Group, type Idea } from '../service';
 import GroupTopNav from '../components/GroupTopNav';
 
 type EvaluationState = {

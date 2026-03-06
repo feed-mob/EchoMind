@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, type User } from '../services/api';
+import { api, type User } from '../service';
 
 const AUTH_STORAGE_KEY = 'echomind.auth.user';
 

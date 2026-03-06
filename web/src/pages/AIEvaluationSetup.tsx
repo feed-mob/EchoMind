@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { api, type Goal, type Group, type Idea } from '../services/api';
+import { api, type Goal, type Group, type Idea } from '../service';
 import GroupTopNav from '../components/GroupTopNav';
 
 export default function AIEvaluationSetup() {

@@ -1,4 +1,4 @@
-import type { Goal as ApiGoal } from '../../services/api';
+import type { Goal as ApiGoal } from '../../service';
 import type { GoalViewModel } from './types';
 
 const goalStatusMeta: Record<string, { label: string; className: string }> = {

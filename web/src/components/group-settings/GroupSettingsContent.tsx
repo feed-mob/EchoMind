@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { api, type GroupInvitation, type GroupMember, type GroupSettings } from '../../services/api';
+import { api, type GroupInvitation, type GroupMember, type GroupSettings } from '../../service';
 
 type GroupSettingsContentProps = {
   groupId: string;

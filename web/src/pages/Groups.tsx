@@ -5,7 +5,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import MoodCenter from '../components/MoodCenter';
 import NewSources from '../components/NewSources';
 import { useToast } from '../components/ToastProvider';
-import { api, type Group } from '../services/api';
+import { api, type Group } from '../service';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Groups() {
