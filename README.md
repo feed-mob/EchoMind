@@ -15,7 +15,39 @@ EchoMind is a separated frontend/backend project organized into `api` (server) a
 
 ## Quick Start
 
-### 1) Start the Backend
+### 1) Initialize the Database
+
+The API depends on PostgreSQL and Prisma migrations in `packages/db`.
+
+Start the local database:
+
+```bash
+docker compose up -d postgres
+```
+
+The default local connection is already configured in [`packages/db/.env`](/Users/roofeel/Documents/feedmob/widea/packages/db/.env):
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/echomind?schema=public"
+```
+
+Apply existing migrations to your local development database:
+
+```bash
+cd packages/db
+bun install
+bun prisma migrate deploy --schema prisma/schema.prisma
+bun prisma generate --schema prisma/schema.prisma
+```
+
+If you want Prisma to create a new migration while developing schema changes, use:
+
+```bash
+cd packages/db
+bun prisma migrate dev --schema prisma/schema.prisma --name your_migration_name
+```
+
+### 2) Start the Backend
 
 ```bash
 cd api
@@ -25,7 +57,7 @@ bun run dev
 
 Default URL: `http://localhost:3000`
 
-### 2) Start the Frontend
+### 3) Start the Frontend
 
 ```bash
 cd web
