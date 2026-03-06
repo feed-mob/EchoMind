@@ -9,6 +9,7 @@ import { api, type Group } from '../service';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Groups() {
+  const groupCardAspectClass = 'aspect-[16/6]';
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
@@ -107,7 +108,7 @@ export default function Groups() {
       onClick={() => navigate(`/group/${group.id}`)}
       className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
-      <div className={`aspect-video relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
+      <div className={`${groupCardAspectClass} relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
         <div className="absolute inset-0 bg-black/25" />
         <div className="absolute left-4 bottom-3 flex items-center gap-2 text-white">
           <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -174,7 +175,7 @@ export default function Groups() {
       key={group.id}
       className="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm"
     >
-      <div className={`aspect-video relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
+      <div className={`${groupCardAspectClass} relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute left-3 top-3 w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
           <span className="material-icons text-lg">{group.icon || 'groups'}</span>
@@ -289,7 +290,7 @@ export default function Groups() {
                     onClick={() => setIsModalOpen(true)}
                     className="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                   >
-                    <div className="aspect-video w-full flex flex-col items-center justify-center gap-3 p-4">
+                    <div className={`${groupCardAspectClass} w-full flex flex-col items-center justify-center gap-3 p-4`}>
                       <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white transition-colors">
                         <span className="material-icons text-xl">add</span>
                       </div>
