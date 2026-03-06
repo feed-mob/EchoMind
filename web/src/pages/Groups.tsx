@@ -290,7 +290,7 @@ export default function Groups() {
                     onClick={() => setIsModalOpen(true)}
                     className="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                   >
-                    <div className={`${groupCardAspectClass} w-full flex flex-col items-center justify-center gap-3 p-4`}>
+                    <div className="w-full flex-1 min-h-[10rem] flex flex-col items-center justify-center gap-3 p-4">
                       <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white transition-colors">
                         <span className="material-icons text-xl">add</span>
                       </div>
