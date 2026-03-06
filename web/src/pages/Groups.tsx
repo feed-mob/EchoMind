@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
 import ConfirmModal from '../components/ConfirmModal';
+import MoodCorner from '../components/MoodCorner';
 import { useToast } from '../components/ToastProvider';
 import { api, type Group } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
@@ -238,25 +239,26 @@ export default function Groups() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header Bar */}
-        <header className="h-16 flex items-center justify-between px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-4 flex-1">
-            <h1 className="text-xl font-bold tracking-tight">EchoMind</h1>
-            <div className="relative w-full max-w-md ml-8">
-              <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-              <input
-                className="w-full bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary transition-all"
-                placeholder="Search groups..."
-                type="text"
-              />
-            </div>
+    <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
+      {/* Header - full width at top */}
+      <header className="sticky top-0 z-50 h-16 flex items-center justify-between px-4 md:px-8 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+        <div className="flex items-center gap-4 flex-1">
+          <h1 className="text-lg md:text-xl font-bold tracking-tight">EchoMind</h1>
+          <div className="relative w-full max-w-md ml-4 md:ml-8">
+            <span className="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+            <input
+              className="w-full bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary transition-all"
+              placeholder="Search groups..."
+              type="text"
+            />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Grid Content */}
-        <section className="flex-1 overflow-y-auto p-8">
+      {/* Main Content Area - Left/Right Layout */}
+      <div className="flex flex-col md:flex-row p-4 md:p-8">
+        {/* Left Content - My Groups & Public Groups */}
+        <main className="flex-1">
           <div className="space-y-10">
             <div>
               <div className="mb-4">
@@ -296,9 +298,40 @@ export default function Groups() {
               )}
             </div>
           </div>
-        </section>
-      </main>
+        </main>
 
+        {/* Sidebar - Right side */}
+        <aside className="md:w-80 flex-shrink-0 sticky top-16 h-fit pt-8 md:pt-0">
+          <div className="flex flex-col gap-6">
+            {/* Mood Corner */}
+            <MoodCorner />
+
+            {/* New Sources */}
+            <div className="bg-white dark:bg-card-dark p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+              <h4 className="font-bold mb-4 flex items-center gap-2">
+                <span className="material-icons text-primary text-lg">trending_up</span>
+                New Sources
+              </h4>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-slate-800 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-xs font-medium"><span className="font-bold">Leo</span> added a new idea in <span className="text-primary">TINCA</span></p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">2 hours ago</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-slate-800 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-xs font-medium"><span className="font-bold">Sarah</span> joined <span className="text-primary">Innovation Hub</span></p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">5 hours ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
       <CreateGroupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
