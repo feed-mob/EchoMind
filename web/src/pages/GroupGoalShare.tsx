@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
-import { api, type AiEvaluationResult, type AiEvaluationSetting, type Goal, type Group, type GroupMember, type Idea } from '../services/api';
+import { api, type AiEvaluationResult, type AiEvaluationSetting, type Goal, type Group, type GroupMember, type Idea } from '../service';
 
 type ShareIdea = {
   id: string;

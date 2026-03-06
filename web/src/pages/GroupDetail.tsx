@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api, type Idea, type Group, type IdeaComment } from '../services/api';
+import { api, type Idea, type Group, type IdeaComment } from '../service';
 import { useAuth } from '../auth/AuthContext';
 import ConfirmModal from '../components/ConfirmModal';
 import SimpleMarkdownEditor from '../components/SimpleMarkdownEditor';

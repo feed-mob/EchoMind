@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, type Idea } from '../services/api';
+import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, type Idea } from '../service';
 import GoalEditor from '../components/group-goals/GoalEditor';
 import GoalDetailView from '../components/group-goals/GoalDetailView';
 import GoalsSidebar from '../components/group-goals/GoalsSidebar';

@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { api, type User } from '../services/api';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { api, type User } from '../service';
 
 const AUTH_STORAGE_KEY = 'echomind.auth.user';
 
@@ -26,6 +26,22 @@ function readStoredUser() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => readStoredUser());
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    let cancelled = false;
+
+    void api.users.getById(user.id).catch(() => {
+      if (cancelled) return;
+      setUser(null);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const loginWithGoogleCredential = async (credential: string) => {
     const result = await api.users.loginWithGoogle({ credential });
@@ -58,4 +74,3 @@ export function useAuth() {
   }
   return context;
 }
-

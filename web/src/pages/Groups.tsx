@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreateGroupModal from '../components/CreateGroupModal';
 import ConfirmModal from '../components/ConfirmModal';
+import MoodCenter from '../components/MoodCenter';
+import NewSources from '../components/NewSources';
 import { useToast } from '../components/ToastProvider';
-import { api, type Group } from '../services/api';
+import { api, type Group } from '../service';
 import { useAuth } from '../auth/AuthContext';
 
 export default function Groups() {
+  const groupCardAspectClass = 'aspect-[16/6]';
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
@@ -64,7 +67,7 @@ export default function Groups() {
       navigate(`/group/${createdGroup.id}`);
     } catch (err) {
       console.error('Error creating group:', err);
-      toast.error('Failed to create group. Please try again.');
+      toast.error(err instanceof Error ? err.message : 'Failed to create group. Please try again.');
     }
   };
 
@@ -75,44 +78,62 @@ export default function Groups() {
     return `${group.ideaCount} Ideas`;
   };
 
+  const getGroupBadge = (group: Group) => {
+    if (group.status === 'completed') return 'Completed';
+    if (group.status === 'processing') return 'Processing';
+    return 'Active';
+  };
+
+  const getGroupCover = (groupId: string) => {
+    const palette = [
+      'from-blue-500 to-indigo-600',
+      'from-cyan-500 to-blue-600',
+      'from-emerald-500 to-teal-600',
+      'from-violet-500 to-indigo-600',
+      'from-fuchsia-500 to-purple-600',
+    ];
+    const seed = groupId.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    return palette[seed % palette.length];
+  };
+
   const myGroupIdSet = new Set(myGroupIds);
   const myGroups = groups.filter((group) => myGroupIdSet.has(group.id));
   const publicGroups = groups.filter(
     (group) => group.publicAccessEnabled && !myGroupIdSet.has(group.id),
   );
 
-  const renderGroupCard = (group: Group, canManage: boolean) => (
+  const renderMyGroupCard = (group: Group, canManage: boolean) => (
     <div
       key={group.id}
       onClick={() => navigate(`/group/${group.id}`)}
-      className="group relative bg-white dark:bg-card-dark rounded-xl p-5 border border-slate-200 dark:border-slate-800 hover:border-primary/50 dark:hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
+      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-            <span className="material-icons">{group.icon || 'groups'}</span>
+      <div className={`${groupCardAspectClass} relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute left-4 bottom-3 flex items-center gap-2 text-white">
+          <div className="w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <span className="material-icons text-lg">{group.icon || 'groups'}</span>
           </div>
-          <div>
-            <h3 className="font-semibold text-slate-800 dark:text-slate-100">{group.name}</h3>
-          </div>
+          <span className="text-xs font-semibold uppercase tracking-wide">{group.memberCount} Members</span>
         </div>
+        <span className="absolute right-3 top-3 bg-white/95 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
+          {getGroupBadge(group)}
+        </span>
         {canManage && (
           <button
-            className="text-slate-400 hover:text-primary transition-colors icon-button"
+            className="absolute left-3 top-3 text-white/80 hover:text-white transition-colors icon-button"
             onClick={(e) => {
               e.stopPropagation();
               setOpenMenuGroupId((prev) => (prev === group.id ? null : group.id));
             }}
           >
-            <span className="material-icons">
-              more_vert
-            </span>
+            <span className="material-icons">more_vert</span>
           </button>
         )}
         {canManage && openMenuGroupId === group.id && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-3 z-20 w-36 rounded-lg border border-slate-200 bg-white shadow-xl py-1"
+            className="absolute top-12 left-3 z-20 w-36 rounded-lg border border-slate-200 bg-white shadow-xl py-1"
           >
             <button
               onClick={(e) => {
@@ -137,41 +158,40 @@ export default function Groups() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-          <span className="material-icons text-[12px]">group</span> {group.memberCount} Members
-        </div>
-        <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-semibold ${
-          group.status === 'processing'
-            ? 'bg-primary/10 text-primary'
-            : group.status === 'completed'
-            ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-            : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-        }`}>
-          <span className="material-icons text-[12px]">
-            {group.status === 'processing' ? 'auto_awesome' : group.status === 'completed' ? 'check_circle' : 'lightbulb'}
-          </span>
+      <div className="p-4 flex-1 flex flex-col justify-center">
+        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">{group.name}</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">
+          {group.memberCount} members • {group.ideaCount} ideas
+        </p>
+        <p className={`text-xs mt-2 font-medium ${group.status === 'processing' ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
           {getStatusText(group)}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderPublicGroupCard = (group: Group) => (
+    <div
+      key={group.id}
+      className="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm"
+    >
+      <div className={`${groupCardAspectClass} relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute left-3 top-3 w-9 h-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+          <span className="material-icons text-lg">{group.icon || 'groups'}</span>
         </div>
       </div>
-
-      <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-        <span className={`text-[11px] font-medium ${
-          group.status === 'processing'
-            ? 'text-primary animate-pulse'
-            : 'text-slate-500 dark:text-slate-400'
-        }`}>
-          {group.status === 'processing' ? 'Processing ideas...' : `${group.ideaCount} ideas`}
-        </span>
-        <div className="flex -space-x-2">
-          {group.memberCount > 0 ? (
-            <div className="w-6 h-6 rounded-full border-2 border-white dark:border-card-dark bg-slate-200 dark:bg-slate-700 text-[8px] flex items-center justify-center font-bold">
-              {group.memberCount}
-            </div>
-          ) : (
-            <div className="text-xs text-slate-400">No members</div>
-          )}
-        </div>
+      <div className="p-4 flex flex-col gap-2">
+        <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">{group.name}</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">
+          {group.memberCount} members • {group.ideaCount} ideas
+        </p>
+        <button
+          onClick={() => navigate(`/group/${group.id}`)}
+          className="mt-2 w-full py-2 bg-primary/10 text-primary font-bold rounded-lg text-sm hover:bg-primary hover:text-white transition-colors"
+        >
+          Join Group
+        </button>
       </div>
     </div>
   );
@@ -256,45 +276,51 @@ export default function Groups() {
         </header>
 
         {/* Grid Content */}
-        <section className="flex-1 overflow-y-auto p-8">
-          <div className="space-y-10">
-            <div>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">My Groups</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Groups where you are a member</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {myGroups.map((group) => renderGroupCard(group, true))}
+        <section className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8">
+            <div className="flex-1 flex flex-col gap-8">
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">My Groups</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
+                  {myGroups.map((group) => renderMyGroupCard(group, true))}
 
-                {/* Create New Group Placeholder */}
-                <div
-                  onClick={() => setIsModalOpen(true)}
-                  className="group relative border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-5 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-slate-800/30 hover:border-primary/50 transition-all cursor-pointer min-h-[180px]"
-                >
-                  <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                    <span className="material-icons">add_circle_outline</span>
+                  <div
+                    onClick={() => setIsModalOpen(true)}
+                    className="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  >
+                    <div className="w-full flex-1 min-h-[10rem] flex flex-col items-center justify-center gap-3 p-4">
+                      <div className="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span className="material-icons text-xl">add</span>
+                      </div>
+                      <div className="text-center">
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-white">Start a new group</h3>
+                        <p className="text-[10px] text-slate-500">Collaborate and share ideas</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-medium text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">Start a new group</h3>
-                  <p className="text-xs text-slate-400 mt-1">Invite collaborators and AI assistants</p>
                 </div>
-              </div>
+              </section>
+
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Public Groups</h2>
+                </div>
+                {publicGroups.length === 0 ? (
+                  <div className="text-sm text-slate-500 dark:text-slate-400">No public groups available.</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {publicGroups.map((group) => renderPublicGroupCard(group))}
+                  </div>
+                )}
+              </section>
             </div>
 
-            <div>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Public Groups</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Open groups you can browse</p>
-              </div>
-              {publicGroups.length === 0 ? (
-                <div className="dark:bg-card-dark/60 text-sm text-slate-500 dark:text-slate-400">
-                  No public groups available.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {publicGroups.map((group) => renderGroupCard(group, false))}
-                </div>
-              )}
-            </div>
+            <aside className="w-full lg:w-80 flex flex-col gap-6">
+              <MoodCenter />
+              <NewSources />
+            </aside>
           </div>
         </section>
       </main>

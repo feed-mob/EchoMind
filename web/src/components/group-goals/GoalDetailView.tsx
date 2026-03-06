@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { GoalViewModel } from './types';
-import type { AiEvaluationSetting } from '../../services/api';
+import type { AiEvaluationSetting } from '../../service';
 import ConfirmModal from '../ConfirmModal';
 
 interface GoalDetailViewProps {
