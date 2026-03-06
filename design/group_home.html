@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1754cf",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>EchoMind Dashboard</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8 flex items-center justify-center bg-primary text-white rounded-lg">
+<span class="material-symbols-outlined text-2xl">lightbulb</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-black leading-tight tracking-tight">EchoMind</h2>
+</div>
+<label class="hidden md:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden border border-slate-200 dark:border-slate-700">
+<div class="text-slate-500 flex bg-slate-50 dark:bg-slate-800 items-center justify-center pl-4">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-slate-50 dark:bg-slate-800 focus:ring-0 h-full placeholder:text-slate-400 px-4 text-sm" placeholder="Search groups..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/20 overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="User profile avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnbfCMbkH7LCjiwIWhYYaI-4sNB3gyyoj8VDdD9RswUTLlwzwWPiFL7XCb1xoPdraRO7OhEn80NJeQs7j87NQic3mg5cM-u5F1XSg7RPDk89Mce9To29zeOlr0jIsMMW-QWnLiu-qSXiFIl825jnJlrotWpmPWVVDiW1asjhssrV74Q-WC0ZfOnBzW0dBEKoPoNhvswajZqm_ejvyJN7tcQVwFbYBpaaL4aAvDnZcr1cZIiQmXFlfniHiE6TiLrHwDEIr38zcR1ndZ"/>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col md:flex-row max-w-[1440px] mx-auto w-full px-6 md:px-10 py-8 gap-8">
+<div class="flex-1 flex flex-col gap-8">
+<section>
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-extrabold tracking-tight">My Groups</h2>
+<button class="text-primary text-sm font-bold hover:underline">View all</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+<div class="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow h-full">
+<div class="aspect-video w-full bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+<img alt="TINCA Project" class="w-full h-full object-cover" data-alt="A group of people collaborating around a laptop in a bright office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqlGMnOwU8nQiD7q_X_wla1z9ptqlDdRdJQqf-dTb5VEWmoy4U4QQBmBmX6qWNo7jVz0MlMChyXdPOCN3KsomfnuRZnQFIRSW9d_6X40PRgbQ-KvyWNxh9gyQVhmOXzAT-tyyEvVGGc3R1HtosjdijOfuk0rnSZM9Sfgn2byHfWUBlw2Ufh-LM61wt8A9ifsb84MQnbBd_nlPyKL7qt1-mbI5Bgj3P2wx5jIrT68KRPr0OkOP6iBy2TA9JgVEKyGwnYFr_eAq0PFTR"/>
+<span class="absolute top-3 right-3 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded uppercase">Active</span>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-center">
+<h3 class="font-bold text-lg">TINCA</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm">12 members • 45 ideas</p>
+</div>
+</div>
+<div class="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow h-full">
+<div class="aspect-video w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+<div class="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-5xl">folder_open</span>
+<span class="text-[10px] font-medium tracking-widest uppercase">Innovation</span>
+</div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-center">
+<h3 class="font-bold text-lg">Innovation Hub</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm">8 members • 22 ideas</p>
+</div>
+</div>
+<div class="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow h-full cursor-pointer">
+<div class="aspect-video w-full flex flex-col items-center justify-center gap-3 p-4">
+<div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">add</span>
+</div>
+<div class="text-center">
+<h3 class="font-bold text-sm text-slate-900 dark:text-white">Start a new group</h3>
+<p class="text-[10px] text-slate-500">Collaborate and share ideas</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-extrabold tracking-tight">Public Groups</h2>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-slate-200 dark:bg-slate-800 rounded-full text-xs font-medium cursor-pointer">Design</span>
+<span class="px-3 py-1 bg-slate-200 dark:bg-slate-800 rounded-full text-xs font-medium cursor-pointer">Tech</span>
+<span class="px-3 py-1 bg-slate-200 dark:bg-slate-800 rounded-full text-xs font-medium cursor-pointer">Art</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+<div class="aspect-video w-full bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
+<img alt="UI Design" class="w-full h-full object-cover" data-alt="Abstract UI wireframes and design components on a screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7IH26H1G4RRMaGw2FPEvp1jZ8CgKRN3peWJf4BiMbGY1UDTO_DRjEB5ai5G8RQiAJKTZR3I-e2NMDCo4r2hCe5-hgIdKgRCb2bJiWr9PZ6GQp93FMdxca-6uei5V1zav76YPlKzXaFZ3Natc_apFTC-uPwK_aTlK1bDjZRwepNch5mjKgjZjxR1S-Rmx4_Dg7uzdKAnvKMw4L85RPrfW4wnoGM-kV7Tow3w-GhrWzvBPe_FfSNXZQjSkQQEJl5yeLPlML_g_fKdCb"/>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h3 class="font-bold text-lg">UI/UX Explorers</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm line-clamp-1">The future of digital interface design...</p>
+<button class="mt-2 w-full py-2 bg-primary/10 text-primary font-bold rounded-lg text-sm hover:bg-primary hover:text-white transition-colors">Join Group</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<aside class="w-full md:w-80 flex flex-col gap-6">
+<div class="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-indigo-950 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-lg relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-8xl text-primary">sentiment_satisfied</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h3 class="text-indigo-900 dark:text-indigo-200 font-extrabold text-xl">Mood Corner</h3>
+</div>
+<p class="text-indigo-800/80 dark:text-indigo-300/80 text-sm mb-6 leading-relaxed">
+                                Your Mood Corner: Shed Troubles, Store Joy. Turn gray moments into space and bright ones into sweet rewards.
+                            </p>
+<div class="flex gap-4 mb-8">
+<div class="flex-1 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-3 rounded-xl border border-white dark:border-slate-700 flex flex-col items-center gap-2 text-center group/item cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">
+<div class="size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">
+<span class="material-symbols-outlined text-3xl">restaurant</span>
+</div>
+<span class="text-[10px] font-bold uppercase text-orange-600 dark:text-orange-400">Candy Jar</span>
+<p class="text-[9px] text-slate-500 dark:text-slate-400">Store joy</p>
+</div>
+<div class="flex-1 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-3 rounded-xl border border-white dark:border-slate-700 flex flex-col items-center gap-2 text-center group/item cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">
+<div class="size-12 rounded-full bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined text-3xl">delete_outline</span>
+</div>
+<span class="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">Recycle</span>
+<p class="text-[9px] text-slate-500 dark:text-slate-400">Shed troubles</p>
+</div>
+</div>
+<div class="space-y-3">
+<p class="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">How are you today?</p>
+<div class="relative">
+<input class="w-full bg-white dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary shadow-inner" placeholder="Record your mood..." type="text"/>
+<button class="absolute right-2 top-1.5 size-8 rounded-lg bg-primary text-white flex items-center justify-center hover:bg-primary/90">
+<span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+<h4 class="font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">trending_up</span>
+                            New Sources
+                        </h4>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-indigo-100 dark:bg-slate-800 flex-shrink-0"></div>
+<div>
+<p class="text-xs font-medium"><span class="font-bold">Leo</span> added a new idea in <span class="text-primary">TINCA</span></p>
+<p class="text-[10px] text-slate-400 mt-0.5">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-emerald-100 dark:bg-slate-800 flex-shrink-0"></div>
+<div>
+<p class="text-xs font-medium"><span class="font-bold">Sarah</span> joined <span class="text-primary">Innovation Hub</span></p>
+<p class="text-[10px] text-slate-400 mt-0.5">5 hours ago</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</div>
+</body></html>
