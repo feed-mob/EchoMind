@@ -281,7 +281,7 @@ export default function Groups() {
             <div className="flex-1 flex flex-col gap-8">
               <section>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">My Groups</h2>
+                  <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">My Groups</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
                   {myGroups.map((group) => renderMyGroupCard(group, true))}
@@ -305,7 +305,7 @@ export default function Groups() {
 
               <section>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Public Groups</h2>
+                  <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Public Groups</h2>
                 </div>
                 {publicGroups.length === 0 ? (
                   <div className="text-sm text-slate-500 dark:text-slate-400">No public groups available.</div>
