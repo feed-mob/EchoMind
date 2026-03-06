@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import GroupTopNav from '../components/GroupTopNav';
-import GroupSettingsContent from '../components/group-settings/GroupSettingsContent';
+import GroupSettingsContent from '../components/GroupSettings/GroupSettingsContent';
 import { api, type Group } from '../service';
 
 export default function GroupSettings() {

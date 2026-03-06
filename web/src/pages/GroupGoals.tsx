@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, type Idea } from '../service';
-import GoalEditor from '../components/group-goals/GoalEditor';
-import GoalDetailView from '../components/group-goals/GoalDetailView';
-import GoalsSidebar from '../components/group-goals/GoalsSidebar';
-import AnimatedSeedling from '../components/group-goals/AnimatedSeedling';
+import GoalEditor from '../components/GroupGoals/GoalEditor';
+import GoalDetailView from '../components/GroupGoals/GoalDetailView';
+import GoalsSidebar from '../components/GroupGoals/GoalsSidebar';
+import AnimatedSeedling from '../components/GroupGoals/AnimatedSeedling';
 import GroupTopNav from '../components/GroupTopNav';
-import type { GoalViewMode, GoalViewModel } from '../components/group-goals/types';
-import { normalizeGoal } from '../components/group-goals/utils';
+import type { GoalViewMode, GoalViewModel } from '../components/GroupGoals/types';
+import { normalizeGoal } from '../components/GroupGoals/utils';
 
 export default function GroupGoals() {
   const { groupId } = useParams<{ groupId: string }>();
