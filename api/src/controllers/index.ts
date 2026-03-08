@@ -4,3 +4,4 @@ export { ideasController } from "./ideas.controller.js";
 export { goalsController } from "./goals.controller.js";
 export { aiEvaluationSettingsController } from "./aiEvaluationSettings.controller.js";
 export { healthController } from "./health.controller.js";
+export { moodEntriesController } from "./moodEntries.controller.js"

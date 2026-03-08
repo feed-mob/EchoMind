@@ -690,3 +690,132 @@ export const aiEvaluationResults = {
     });
   },
 };
+
+export interface MoodEntry {
+  id: string;
+  userId: string;
+  mood: string;
+  emotion?: string | null;
+  notes?: string | null;
+  recordedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const moodEntries = {
+  async create(data: {
+    userId: string;
+    mood: string;
+    emotion?: string;
+    notes?: string;
+    recordedAt?: Date;
+  }) {
+    return await (db as any).moodEntry.create({
+      data: {
+        userId: data.userId,
+        mood: data.mood,
+        emotion: data.emotion,
+        notes: data.notes,
+        recordedAt: data.recordedAt || new Date(),
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await (db as any).moodEntry.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByUser(userId: string) {
+    return await (db as any).moodEntry.findMany({
+      where: { userId },
+      orderBy: { recordedAt: "desc" },
+    });
+  },
+
+  async update(id: string, data: Partial<MoodEntry>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.userId;
+
+    return await (db as any).moodEntry.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await (db as any).moodEntry.delete({
+      where: { id },
+    });
+  },
+
+  async getStatsByUser(userId: string) {
+    const entries = await (db as any).moodEntry.findMany({
+      where: { userId },
+      orderBy: { recordedAt: "desc" },
+    });
+
+    const total = entries.length;
+    if (total === 0) {
+      return {
+        total: 0,
+        moodCounts: {},
+        emotionCounts: {},
+        streakDays: 0,
+        mostFrequentMood: null,
+      };
+    }
+
+    const moodCounts: Record<string, number> = {};
+    const emotionCounts: Record<string, number> = {};
+
+    for (const entry of entries) {
+      moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+      if (entry.emotion) {
+        emotionCounts[entry.emotion] = (emotionCounts[entry.emotion] || 0) + 1;
+      }
+    }
+
+    const mostFrequentMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0];
+
+    // Calculate streak (consecutive days with entries)
+    let streakDays = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const datesWithEntries = new Set(
+      entries.map((e: any) => {
+        const d = new Date(e.recordedAt);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+      })
+    );
+
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - i);
+      if (datesWithEntries.has(checkDate.getTime())) {
+        if (i === streakDays) {
+          streakDays++;
+        }
+      } else if (i === 0) {
+        // If no entry today, still count streak from yesterday
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      total,
+      moodCounts,
+      emotionCounts,
+      streakDays,
+      mostFrequentMood,
+    };
+  },
+};

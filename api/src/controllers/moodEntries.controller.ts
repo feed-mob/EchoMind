@@ -8,6 +8,8 @@ export const moodEntriesController = {
     const startDate = url.searchParams.get("startDate");
     const endDate = url.searchParams.get("endDate");
 
+    console.log("===== api user ==>", userId)
+
     if (!userId) {
       return Response.json({ error: "userId is required" }, { status: 400 });
     }

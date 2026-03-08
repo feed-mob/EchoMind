@@ -65,6 +65,7 @@ export default function MoodHistory() {
   const fetchMoodData = async () => {
     try {
       setLoading(true);
+      console.log("===== web user ==>", user!.id)
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - parseInt(timeRange));

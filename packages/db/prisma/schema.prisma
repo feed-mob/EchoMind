@@ -25,6 +25,7 @@ model User {
   ideas     Idea[]
   comments  Comment[]
   invitations GroupInvitation[] @relation("InvitedByUser")
+  moodEntries MoodEntry[]
 }
 
 model Group {
