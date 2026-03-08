@@ -144,3 +144,14 @@ export interface AiEvaluationResult {
     } | null;
   };
 }
+
+export interface MoodEntry {
+  id: string;
+  userId: string;
+  mood: string;
+  emotion: string | null;
+  notes: string | null;
+  recordedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}

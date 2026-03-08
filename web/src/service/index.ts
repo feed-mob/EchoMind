@@ -4,6 +4,7 @@ import { commentsApi } from './comments';
 import { goalsApi } from './goals';
 import { groupsApi } from './groups';
 import { ideasApi } from './ideas';
+import { moodEntriesApi } from './moodEntries';
 import { usersApi } from './users';
 
 export const api = {
@@ -14,6 +15,7 @@ export const api = {
   goals: goalsApi,
   aiEvaluationSettings: aiEvaluationSettingsApi,
   aiEvaluationResults: aiEvaluationResultsApi,
+  moodEntries: moodEntriesApi,
 };
 
 export * from './types';
