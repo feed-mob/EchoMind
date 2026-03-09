@@ -2,7 +2,7 @@
 DROP INDEX "Goal_groupId_idx";
 
 -- CreateTable
-CREATE TABLE "MoodEntry" (
+CREATE TABLE "Mood" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "mood" TEXT NOT NULL,
@@ -12,14 +12,14 @@ CREATE TABLE "MoodEntry" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "MoodEntry_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Mood_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "MoodEntry_userId_recordedAt_idx" ON "MoodEntry"("userId", "recordedAt");
+CREATE INDEX "Mood_userId_recordedAt_idx" ON "Mood"("userId", "recordedAt");
 
 -- CreateIndex
-CREATE INDEX "MoodEntry_userId_idx" ON "MoodEntry"("userId");
+CREATE INDEX "Mood_userId_idx" ON "Mood"("userId");
 
 -- AddForeignKey
-ALTER TABLE "MoodEntry" ADD CONSTRAINT "MoodEntry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Mood" ADD CONSTRAINT "Mood_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
-import type { MoodEntry } from '../service/types';
+import type { Mood } from '../service/types';
 
 interface MoodStats {
   total: number;
@@ -49,7 +49,7 @@ const emotionLabels: Record<string, string> = {
 export default function MoodHistory() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,14 +65,13 @@ export default function MoodHistory() {
   const fetchMoodData = async () => {
     try {
       setLoading(true);
-      console.log("===== web user ==>", user!.id)
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - parseInt(timeRange));
 
       const [entriesData, statsData] = await Promise.all([
-        api.moodEntries.list(user!.id, startDate.toISOString(), endDate.toISOString()),
-        api.moodEntries.getStats(user!.id),
+        api.moods.list(user!.id, startDate.toISOString(), endDate.toISOString()),
+        api.moods.getStats(user!.id),
       ]);
 
       setEntries(entriesData);
@@ -93,7 +92,7 @@ export default function MoodHistory() {
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
 
-    const days: Array<{ date: number; mood?: string; emotion?: string; entry?: MoodEntry }> = [];
+    const days: Array<{ date: number; mood?: string; emotion?: string; entry?: Mood }> = [];
 
     // Previous month days
     const prevMonthLastDay = new Date(year, month, 0).getDate();

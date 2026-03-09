@@ -691,7 +691,7 @@ export const aiEvaluationResults = {
   },
 };
 
-export interface MoodEntry {
+export interface Mood {
   id: string;
   userId: string;
   mood: string;
@@ -702,7 +702,7 @@ export interface MoodEntry {
   updatedAt: Date;
 }
 
-export const moodEntries = {
+export const moods = {
   async create(data: {
     userId: string;
     mood: string;
@@ -710,7 +710,7 @@ export const moodEntries = {
     notes?: string;
     recordedAt?: Date;
   }) {
-    return await (db as any).moodEntry.create({
+    return await (db as any).mood.create({
       data: {
         userId: data.userId,
         mood: data.mood,
@@ -722,39 +722,39 @@ export const moodEntries = {
   },
 
   async findById(id: string) {
-    return await (db as any).moodEntry.findUnique({
+    return await (db as any).mood.findUnique({
       where: { id },
     });
   },
 
   async listByUser(userId: string) {
-    return await (db as any).moodEntry.findMany({
+    return await (db as any).mood.findMany({
       where: { userId },
       orderBy: { recordedAt: "desc" },
     });
   },
 
-  async update(id: string, data: Partial<MoodEntry>) {
+  async update(id: string, data: Partial<Mood>) {
     const updateData: any = { ...data };
     delete updateData.id;
     delete updateData.createdAt;
     delete updateData.updatedAt;
     delete updateData.userId;
 
-    return await (db as any).moodEntry.update({
+    return await (db as any).mood.update({
       where: { id },
       data: updateData,
     });
   },
 
   async delete(id: string) {
-    await (db as any).moodEntry.delete({
+    await (db as any).mood.delete({
       where: { id },
     });
   },
 
   async getStatsByUser(userId: string) {
-    const entries = await (db as any).moodEntry.findMany({
+    const entries = await (db as any).mood.findMany({
       where: { userId },
       orderBy: { recordedAt: "desc" },
     });

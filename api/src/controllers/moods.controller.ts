@@ -1,20 +1,18 @@
-import { moodEntries } from "../../../packages/db/index.js";
-type RequestWithParams<T extends Record<string, string>> = Request & { params: T };
+import { moods } from "../../../packages/db/index.js";
+import type { RequestWithParams } from "../http/types.js";
 
-export const moodEntriesController = {
+export const moodsController = {
   async list(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get("userId");
     const startDate = url.searchParams.get("startDate");
     const endDate = url.searchParams.get("endDate");
 
-    console.log("===== api user ==>", userId)
-
     if (!userId) {
       return Response.json({ error: "userId is required" }, { status: 400 });
     }
 
-    const entries = await moodEntries.listByUser(userId, {
+    const entries = await moods.listByUser(userId, {
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
     });
@@ -35,7 +33,7 @@ export const moodEntriesController = {
       return Response.json({ error: "userId and mood are required" }, { status: 400 });
     }
 
-    const entry = await moodEntries.create({
+    const entry = await moods.create({
       userId: data.userId,
       mood: data.mood,
       emotion: data.emotion,
@@ -54,16 +52,16 @@ export const moodEntriesController = {
       return Response.json({ error: "userId is required" }, { status: 400 });
     }
 
-    const stats = await moodEntries.getStatsByUser(userId);
+    const stats = await moods.getStatsByUser(userId);
     return Response.json(stats);
   },
 
   async getById(req: Request) {
     const request = req as RequestWithParams<{ id: string }>;
-    const entry = await moodEntries.findById(request.params.id);
+    const entry = await moods.findById(request.params.id);
 
     if (!entry) {
-      return Response.json({ error: "Mood entry not found" }, { status: 404 });
+      return Response.json({ error: "Mood not found" }, { status: 404 });
     }
 
     return Response.json(entry);
@@ -78,12 +76,12 @@ export const moodEntriesController = {
       recordedAt: string;
     }>;
 
-    const entry = await moodEntries.findById(request.params.id);
+    const entry = await moods.findById(request.params.id);
     if (!entry) {
-      return Response.json({ error: "Mood entry not found" }, { status: 404 });
+      return Response.json({ error: "Mood not found" }, { status: 404 });
     }
 
-    const updated = await moodEntries.update(request.params.id, {
+    const updated = await moods.update(request.params.id, {
       ...data,
       recordedAt: data.recordedAt ? new Date(data.recordedAt) : undefined,
     });
@@ -94,12 +92,12 @@ export const moodEntriesController = {
   async delete(req: Request) {
     const request = req as RequestWithParams<{ id: string }>;
 
-    const entry = await moodEntries.findById(request.params.id);
+    const entry = await moods.findById(request.params.id);
     if (!entry) {
-      return Response.json({ error: "Mood entry not found" }, { status: 404 });
+      return Response.json({ error: "Mood not found" }, { status: 404 });
     }
 
-    await moodEntries.delete(request.params.id);
+    await moods.delete(request.params.id);
     return new Response(null, { status: 204 });
   },
 };

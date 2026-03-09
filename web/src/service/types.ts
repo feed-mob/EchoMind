@@ -145,7 +145,7 @@ export interface AiEvaluationResult {
   };
 }
 
-export interface MoodEntry {
+export interface Mood {
   id: string;
   userId: string;
   mood: string;
