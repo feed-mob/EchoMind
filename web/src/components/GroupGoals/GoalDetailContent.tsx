@@ -37,22 +37,6 @@ export default function GoalDetailContent({
         onDeleteGoal={onDeleteGoal}
       />
 
-      <div>
-        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Goal Title</label>
-        <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
-          {selectedGoal.title || 'Untitled Goal'}
-        </h3>
-      </div>
-
-      <div>
-        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
-        <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
-          <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-            {selectedGoal.description || 'No description yet.'}
-          </p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div>
           <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Success Metrics</label>
