@@ -53,6 +53,17 @@ vi.mock('../../service', () => ({
   },
 }));
 
+vi.mock('../../auth/AuthContext', () => ({
+  useAuth: () => ({
+    user: {
+      id: 'user-1',
+      email: 'roofeel@example.com',
+      name: 'roofeel',
+      avatar: null,
+    },
+  }),
+}));
+
 vi.mock('../../components/GroupTopNav', () => ({
   default: ({ activeTab }: { activeTab: string }) => <div data-testid="group-top-nav">tab:{activeTab}</div>,
 }));

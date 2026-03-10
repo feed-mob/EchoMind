@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { api, type AiEvaluationResult, type AiEvaluationSetting, type Group, type Idea } from '../service';
 import GoalEditor from '../components/GroupGoals/GoalEditor';
 import GoalDetailView from '../components/GroupGoals/GoalDetailView';
@@ -12,6 +13,7 @@ import { normalizeGoal } from '../components/GroupGoals/utils';
 export default function GroupGoals() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [group, setGroup] = useState<Group | null>(null);
   const [goals, setGoals] = useState<GoalViewModel[]>([]);
@@ -184,6 +186,11 @@ export default function GroupGoals() {
     }
 
     if (goalEditorMode === 'create') {
+      if (!user?.id) {
+        setSaveError('You must be signed in to create a goal');
+        return;
+      }
+
       try {
         setSaving(true);
         const created = await api.goals.create(groupId, {
@@ -192,6 +199,7 @@ export default function GroupGoals() {
           status: selectedGoal.status,
           successMetrics: selectedGoal.successMetrics,
           constraints: selectedGoal.constraints,
+          creatorId: user.id,
         });
         const next = attachGoalCreator(normalizeGoal(created), ideas);
         setGoals((prev) => [next, ...prev]);

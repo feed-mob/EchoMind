@@ -87,6 +87,7 @@ export default function GoalsSidebar({
           <div className="space-y-3">
             {visibleGoals.map((goal) => {
               const active = selectedGoalId === goal.id;
+              const hasCreator = Boolean(goal.creatorName);
 
               return (
               <button
@@ -112,10 +113,12 @@ export default function GoalsSidebar({
                       {goal.description || 'No description yet.'}
                     </p>
                     <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <span className="material-icons text-xs">person</span>
-                        {goal.creatorName || 'Unknown'}
-                      </span>
+                      {hasCreator && (
+                        <span className="flex items-center gap-1">
+                          <span className="material-icons text-xs">person</span>
+                          {goal.creatorName}
+                        </span>
+                      )}
                       <span className="flex items-center gap-1">
                         <span className="material-icons text-xs">schedule</span>
                         {new Date(goal.createdAt).toLocaleDateString()}

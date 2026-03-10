@@ -22,6 +22,7 @@ export const goalsApi = {
       status?: string;
       successMetrics?: unknown;
       constraints?: unknown;
+      creatorId: string;
       selectedIdeaId?: string | null;
       selectedSettingId?: string | null;
     },

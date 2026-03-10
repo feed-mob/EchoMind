@@ -99,7 +99,7 @@ describe("goalsController", () => {
     const req = new Request("http://localhost/api/groups/g1/goals", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ title: "Improve retention", description: "Q2" }),
+      body: JSON.stringify({ title: "Improve retention", description: "Q2", creatorId: "u1" }),
     }) as Request & { params: { id: string } };
     req.params = { id: "g1" };
 
@@ -109,8 +109,24 @@ describe("goalsController", () => {
     expect(dbMock.goals.create).toHaveBeenCalledWith({
       title: "Improve retention",
       description: "Q2",
+      creatorId: "u1",
       groupId: "g1",
     });
+  });
+
+  it("create returns 400 when creatorId is missing", async () => {
+    const req = new Request("http://localhost/api/groups/g1/goals", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Improve retention" }),
+    }) as Request & { params: { id: string } };
+    req.params = { id: "g1" };
+
+    const response = await goalsController.create(req);
+
+    expect(response.status).toBe(400);
+    expect(dbMock.goals.create).not.toHaveBeenCalled();
+    expect(await jsonBody(response)).toEqual({ error: "creatorId is required" });
   });
 
   it("getById returns 404 when goal missing", async () => {

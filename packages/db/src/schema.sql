@@ -83,12 +83,14 @@ CREATE TABLE IF NOT EXISTS "Goal" (
   "status" TEXT NOT NULL DEFAULT 'draft',
   "successMetrics" JSONB,
   "constraints" JSONB,
+  "creatorId" TEXT NOT NULL,
   "selectedIdeaId" TEXT,
   "selectedSettingId" TEXT,
   "groupId" TEXT NOT NULL,
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY ("groupId") REFERENCES "Group"("id") ON DELETE CASCADE,
+  FOREIGN KEY ("creatorId") REFERENCES "User"("id") ON DELETE CASCADE,
   FOREIGN KEY ("selectedIdeaId") REFERENCES "Idea"("id") ON DELETE SET NULL,
   FOREIGN KEY ("selectedSettingId") REFERENCES "AiEvaluationSetting"("id") ON DELETE SET NULL
 );
@@ -134,6 +136,7 @@ CREATE INDEX IF NOT EXISTS "idx_idea_author" ON "Idea"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_comment_idea_created_at" ON "Comment"("ideaId", "createdAt" DESC);
 CREATE INDEX IF NOT EXISTS "idx_comment_author" ON "Comment"("authorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_group" ON "Goal"("groupId");
+CREATE INDEX IF NOT EXISTS "idx_goal_creator" ON "Goal"("creatorId");
 CREATE INDEX IF NOT EXISTS "idx_goal_selected_idea" ON "Goal"("selectedIdeaId");
 CREATE INDEX IF NOT EXISTS "idx_goal_selected_setting" ON "Goal"("selectedSettingId");
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_group_created_at" ON "AiEvaluationSetting"("groupId", "createdAt" DESC);

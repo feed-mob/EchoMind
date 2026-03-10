@@ -23,6 +23,7 @@ model User {
 
   groups    GroupMember[]
   ideas     Idea[]
+  goals     Goal[]   @relation("GoalCreator")
   comments  Comment[]
   invitations GroupInvitation[] @relation("InvitedByUser")
 }
@@ -115,6 +116,7 @@ model Goal {
   status         String   @default("draft")
   successMetrics Json?
   constraints    Json?
+  creatorId      String
   selectedIdeaId String?
   selectedSettingId String?
   groupId        String
@@ -122,10 +124,12 @@ model Goal {
   updatedAt      DateTime @updatedAt
 
   group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  creator        User     @relation("GoalCreator", fields: [creatorId], references: [id], onDelete: Cascade)
   selectedIdea   Idea?    @relation("GoalSelectedIdea", fields: [selectedIdeaId], references: [id], onDelete: SetNull)
   selectedSetting AiEvaluationSetting? @relation("GoalSelectedSetting", fields: [selectedSettingId], references: [id], onDelete: SetNull)
   aiEvaluationSettings AiEvaluationSetting[] @relation("GoalEvaluationSettings")
 
+  @@index([creatorId])
   @@index([selectedIdeaId])
   @@index([selectedSettingId])
 }
