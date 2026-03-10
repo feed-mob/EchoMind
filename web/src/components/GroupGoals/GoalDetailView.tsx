@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { GoalViewModel } from './types';
 import type { AiEvaluationSetting } from '../../service';
 import ConfirmModal from '../ConfirmModal';
+import GoalDetailContent from './GoalDetailContent';
+import GoalDetailTabs from './GoalDetailTabs';
+import GoalSourcesPanel from './GoalSourcesPanel';
+import type { GoalDetailTab, GoalIdeaSummary } from './GoalDetailShared';
 
 interface GoalDetailViewProps {
   selectedGoal: GoalViewModel;
@@ -29,183 +33,38 @@ export default function GoalDetailView({
   onBackToList,
 }: GoalDetailViewProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<GoalDetailTab>('detail');
+
+  useEffect(() => {
+    setActiveTab('detail');
+  }, [selectedGoal.id]);
 
   return (
     <>
-      <header className="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-3">
-          {onBackToList && (
-            <button
-              className="lg:hidden flex items-center gap-1 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/40 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              onClick={onBackToList}
-            >
-              <span className="material-icons text-base">arrow_back</span>
-              Back
-            </button>
-          )}
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/40 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            onClick={onShare}
-          >
-            <span className="material-icons text-base">share</span>
-            Share
-          </button>
-        </div>
-        <div className="flex items-center gap-3">
-          {selectedGoal.status !== 'archived' && (
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              onClick={onArchiveGoal}
-            >
-              <span className="material-icons text-base">archive</span>
-              Archive
-            </button>
-          )}
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900/40 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            onClick={onEdit}
-          >
-            <span className="material-icons text-base">edit</span>
-            Edit
-          </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
-            onClick={onAiEvaluate}
-          >
-            <span className="material-icons text-base">auto_fix_high</span>
-            AI Evaluate
-          </button>
-
-          {selectedGoal.status === 'archived' && (
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-              onClick={() => setShowDeleteConfirm(true)}
-            >
-              <span className="material-icons text-base">delete</span>
-              Delete
-            </button>
-          )}
-        </div>
-      </header>
-
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="max-w-4xl mx-auto py-10 px-8 space-y-8">
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Goal Title</label>
-            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              {selectedGoal.title || 'Untitled Goal'}
-            </h3>
-          </div>
+        <div className="mx-auto px-8 pt-6 pb-10">
+          <GoalDetailTabs activeTab={activeTab} onChange={setActiveTab} onBackToList={onBackToList} />
 
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
-            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                {selectedGoal.description || 'No description yet.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Success Metrics</label>
-              <div className="space-y-3">
-                {selectedGoal.successMetrics.length === 0 ? (
-                  <div className="text-sm text-slate-400">No success metrics.</div>
-                ) : (
-                  selectedGoal.successMetrics.map((metric, index) => (
-                    <div
-                      key={`metric-detail-${index}`}
-                      className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
-                    >
-                      <span className="material-icons text-primary text-lg">check_circle</span>
-                      <p className="text-sm text-slate-700 dark:text-slate-300">{metric || '(empty)'}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Constraints</label>
-              <div className="space-y-3">
-                {selectedGoal.constraints.length === 0 ? (
-                  <div className="text-sm text-slate-400">No constraints.</div>
-                ) : (
-                  selectedGoal.constraints.map((constraint, index) => (
-                    <div
-                      key={`constraint-detail-${index}`}
-                      className="flex items-center gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
-                    >
-                      <span className="material-icons text-amber-500 text-lg">warning</span>
-                      <p className="text-sm text-slate-700 dark:text-slate-300">{constraint || '(empty)'}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Selected Top Pick</label>
-              {selectedIdea ? (
-                <div className="bg-white dark:bg-slate-900/50 p-4 rounded-lg border border-primary/30">
-                  <div className="flex items-center justify-between gap-4">
-                    <p className="text-base font-extrabold text-primary dark:text-primary-light tracking-tight">
-                      {selectedIdea.title}
-                    </p>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                      Selected
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    {selectedIdea.rank ? `Rank #${selectedIdea.rank}` : 'Rank unavailable'}
-                    {selectedIdea.score !== null ? ` • Score ${selectedIdea.score}/100` : ''}
-                  </p>
-                  {selectedSetting && (
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      By model: {selectedSetting.model}
-                    </p>
-                  )}
-                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                    {selectedIdea.review || 'No review content.'}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-sm text-slate-400">No selected top pick yet.</div>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Other Ideas In This Setting</label>
-              <div className="space-y-3">
-                {otherIdeas.length === 0 ? (
-                  <div className="text-sm text-slate-400">No other ideas in selected setting.</div>
-                ) : (
-                  otherIdeas.map((idea) => (
-                    <div
-                      key={idea.id}
-                      className="flex items-center justify-between gap-3 bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm text-slate-700 dark:text-slate-300">{idea.title}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                            {idea.rank ? `#${idea.rank}` : '-'}
-                            {idea.score !== null ? ` • ${idea.score}/100` : ''}
-                          </p>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                          {idea.review || 'No review content.'}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
+          {activeTab === 'detail' ? (
+            <GoalDetailContent
+              selectedGoal={selectedGoal}
+              selectedIdea={selectedIdea as GoalIdeaSummary | null}
+              otherIdeas={otherIdeas as GoalIdeaSummary[]}
+              selectedSetting={selectedSetting}
+              onAiEvaluate={onAiEvaluate}
+              onShare={onShare}
+              onEdit={onEdit}
+              onArchiveGoal={onArchiveGoal}
+              onDeleteGoal={() => setShowDeleteConfirm(true)}
+            />
+          ) : (
+            <GoalSourcesPanel
+              selectedGoal={selectedGoal}
+              selectedIdea={selectedIdea as GoalIdeaSummary | null}
+              otherIdeas={otherIdeas as GoalIdeaSummary[]}
+              selectedSetting={selectedSetting}
+            />
+          )}
         </div>
       </div>
       <ConfirmModal
