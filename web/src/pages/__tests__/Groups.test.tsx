@@ -159,7 +159,7 @@ describe('Groups', () => {
     expect(mockListUserGroups).toHaveBeenCalledWith('user-1');
   });
 
-  it('creates a group from the create modal and navigates to details page', async () => {
+  it('creates a group from the create modal and navigates to goals page', async () => {
     mockGroupsCreate.mockResolvedValueOnce({ id: 'group-3' });
     const user = userEvent.setup();
 
@@ -175,7 +175,7 @@ describe('Groups', () => {
       icon: 'groups',
       creatorUserId: 'user-1',
     });
-    expect(mockNavigate).toHaveBeenCalledWith('/group/group-3');
+    expect(mockNavigate).toHaveBeenCalledWith('/group/group-3/goals');
   });
 
   it('shows load error and retries successfully', async () => {

@@ -64,7 +64,7 @@ export default function Groups() {
       });
 
       setIsModalOpen(false);
-      navigate(`/group/${createdGroup.id}`);
+      navigate(`/group/${createdGroup.id}/goals`);
     } catch (err) {
       console.error('Error creating group:', err);
       toast.error(err instanceof Error ? err.message : 'Failed to create group. Please try again.');
@@ -105,7 +105,7 @@ export default function Groups() {
   const renderMyGroupCard = (group: Group, canManage: boolean) => (
     <div
       key={group.id}
-      onClick={() => navigate(`/group/${group.id}`)}
+      onClick={() => navigate(`/group/${group.id}/goals`)}
       className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
     >
       <div className={`${groupCardAspectClass} relative overflow-hidden bg-gradient-to-br ${getGroupCover(group.id)}`}>
@@ -187,7 +187,7 @@ export default function Groups() {
           {group.memberCount} members • {group.ideaCount} ideas
         </p>
         <button
-          onClick={() => navigate(`/group/${group.id}`)}
+          onClick={() => navigate(`/group/${group.id}/goals`)}
           className="mt-2 w-full py-2 bg-primary/10 text-primary font-bold rounded-lg text-sm hover:bg-primary hover:text-white transition-colors"
         >
           Join Group

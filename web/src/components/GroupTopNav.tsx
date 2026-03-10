@@ -41,18 +41,18 @@ export default function GroupTopNav({ group, activeTab, aiGoalId, sticky = false
           <span className="hidden md:block text-lg font-semibold text-slate-700 dark:text-slate-300 max-w-[200px] truncate">{group.name}</span>
           <nav className="flex min-w-0 flex-1 items-center gap-1 h-10 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <button
-              onClick={() => navigate(`/group/${group.id}`)}
-              className={navButtonClass('ideas')}
-              style={tabPaddingFallback}
-            >
-              Ideas
-            </button>
-            <button
               onClick={() => navigate(`/group/${group.id}/goals`)}
               className={navButtonClass('goals')}
               style={tabPaddingFallback}
             >
               Goals
+            </button>
+            <button
+              onClick={() => navigate(`/group/${group.id}/ideas`)}
+              className={navButtonClass('ideas')}
+              style={tabPaddingFallback}
+            >
+              Ideas
             </button>
             <button
               onClick={() => navigate(`/group/${group.id}/ai-evaluate${aiGoalId ? `?goalId=${aiGoalId}` : ''}`)}
