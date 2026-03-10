@@ -1,11 +1,15 @@
 import { buildApiUrl, throwApiError } from './http';
-import type { Mood } from './types';
+import type { Mood, EmotionAnalysisResult } from './types';
 
 interface MoodStats {
   total: number;
   currentStreak: number;
   topEmotion: string | null;
   moodDistribution: Record<string, number>;
+}
+
+interface MoodWithAnalysis extends Mood {
+  analysis?: EmotionAnalysisResult;
 }
 
 export const moodsApi = {
@@ -79,5 +83,38 @@ export const moodsApi = {
     if (!response.ok) {
       await throwApiError(response, 'Failed to delete mood');
     }
+  },
+
+  // AI 情绪分析接口
+  analyze: async (userId: string, text: string): Promise<MoodWithAnalysis> => {
+    const response = await fetch(buildApiUrl('/api/moods/analyze'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, text }),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to analyze mood');
+    }
+    return response.json();
+  },
+
+  // 获取情绪历史（带分析结果）
+  getHistory: async (userId: string, limit: number = 10): Promise<MoodWithAnalysis[]> => {
+    const params = new URLSearchParams({ userId, limit: String(limit) });
+    const response = await fetch(buildApiUrl(`/api/moods/history?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood history');
+    }
+    return response.json();
+  },
+
+  // 获取最近的情绪光谱（用于动态背景）
+  getSpectrum: async (userId: string, days: number = 7): Promise<{ spectrums: string[] }> => {
+    const params = new URLSearchParams({ userId, days: String(days) });
+    const response = await fetch(buildApiUrl(`/api/moods/spectrum?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood spectrum');
+    }
+    return response.json();
   },
 };

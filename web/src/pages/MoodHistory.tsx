@@ -54,7 +54,7 @@ export default function MoodHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('30');
+  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
 
   useEffect(() => {
     if (user?.id) {
@@ -332,8 +332,8 @@ export default function MoodHistory() {
                   onChange={(e) => setTimeRange(e.target.value as '7' | '30' | '90')}
                   className="text-sm border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-lg focus:ring-primary focus:border-primary px-3 py-2"
                 >
-                  <option value="30">Last 30 Days</option>
                   <option value="7">Last 7 Days</option>
+                  <option value="30">Last 30 Days</option>
                   <option value="90">Last 3 Months</option>
                 </select>
               </div>
@@ -359,7 +359,7 @@ export default function MoodHistory() {
 
                   {/* SVG Line Chart */}
                   {chartData.length > 0 && (
-                    <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none">
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
                       <defs>
                         <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#1754cf" stopOpacity="0.1" />
@@ -370,45 +370,47 @@ export default function MoodHistory() {
                       {/* Area Fill */}
                       {chartData.some(d => d.mood > 0) && (
                         <path
-                          d={`M 0 ${256 - (chartData[0].mood / 5) * 256} ${chartData.map((d, i) => {
+                          d={`M 0 ${100 - (chartData[0].mood / 5) * 100} ${chartData.map((d, i) => {
                             const x = (i / (chartData.length - 1)) * 100;
-                            const y = 256 - (d.mood / 5) * 256;
+                            const y = 100 - (d.mood / 5) * 100;
                             return `L ${x} ${y}`;
-                          }).join(' ')} V 256 H 0 Z`}
+                          }).join(' ')} V 100 H 0 Z`}
                           fill="url(#chartGradient)"
-                          transform="scale(6 1)"
                         />
                       )}
 
                       {/* Line */}
                       {chartData.some(d => d.mood > 0) && (
                         <path
-                          d={`M 0 ${256 - (chartData[0].mood / 5) * 256} ${chartData.map((d, i) => {
+                          d={`M 0 ${100 - (chartData[0].mood / 5) * 100} ${chartData.map((d, i) => {
                             const x = (i / (chartData.length - 1)) * 100;
-                            const y = 256 - (d.mood / 5) * 256;
+                            const y = 100 - (d.mood / 5) * 100;
                             return `L ${x} ${y}`;
                           }).join(' ')}`}
                           fill="none"
                           stroke="#1754cf"
-                          strokeWidth="3"
+                          strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          transform="scale(6 1)"
+                          vectorEffect="non-scaling-stroke"
                         />
                       )}
 
                       {/* Data Points */}
                       {chartData.map((d, i) => {
                         if (d.mood === 0) return null;
-                        const x = (i / (chartData.length - 1)) * 600;
-                        const y = 256 - (d.mood / 5) * 256;
+                        const x = (i / (chartData.length - 1)) * 100;
+                        const y = 100 - (d.mood / 5) * 100;
                         return (
                           <circle
                             key={i}
                             cx={x}
                             cy={y}
-                            r="4"
+                            r="1.5"
                             fill="#1754cf"
+                            vectorEffect="non-scaling-stroke"
+                            stroke="white"
+                            strokeWidth="0.5"
                           />
                         );
                       })}
@@ -417,10 +419,34 @@ export default function MoodHistory() {
                 </div>
 
                 {/* X-Axis Labels */}
-                <div className="ml-12 flex justify-between pt-2 text-[10px] text-slate-400 font-bold">
-                  {chartData.filter((_, i) => i % Math.ceil(chartData.length / 5) === 0 || i === chartData.length - 1).map((d, i) => (
-                    <span key={i}>{new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
-                  ))}
+                <div className="ml-12 flex justify-between pt-2 text-[10px] text-slate-400 font-bold relative">
+                  {chartData.filter((_, i) => i % Math.ceil(chartData.length / 5) === 0 || i === chartData.length - 1).map((d, i, filteredArr) => {
+                    const originalIndex = chartData.findIndex(item => item.date === d.date);
+                    return (
+                      <div
+                        key={i}
+                        className="group relative cursor-pointer px-2 py-1 hover:text-primary transition-colors"
+                      >
+                        <span>{new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <div className="bg-slate-800 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-lg">
+                            <div className="font-medium">{new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                            <div className="mt-1">
+                              {d.mood > 0 ? (
+                                <span className={`capitalize ${moodTextColors[d.moodLabel] || 'text-white'}`}>
+                                  {d.moodLabel} ({d.mood}/5)
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">No data</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

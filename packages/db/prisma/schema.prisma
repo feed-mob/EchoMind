@@ -180,8 +180,15 @@ model Mood {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // 情绪光谱系统 Emotion Spectrum System
+  spectrum    String?  // stress, boredom, anxiety, anger, joy, achievement, warmth, calm
+  color       String?  // hex color code: gray, lightGray, darkBlue, red, orange, gold, pink, green
+  icon        String?  // trash, cloud, flame, candy, star, lamp, leaf
+  intensity   Int?     // 1-10, emotion intensity level
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, recordedAt])
   @@index([userId])
+  @@index([spectrum])
 }

@@ -700,6 +700,11 @@ export interface Mood {
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  // 情绪光谱系统 Emotion Spectrum System
+  spectrum?: string | null;  // stress, boredom, anxiety, anger, joy, achievement, warmth, calm
+  color?: string | null;     // hex color code
+  icon?: string | null;      // icon name
+  intensity?: number | null;   // 1-10 intensity level
 }
 
 export const moods = {
@@ -709,6 +714,10 @@ export const moods = {
     emotion?: string;
     notes?: string;
     recordedAt?: Date;
+    spectrum?: string;
+    color?: string;
+    icon?: string;
+    intensity?: number;
   }) {
     return await (db as any).mood.create({
       data: {
@@ -717,6 +726,10 @@ export const moods = {
         emotion: data.emotion,
         notes: data.notes,
         recordedAt: data.recordedAt || new Date(),
+        spectrum: data.spectrum,
+        color: data.color,
+        icon: data.icon,
+        intensity: data.intensity,
       },
     });
   },
@@ -727,9 +740,21 @@ export const moods = {
     });
   },
 
-  async listByUser(userId: string) {
+  async listByUser(userId: string, options?: { startDate?: Date; endDate?: Date }) {
+    const where: any = { userId };
+
+    if (options?.startDate || options?.endDate) {
+      where.recordedAt = {};
+      if (options.startDate) {
+        where.recordedAt.gte = options.startDate;
+      }
+      if (options.endDate) {
+        where.recordedAt.lte = options.endDate;
+      }
+    }
+
     return await (db as any).mood.findMany({
-      where: { userId },
+      where,
       orderBy: { recordedAt: "desc" },
     });
   },
