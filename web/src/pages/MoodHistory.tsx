@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
 import type { Mood } from '../service/types';
+import {
+  AreaChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Area,
+  CartesianGrid,
+} from 'recharts';
 
 interface MoodStats {
   total: number;
@@ -11,29 +21,7 @@ interface MoodStats {
   moodDistribution: Record<string, number>;
 }
 
-const moodColors: Record<string, string> = {
-  awesome: 'bg-orange-500',
-  good: 'bg-orange-400',
-  neutral: 'bg-primary',
-  low: 'bg-slate-400',
-  poor: 'bg-slate-500',
-};
 
-const moodTextColors: Record<string, string> = {
-  awesome: 'text-orange-600',
-  good: 'text-orange-500',
-  neutral: 'text-primary',
-  low: 'text-slate-500',
-  poor: 'text-slate-600',
-};
-
-const moodBgColors: Record<string, string> = {
-  awesome: 'bg-orange-500/10 border-orange-500/20',
-  good: 'bg-orange-400/10 border-orange-400/20',
-  neutral: 'bg-primary/10 border-primary/20',
-  low: 'bg-slate-400/10 border-slate-400/20',
-  poor: 'bg-slate-500/10 border-slate-500/20',
-};
 
 const emotionLabels: Record<string, string> = {
   joyful: 'Joyful',
@@ -92,7 +80,7 @@ export default function MoodHistory() {
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
 
-    const days: Array<{ date: number; mood?: string; emotion?: string; entry?: Mood }> = [];
+    const days: Array<{ date: number; mood?: string; emotion?: string; color?: string; entry?: Mood }> = [];
 
     // Previous month days
     const prevMonthLastDay = new Date(year, month, 0).getDate();
@@ -102,12 +90,13 @@ export default function MoodHistory() {
 
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
-      const dateStr = new Date(year, month, i).toISOString().split('T')[0];
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const entry = entries.find(e => e.recordedAt.startsWith(dateStr));
       days.push({
         date: i,
-        mood: entry?.mood,
-        emotion: entry?.emotion,
+        mood: entry?.mood ?? undefined,
+        emotion: entry?.emotion ?? undefined,
+        color: entry?.color ?? undefined,
         entry,
       });
     }
@@ -180,6 +169,8 @@ export default function MoodHistory() {
       </div>
     );
   }
+
+  console.log("===== calendarDays ==> " , calendarDays)
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-200">
@@ -292,7 +283,6 @@ export default function MoodHistory() {
                       aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
                       ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
                       ${isCurrentMonth && !day.mood ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
-                      ${day.mood ? `${moodBgColors[day.mood]} ${moodTextColors[day.mood]}` : ''}
                       ${isToday ? 'ring-4 ring-primary/20' : ''}
                       transition-colors cursor-pointer
                     `}
@@ -338,116 +328,81 @@ export default function MoodHistory() {
                 </select>
               </div>
 
-              {/* Chart */}
-              <div className="relative h-64 w-full mt-10">
-                {/* Y-Axis Labels */}
-                <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[10px] text-slate-400 font-bold pr-2 pb-6">
-                  <span>AWESOME</span>
-                  <span>GOOD</span>
-                  <span>NEUTRAL</span>
-                  <span>LOW</span>
-                  <span>POOR</span>
-                </div>
-
-                {/* Chart Area */}
-                <div className="ml-12 h-full border-l border-b border-slate-200 dark:border-slate-800 relative">
-                  {/* Grid Lines */}
-                  <div className="absolute w-full top-0 border-t border-slate-100 dark:border-slate-800/50 h-0"></div>
-                  <div className="absolute w-full top-1/4 border-t border-slate-100 dark:border-slate-800/50 h-0"></div>
-                  <div className="absolute w-full top-2/4 border-t border-slate-100 dark:border-slate-800/50 h-0"></div>
-                  <div className="absolute w-full top-3/4 border-t border-slate-100 dark:border-slate-800/50 h-0"></div>
-
-                  {/* SVG Line Chart */}
-                  {chartData.length > 0 && (
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                      <defs>
-                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#1754cf" stopOpacity="0.1" />
-                          <stop offset="100%" stopColor="#1754cf" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-
-                      {/* Area Fill */}
-                      {chartData.some(d => d.mood > 0) && (
-                        <path
-                          d={`M 0 ${100 - (chartData[0].mood / 5) * 100} ${chartData.map((d, i) => {
-                            const x = (i / (chartData.length - 1)) * 100;
-                            const y = 100 - (d.mood / 5) * 100;
-                            return `L ${x} ${y}`;
-                          }).join(' ')} V 100 H 0 Z`}
-                          fill="url(#chartGradient)"
-                        />
-                      )}
-
-                      {/* Line */}
-                      {chartData.some(d => d.mood > 0) && (
-                        <path
-                          d={`M 0 ${100 - (chartData[0].mood / 5) * 100} ${chartData.map((d, i) => {
-                            const x = (i / (chartData.length - 1)) * 100;
-                            const y = 100 - (d.mood / 5) * 100;
-                            return `L ${x} ${y}`;
-                          }).join(' ')}`}
-                          fill="none"
-                          stroke="#1754cf"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      )}
-
-                      {/* Data Points */}
-                      {chartData.map((d, i) => {
-                        if (d.mood === 0) return null;
-                        const x = (i / (chartData.length - 1)) * 100;
-                        const y = 100 - (d.mood / 5) * 100;
-                        return (
-                          <circle
-                            key={i}
-                            cx={x}
-                            cy={y}
-                            r="1.5"
-                            fill="#1754cf"
-                            vectorEffect="non-scaling-stroke"
-                            stroke="white"
-                            strokeWidth="0.5"
-                          />
-                        );
-                      })}
-                    </svg>
-                  )}
-                </div>
-
-                {/* X-Axis Labels */}
-                <div className="ml-12 flex justify-between pt-2 text-[10px] text-slate-400 font-bold relative">
-                  {chartData.filter((_, i) => i % Math.ceil(chartData.length / 5) === 0 || i === chartData.length - 1).map((d, i, filteredArr) => {
-                    const originalIndex = chartData.findIndex(item => item.date === d.date);
-                    return (
-                      <div
-                        key={i}
-                        className="group relative cursor-pointer px-2 py-1 hover:text-primary transition-colors"
-                      >
-                        <span>{new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                          <div className="bg-slate-800 text-white text-xs rounded-lg py-2 px-3 whitespace-nowrap shadow-lg">
-                            <div className="font-medium">{new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                            <div className="mt-1">
-                              {d.mood > 0 ? (
-                                <span className={`capitalize ${moodTextColors[d.moodLabel] || 'text-white'}`}>
-                                  {d.moodLabel} ({d.mood}/5)
-                                </span>
-                              ) : (
-                                <span className="text-slate-400">No data</span>
-                              )}
+              {/* Chart - Recharts */}
+              <div className="h-72 w-full mt-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 0 }}>
+                    <defs>
+                      <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1754cf" stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor="#1754cf" stopOpacity={0.02}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return `${date.getMonth() + 1}/${date.getDate()}`;
+                      }}
+                      stroke="#94a3b8"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      interval="preserveStartEnd"
+                      minTickGap={30}
+                    />
+                    <YAxis
+                      domain={[1, 5]}
+                      tickFormatter={(value) => {
+                        const labels = ['', 'POOR', 'LOW', 'NEUTRAL', 'GOOD', 'AWESOME'];
+                        return labels[value] || '';
+                      }}
+                      stroke="#94a3b8"
+                      fontSize={10}
+                      tickLine={false}
+                      axisLine={false}
+                      width={70}
+                    />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length && label) {
+                          const data = payload[0].payload;
+                          const date = new Date(label as string);
+                          return (
+                            <div className="bg-slate-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg">
+                              <div className="font-medium">{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                              <div className="mt-1">
+                                {data.mood > 0 ? (
+                                  <span className="capitalize text-white">
+                                    {data.moodLabel} ({data.mood}/5)
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-400">No data</span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="mood"
+                      stroke="none"
+                      fill="url(#colorMood)"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="mood"
+                      stroke="#1754cf"
+                      strokeWidth={2}
+                      dot={{ fill: '#1754cf', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                      activeDot={{ r: 6, stroke: '#1754cf', strokeWidth: 2, fill: '#fff' }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
