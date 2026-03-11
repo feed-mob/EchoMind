@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
 import type { Mood } from '../service/types';
+import { moodColorMap } from '../config/enum';
 import {
   AreaChart,
   Line,
@@ -20,8 +21,6 @@ interface MoodStats {
   topEmotion: string | null;
   moodDistribution: Record<string, number>;
 }
-
-
 
 const emotionLabels: Record<string, string> = {
   joyful: 'Joyful',
@@ -80,7 +79,7 @@ export default function MoodHistory() {
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
 
-    const days: Array<{ date: number; mood?: string; emotion?: string; color?: string; entry?: Mood }> = [];
+    const days: Array<{ date: number; mood?: string; emotion?: string; color?: string; backgroundColor?: string; entry?: Mood }> = [];
 
     // Previous month days
     const prevMonthLastDay = new Date(year, month, 0).getDate();
@@ -92,11 +91,15 @@ export default function MoodHistory() {
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const entry = entries.find(e => e.recordedAt.startsWith(dateStr));
+
+      const color = moodColorMap[entry?.mood];
+      const bgColor = color ? `${color}33` : '';
       days.push({
         date: i,
         mood: entry?.mood ?? undefined,
         emotion: entry?.emotion ?? undefined,
-        color: entry?.color ?? undefined,
+        color: color,
+        backgroundColor: bgColor,
         entry,
       });
     }
@@ -169,8 +172,6 @@ export default function MoodHistory() {
       </div>
     );
   }
-
-  console.log("===== calendarDays ==> " , calendarDays)
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-200">
@@ -276,6 +277,9 @@ export default function MoodHistory() {
                   index < new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay() + new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
                 const isToday = isCurrentMonth && day.date === new Date().getDate() && currentDate.getMonth() === new Date().getMonth();
 
+                // Get color based on emotion
+                const moodColor = day.color;
+                console.log("===== day ==> ", day)
                 return (
                   <div
                     key={index}
@@ -283,9 +287,14 @@ export default function MoodHistory() {
                       aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
                       ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
                       ${isCurrentMonth && !day.mood ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
-                      ${isToday ? 'ring-4 ring-primary/20' : ''}
+                      ${isToday && !moodColor ? 'ring-4 ring-primary/20' : ''}
+                      ${isToday && moodColor ? 'ring-4 ring-white/30' : ''}
                       transition-colors cursor-pointer
                     `}
+                    style={moodColor && isCurrentMonth ? {
+                      backgroundColor: day.backgroundColor,
+                      color: day.color,
+                    } : undefined}
                   >
                     <span className={day.mood ? 'font-bold' : ''}>{day.date}</span>
                   </div>
