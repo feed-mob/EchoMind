@@ -4,8 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GroupTopNav from '../GroupTopNav';
 
-const { mockNavigate } = vi.hoisted(() => ({
+const { mockNavigate, mockLogout } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
+  mockLogout: vi.fn(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -16,9 +17,22 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('../../auth/AuthContext', () => ({
+  useAuth: () => ({
+    user: {
+      id: 'user-1',
+      email: 'roofeel@example.com',
+      name: 'roofeel',
+      avatar: null,
+    },
+    logout: mockLogout,
+  }),
+}));
+
 describe('GroupTopNav', () => {
   beforeEach(() => {
     mockNavigate.mockReset();
+    mockLogout.mockReset();
   });
 
   it('navigates to target tabs and settings', async () => {
@@ -71,5 +85,23 @@ describe('GroupTopNav', () => {
     await user.click(screen.getByRole('button', { name: /AI Evaluate/ }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/group/group-2/ai-evaluate');
+  });
+
+  it('opens user menu and logs out', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter>
+        <GroupTopNav group={{ id: 'group-4', name: 'Team D' }} activeTab="goals" />
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'User menu' }));
+    expect(screen.getByRole('menu', { name: 'User menu' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Logout' }));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 });

@@ -12,6 +12,7 @@ const {
   mockGroupsDelete,
   mockListUserGroups,
   mockToastError,
+  mockLogout,
 } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
   mockGroupsList: vi.fn(),
@@ -20,6 +21,7 @@ const {
   mockGroupsDelete: vi.fn(),
   mockListUserGroups: vi.fn(),
   mockToastError: vi.fn(),
+  mockLogout: vi.fn(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -52,6 +54,7 @@ vi.mock('../../auth/AuthContext', () => ({
       name: 'roofeel',
       avatar: null,
     },
+    logout: mockLogout,
   }),
 }));
 
@@ -142,6 +145,7 @@ describe('Groups', () => {
     mockGroupsDelete.mockReset();
     mockListUserGroups.mockReset();
     mockToastError.mockReset();
+    mockLogout.mockReset();
 
     mockGroupsList.mockResolvedValue(allGroups);
     mockListUserGroups.mockResolvedValue(memberships);
@@ -193,5 +197,21 @@ describe('Groups', () => {
 
     expect(await screen.findByText('My Groups')).toBeInTheDocument();
     expect(mockGroupsList).toHaveBeenCalledTimes(2);
+  });
+
+  it('opens user menu and logs out', async () => {
+    const user = userEvent.setup();
+
+    renderPage();
+
+    await screen.findByText('My Groups');
+
+    await user.click(screen.getByRole('button', { name: 'User menu' }));
+    expect(screen.getByRole('menu', { name: 'User menu' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Logout' }));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 });
