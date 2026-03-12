@@ -33,7 +33,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
               <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
               <Route path="/group/:groupId/goals/ai-evaluate" element={<AIEvaluationSetup />} />
-              <Route path="/mood-history" element={<MoodHistory />} />
+              <Route path="/my-mood" element={<MoodHistory />} />
               <Route path="/group/mood" element={<GroupMood />} />
             </Route>
           </Routes>
