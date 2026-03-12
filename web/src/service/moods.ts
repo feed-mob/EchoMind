@@ -117,4 +117,29 @@ export const moodsApi = {
     }
     return response.json();
   },
+
+  // Team mood analytics methods - groupId is obtained from current user session
+  getTeamStats: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ averageMood: number; participationRate: number; topEmotion: string | null; totalEntries: number; activeMembers: number }> => {
+    const response = await fetch(buildApiUrl(`/api/moods/team-stats?userId=${userId}&timeRange=${timeRange}`));
+    if (!response.ok) throw new Error('Failed to fetch team mood stats');
+    return response.json();
+  },
+
+  getTeamDistribution: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ emotion: string; count: number; percentage: number }[]> => {
+    const response = await fetch(buildApiUrl(`/api/moods/team-distribution?userId=${userId}&timeRange=${timeRange}`));
+    if (!response.ok) throw new Error('Failed to fetch team mood distribution');
+    return response.json();
+  },
+
+  getTeamTrend: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ date: string; averageMood: number; entries: number }[]> => {
+    const response = await fetch(buildApiUrl(`/api/moods/team-trend?userId=${userId}&timeRange=${timeRange}`));
+    if (!response.ok) throw new Error('Failed to fetch team mood trend');
+    return response.json();
+  },
+
+  getTeamInsights: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ positiveTrends: string[]; areasForImprovement: string[]; recommendations: string[] }> => {
+    const response = await fetch(buildApiUrl(`/api/moods/team-insights?userId=${userId}&timeRange=${timeRange}`));
+    if (!response.ok) throw new Error('Failed to fetch team insights');
+    return response.json();
+  },
 };
