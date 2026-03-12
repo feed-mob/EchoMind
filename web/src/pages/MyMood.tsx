@@ -24,7 +24,7 @@ const emotionLabels: Record<string, string> = {
   frustrated: 'Frustrated',
 };
 
-export default function MoodHistory() {
+export default function MyMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [entries, setEntries] = useState<Mood[]>([]);
@@ -79,7 +79,7 @@ export default function MoodHistory() {
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading mood history...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading my mood history...</p>
         </div>
       </div>
     );
