@@ -74,6 +74,7 @@ export interface Goal {
   status: string;
   successMetrics?: unknown;
   constraints?: unknown;
+  creatorId: string;
   selectedIdeaId?: string | null;
   selectedSettingId?: string | null;
   groupId: string;
@@ -578,6 +579,7 @@ export const goals = {
     status?: string;
     successMetrics?: unknown;
     constraints?: unknown;
+    creatorId: string;
     selectedIdeaId?: string | null;
     selectedSettingId?: string | null;
     groupId: string;
@@ -589,9 +591,13 @@ export const goals = {
         status: data.status || "draft",
         successMetrics: data.successMetrics as any,
         constraints: data.constraints as any,
+        creatorId: data.creatorId,
         selectedIdeaId: data.selectedIdeaId ?? null,
         selectedSettingId: data.selectedSettingId ?? null,
         groupId: data.groupId,
+      },
+      include: {
+        creator: true,
       },
     });
   },
@@ -599,12 +605,18 @@ export const goals = {
   async findById(id: string) {
     return await db.goal.findUnique({
       where: { id },
+      include: {
+        creator: true,
+      },
     });
   },
 
   async listByGroup(groupId: string) {
     return await db.goal.findMany({
       where: { groupId },
+      include: {
+        creator: true,
+      },
       orderBy: { createdAt: "desc" },
     });
   },
@@ -615,10 +627,14 @@ export const goals = {
     delete updateData.createdAt;
     delete updateData.updatedAt;
     delete updateData.groupId;
+    delete updateData.creatorId;
 
     return await db.goal.update({
       where: { id },
       data: updateData,
+      include: {
+        creator: true,
+      },
     });
   },
 

@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import Landing from './pages/Landing'
 import Groups from './pages/Groups'
@@ -26,7 +26,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/group/:groupId/goals/:goalId/share" element={<GroupGoalShare />} />
             <Route element={<RequireAuth />}>
               <Route path="/group" element={<Groups />} />
-              <Route path="/group/:groupId" element={<GroupDetail />} />
+              <Route path="/group/:groupId" element={<Navigate to="goals" replace />} />
+              <Route path="/group/:groupId/ideas" element={<GroupDetail />} />
               <Route path="/group/:groupId/goals" element={<GroupGoals />} />
               <Route path="/group/:groupId/settings" element={<GroupSettings />} />
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />

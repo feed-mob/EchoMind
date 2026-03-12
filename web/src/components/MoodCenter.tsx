@@ -80,10 +80,10 @@ export default function MoodCenter() {
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-2">
           <span className="material-icons text-primary">auto_awesome</span>
-          <h3 className="text-indigo-900 dark:text-indigo-200 font-extrabold text-xl">Mood Corner</h3>
+          <h3 className="text-indigo-900 dark:text-indigo-200 font-extrabold text-xl">Mind Space</h3>
         </div>
         <p className="text-indigo-800/80 dark:text-indigo-300/80 text-sm mb-6 leading-relaxed">
-          Your Mood Corner: Shed troubles, store joy. Turn gray moments into space and bright ones into sweet rewards.
+          Your Mind Space: Shed troubles, store joy. Turn gray moments into space and bright ones into sweet rewards.
         </p>
         <div className="flex gap-4 mb-8">
           <div className="group/item flex-1 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-3 rounded-xl border border-white dark:border-slate-700 flex flex-col items-center gap-2 text-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">

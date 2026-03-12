@@ -36,7 +36,9 @@ export default function GoalsSidebar({
   };
 
   return (
-    <aside className={`flex-1 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden ${className || ''}`}>
+    <aside
+      className={`border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden bg-white dark:bg-background-dark/50 lg:w-[280px] xl:w-[320px] lg:flex-none ${className || ''}`}
+    >
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/50">
         <div className="flex items-center gap-2 mb-3">
           <div className="relative flex-1">
@@ -80,42 +82,40 @@ export default function GoalsSidebar({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
         {visibleGoals.length === 0 ? (
           <div className="p-3 text-xs text-slate-400">No goals found.</div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {visibleGoals.map((goal) => {
               const active = selectedGoalId === goal.id;
+              const hasCreator = Boolean(goal.creatorName);
 
               return (
               <button
                 key={goal.id}
-                className={`w-full text-left p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm cursor-pointer group transition-all ${
+                className={`w-full text-left p-3 bg-slate-50 dark:bg-slate-900 rounded-lg shadow-sm cursor-pointer group transition-all ${
                   active
                     ? 'border-2 border-primary'
                     : 'border-2 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
                 }`}
                 onClick={() => onSelectGoal(goal.id)}
               >
-                <div className="flex gap-4">
-                  <img
-                    alt={goal.creatorName || 'Creator'}
-                    className="w-10 h-10 rounded-full"
-                    src={goal.creatorAvatar || getFallbackAvatar(goal.creatorName)}
-                  />
+                <div className="flex gap-3">
                   <div className="flex-1">
-                    <h3 className={`font-semibold ${active ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}`}>
+                    <h3 className={`text-sm font-semibold ${active ? 'text-primary' : 'text-slate-900 dark:text-slate-100'}`}>
                       {goal.title}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
                       {goal.description || 'No description yet.'}
                     </p>
-                    <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <span className="material-icons text-xs">person</span>
-                        {goal.creatorName || 'Unknown'}
-                      </span>
+                    <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-400">
+                      {hasCreator && (
+                        <span className="flex items-center gap-1">
+                          <span className="material-icons text-xs">person</span>
+                          {goal.creatorName}
+                        </span>
+                      )}
                       <span className="flex items-center gap-1">
                         <span className="material-icons text-xs">schedule</span>
                         {new Date(goal.createdAt).toLocaleDateString()}

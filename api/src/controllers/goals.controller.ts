@@ -16,11 +16,17 @@ export const goalsController = {
       status?: string;
       successMetrics?: unknown;
       constraints?: unknown;
+      creatorId?: string;
       selectedIdeaId?: string | null;
       selectedSettingId?: string | null;
     };
+    const creatorId = String(data.creatorId || "").trim();
+    if (!creatorId) {
+      return Response.json({ error: "creatorId is required" }, { status: 400 });
+    }
     const goal = await goals.create({
       ...data,
+      creatorId,
       groupId: request.params.id,
     });
     return Response.json(goal, { status: 201 });

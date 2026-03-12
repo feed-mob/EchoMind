@@ -105,11 +105,17 @@ export interface Goal {
   status: string;
   successMetrics?: unknown;
   constraints?: unknown;
+  creatorId: string;
   selectedIdeaId?: string | null;
   selectedSettingId?: string | null;
   groupId: string;
   createdAt: string;
   updatedAt: string;
+  creator?: {
+    id: string;
+    name: string | null;
+    avatar: string | null;
+  };
 }
 
 export interface AiEvaluationSetting {
