@@ -1,4 +1,4 @@
-import { moods, type Mood } from "../../../packages/db/index.js";
+import { moods, type Mood, db } from "../../../packages/db/index.js";
 import { analyzeEmotion, type EmotionAnalysisResult } from "./moodAnalysis.service.js";
 
 export type MoodWithAnalysis = Mood & {
@@ -110,4 +110,268 @@ function getIconForSpectrum(
     calm: "eco",
   };
   return iconMap[spectrum] || "sentiment_satisfied";
+}
+
+/**
+ * 从用户ID获取用户的主团队ID
+ */
+async function getUserPrimaryGroupId(userId: string): Promise<string | null> {
+  try {
+    // 查询用户的第一个团队成员关系
+    const membership = await db.query.groupMembers.findFirst({
+      where: (members, { eq }) => eq(members.userId, userId),
+      with: {
+        group: true,
+      },
+    });
+
+    return membership?.group?.id || null;
+  } catch (error) {
+    console.error("Failed to get user primary group:", error);
+    return null;
+  }
+}
+
+/**
+ * 获取团队情绪统计
+ */
+export async function getTeamStats(
+  userId: string,
+  timeRange: '7' | '30' | '90' = '7'
+): Promise<TeamMoodStats> {
+  try {
+    // 从用户ID获取团队ID
+    const groupId = await getUserPrimaryGroupId(userId);
+    if (!groupId) {
+      return {
+        averageMood: 0,
+        participationRate: 0,
+        topEmotion: null,
+        totalEntries: 0,
+        activeMembers: 0,
+      };
+    }
+
+    const moodsList = await moods.listByGroup(groupId);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+
+    const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
+    const uniqueUsers = new Set(recentMoods.map(m => m.userId));
+
+    // 计算平均情绪
+    const averageMood = recentMoods.length > 0
+      ? recentMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / recentMoods.length
+      : 0;
+
+    // 计算参与率
+    const participationRate = moodsList.length > 0
+      ? (recentMoods.length / moodsList.length) * 100
+      : 0;
+
+    // 获取主要情绪
+    const emotionCounts = recentMoods.reduce((acc, m) => {
+      const emotion = m.emotion || m.mood;
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const topEmotion = Object.entries(emotionCounts)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
+
+    return {
+      averageMood: parseFloat(averageMood.toFixed(1)),
+      participationRate: Math.round(participationRate),
+      topEmotion,
+      totalEntries: recentMoods.length,
+      activeMembers: uniqueUsers.size,
+    };
+  } catch (error) {
+    console.error("Failed to calculate team mood stats:", error);
+    throw new MoodsServiceError("Failed to calculate team mood stats", 500);
+  }
+}
+
+/**
+ * 获取团队情绪分布
+ */
+export async function getTeamDistribution(
+  userId: string,
+  timeRange: '7' | '30' | '90' = '7'
+): Promise<TeamMoodDistribution[]> {
+  try {
+    // 从用户ID获取团队ID
+    const groupId = await getUserPrimaryGroupId(userId);
+    if (!groupId) {
+      return [];
+    }
+
+    const moodsList = await moods.listByGroup(groupId);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+
+    const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
+
+    const emotionCounts = recentMoods.reduce((acc, m) => {
+      const emotion = m.emotion || m.mood;
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = recentMoods.length;
+    const distribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
+      emotion,
+      count,
+      percentage: Math.round((count / total) * 100),
+    }));
+
+    return distribution;
+  } catch (error) {
+    console.error("Failed to get team mood distribution:", error);
+    throw new MoodsServiceError("Failed to get team mood distribution", 500);
+  }
+}
+
+/**
+ * 获取团队情绪趋势
+ */
+export async function getTeamTrend(
+  userId: string,
+  timeRange: '7' | '30' | '90' = '7'
+): Promise<TeamMoodTrend[]> {
+  try {
+    // 从用户ID获取团队ID
+    const groupId = await getUserPrimaryGroupId(userId);
+    if (!groupId) {
+      return [];
+    }
+
+    const moodsList = await moods.listByGroup(groupId);
+    const days = parseInt(timeRange);
+    const trend: TeamMoodTrend[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      const dayMoods = moodsList.filter(m => m.recordedAt.startsWith(dateStr));
+      const averageMood = dayMoods.length > 0
+        ? dayMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / dayMoods.length
+        : 0;
+
+      trend.push({
+        date: dateStr,
+        averageMood: parseFloat(averageMood.toFixed(1)),
+        entries: dayMoods.length,
+      });
+    }
+
+    return trend;
+  } catch (error) {
+    console.error("Failed to get team mood trend:", error);
+    throw new MoodsServiceError("Failed to get team mood trend", 500);
+  }
+}
+
+/**
+ * 获取团队洞察和建议
+ */
+export async function getTeamInsights(
+  userId: string,
+  timeRange: '7' | '30' | '90' = '7'
+): Promise<TeamInsights> {
+  try {
+    // 从用户ID获取团队ID
+    const groupId = await getUserPrimaryGroupId(userId);
+    if (!groupId) {
+      return {
+        positiveTrends: [],
+        areasForImprovement: ["User is not a member of any team."],
+        recommendations: ["Join a team to start tracking team mood."],
+      };
+    }
+
+    const moodsList = await moods.listByGroup(groupId);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+
+    const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
+
+    // 分析积极趋势
+    const positiveTrends: string[] = [];
+    if (recentMoods.length > 0) {
+      const avgMood = recentMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / recentMoods.length;
+      if (avgMood >= 4) {
+        positiveTrends.push("Team mood is consistently high, showing excellent well-being.");
+      } else if (avgMood >= 3.5) {
+        positiveTrends.push("Team maintains good emotional balance and engagement.");
+      }
+    }
+
+    // 分析需要改进的领域
+    const areasForImprovement: string[] = [];
+    const emotionCounts = recentMoods.reduce((acc, m) => {
+      const emotion = m.emotion || m.mood;
+      acc[emotion] = (acc[emotion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const negativeEmotions = ['anxious', 'stressed', 'frustrated', 'tired'];
+    const negativeCount = Object.entries(emotionCounts)
+      .filter(([emotion]) => negativeEmotions.includes(emotion))
+      .reduce((sum, [, count]) => sum + count, 0);
+
+    if (negativeCount > recentMoods.length * 0.3) {
+      areasForImprovement.push("Consider implementing stress management activities or team wellness programs.");
+    }
+
+    if (recentMoods.length < 5) {
+      areasForImprovement.push("Encourage more team members to participate in mood tracking for better insights.");
+    }
+
+    // 生成建议
+    const recommendations: string[] = [];
+    if (avgMood >= 4) {
+      recommendations.push("Continue current practices that support team well-being.");
+      recommendations.push("Consider sharing best practices with other teams.");
+    } else if (avgMood >= 3) {
+      recommendations.push("Focus on team building activities to boost morale.");
+      recommendations.push("Implement regular check-ins to address concerns proactively.");
+    } else {
+      recommendations.push("Schedule team wellness sessions and mental health support.");
+      recommendations.push("Consider one-on-one discussions to understand individual challenges.");
+    }
+
+    return {
+      positiveTrends,
+      areasForImprovement,
+      recommendations,
+    };
+  } catch (error) {
+    console.error("Failed to generate team insights:", error);
+    throw new MoodsServiceError("Failed to generate team insights", 500);
+  }
+}
+
+/**
+ * 将情绪字符串转换为数值
+ */
+function getMoodValue(mood: string): number {
+  const moodMap: Record<string, number> = {
+    awesome: 5,
+    good: 4,
+    neutral: 3,
+    low: 2,
+    poor: 1,
+    joyful: 5,
+    calm: 4,
+    anxious: 2,
+    stressed: 1,
+    excited: 5,
+    tired: 2,
+    grateful: 4,
+    frustrated: 1,
+  };
+  return moodMap[mood.toLowerCase()] || 3;
 }

@@ -17,6 +17,18 @@ export const moodsRoutes = {
   "/api/moods/stats": {
     GET: moodsController.getStats,
   },
+  "/api/moods/team-stats": {
+    GET: moodsController.getTeamStats,
+  },
+  "/api/moods/team-distribution": {
+    GET: moodsController.getTeamDistribution,
+  },
+  "/api/moods/team-trend": {
+    GET: moodsController.getTeamTrend,
+  },
+  "/api/moods/team-insights": {
+    GET: moodsController.getTeamInsights,
+  },
   "/api/moods/:id": {
     GET: moodsController.getById,
     PUT: moodsController.update,
