@@ -150,3 +150,35 @@ export interface AiEvaluationResult {
     } | null;
   };
 }
+
+export interface Mood {
+  id: string;
+  userId: string;
+  mood: string;
+  emotion: string | null;
+  notes: string | null;
+  recordedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  // 情绪光谱系统 Emotion Spectrum System
+  spectrum?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  intensity?: number | null;
+}
+
+export interface EmotionAnalysisResult {
+  spectrum: string;
+  emotion: string;
+  intensity: number;
+  keywords: string[];
+  explanation: string;
+}
+
+export interface EmotionSpectrumConfig {
+  label: string;
+  color: string;
+  bgGradient: string;
+  icon: string;
+  container: string;
+}

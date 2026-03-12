@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
-type ToastType = 'error';
+type ToastType = 'success' | 'error';
 
 type ToastItem = {
   id: string;
@@ -10,6 +10,7 @@ type ToastItem = {
 };
 
 type ToastContextValue = {
+  success: (message: string) => void;
   error: (message: string) => void;
 };
 
@@ -66,6 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const contextValue = useMemo<ToastContextValue>(
     () => ({
+      success: (message: string) => showToast(message, 'success'),
       error: (message: string) => showToast(message, 'error'),
     }),
     [showToast],
@@ -82,7 +84,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             role="status"
           >
             <span className="material-icons toast-message__icon" aria-hidden="true">
-              error_outline
+              {toast.type === 'success' ? 'check_circle' : 'error_outline'}
             </span>
             <span>{toast.message}</span>
           </div>

@@ -10,6 +10,7 @@ import GroupGoalShare from './pages/GroupGoalShare'
 import AIEvaluationSetup from './pages/AIEvaluationSetup'
 import AIEvaluationResults from './pages/AIEvaluationResults'
 import GroupSettings from './pages/GroupSettings'
+import MoodHistory from './pages/MoodHistory'
 import { AuthProvider } from './auth/AuthContext'
 import RequireAuth from './components/RequireAuth'
 import { ToastProvider } from './components/ToastProvider'
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
               <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
               <Route path="/group/:groupId/goals/ai-evaluate" element={<AIEvaluationSetup />} />
+              <Route path="/mood-history" element={<MoodHistory />} />
             </Route>
           </Routes>
         </BrowserRouter>

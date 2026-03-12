@@ -1,0 +1,120 @@
+import { buildApiUrl, throwApiError } from './http';
+import type { Mood, EmotionAnalysisResult } from './types';
+
+interface MoodStats {
+  total: number;
+  currentStreak: number;
+  topEmotion: string | null;
+  moodDistribution: Record<string, number>;
+}
+
+interface MoodWithAnalysis extends Mood {
+  analysis?: EmotionAnalysisResult;
+}
+
+export const moodsApi = {
+  list: async (userId: string, startDate?: string, endDate?: string): Promise<Mood[]> => {
+    const params = new URLSearchParams({ userId });
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+
+    const response = await fetch(buildApiUrl(`/api/moods?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch moods');
+    }
+    return response.json();
+  },
+
+  create: async (data: {
+    userId: string;
+    mood: string;
+    emotion?: string;
+    notes?: string;
+    recordedAt?: string;
+  }): Promise<Mood> => {
+    const response = await fetch(buildApiUrl('/api/moods'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to create mood');
+    }
+    return response.json();
+  },
+
+  getStats: async (userId: string): Promise<MoodStats> => {
+    const response = await fetch(buildApiUrl(`/api/moods/stats?userId=${userId}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood stats');
+    }
+    return response.json();
+  },
+
+  getById: async (id: string): Promise<Mood> => {
+    const response = await fetch(buildApiUrl(`/api/moods/${id}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood');
+    }
+    return response.json();
+  },
+
+  update: async (id: string, data: Partial<{
+    mood: string;
+    emotion: string;
+    notes: string;
+    recordedAt: string;
+  }>): Promise<Mood> => {
+    const response = await fetch(buildApiUrl(`/api/moods/${id}`), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to update mood');
+    }
+    return response.json();
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const response = await fetch(buildApiUrl(`/api/moods/${id}`), {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to delete mood');
+    }
+  },
+
+  // AI 情绪分析接口
+  analyze: async (userId: string, text: string): Promise<MoodWithAnalysis> => {
+    const response = await fetch(buildApiUrl('/api/moods/analyze'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, text }),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to analyze mood');
+    }
+    return response.json();
+  },
+
+  // 获取情绪历史（带分析结果）
+  getHistory: async (userId: string, limit: number = 10): Promise<MoodWithAnalysis[]> => {
+    const params = new URLSearchParams({ userId, limit: String(limit) });
+    const response = await fetch(buildApiUrl(`/api/moods/history?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood history');
+    }
+    return response.json();
+  },
+
+  // 获取最近的情绪光谱（用于动态背景）
+  getSpectrum: async (userId: string, days: number = 7): Promise<{ spectrums: string[] }> => {
+    const params = new URLSearchParams({ userId, days: String(days) });
+    const response = await fetch(buildApiUrl(`/api/moods/spectrum?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch mood spectrum');
+    }
+    return response.json();
+  },
+};
