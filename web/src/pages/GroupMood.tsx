@@ -109,7 +109,7 @@ export default function GroupMood() {
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/groups')}
+              onClick={() => navigate('/my-mood')}
               className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-[#1754cf] transition-colors"
             >
               <span className="material-icons text-xl">arrow_back</span>

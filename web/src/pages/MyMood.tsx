@@ -109,7 +109,7 @@ export default function MyMood() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/groups')}
+              onClick={() => navigate('/group')}
               className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors group"
             >
               <span className="material-icons text-[20px]">arrow_back</span>
@@ -205,7 +205,7 @@ export default function MyMood() {
                     ? `You've been feeling mostly ${emotionLabels[stats.topEmotion] || stats.topEmotion.toLowerCase()}. Keep tracking your mood to discover patterns!`
                     : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
                 </p>
-                <button className="mt-4 px-4 py-2 bg-white text-primary rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">
+                <button onClick={() => navigate('/group/mood')} className="mt-4 px-4 py-2 bg-white text-primary rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">
                   View Full Report
                 </button>
               </div>
