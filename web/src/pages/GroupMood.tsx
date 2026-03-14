@@ -7,6 +7,7 @@ import GroupMoodCalendar from '../components/GroupMoodCalendar';
 import GroupMoodTrendChart from '../components/GroupMoodTrendChart';
 import SentimentDistribution from '../components/SentimentDistribution';
 import TeamInsightsCard from '../components/TeamInsights';
+import GroupActionableAdvice from '../components/GroupActionableAdvice';
 import StatCard from '../components/StatCard';
 
 // 情绪标签映射
@@ -215,22 +216,22 @@ export default function GroupMood() {
               />
             </div>
 
-            {/* Calendar and Charts Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* Mood Calendar */}
+            {/* Mood Calendar */}
+            <div className="grid grid-cols-1 mb-8">
               <GroupMoodCalendar trend={trend} />
-
-              {/* Sentiment Distribution */}
-              <SentimentDistribution distribution={distribution} />
             </div>
 
-            {/* Mood Trend and Insights */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Sentiment Distribution */}
+              <SentimentDistribution distribution={distribution} />
               {/* Mood Trend Chart */}
               <GroupMoodTrendChart trend={trend} timeRange={timeRange} />
 
               {/* Team Insights */}
               <TeamInsightsCard insights={insights} />
+
+              {/* ActionableAdvice */}
+              <GroupActionableAdvice />
             </div>
           </>
         )}
