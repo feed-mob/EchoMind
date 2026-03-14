@@ -5,6 +5,10 @@ import {
   analyzeAndCreateMood,
   getUserMoodHistory,
   getRecentMoodSpectrum,
+  getTeamStats,
+  getTeamDistribution,
+  getTeamTrend,
+  getTeamInsights,
   MoodsServiceError,
 } from "../services/moods.service.js";
 
@@ -186,7 +190,7 @@ export const moodsController = {
     }
 
     try {
-      const stats = await moods.getTeamStats(userId, timeRange);
+      const stats = await getTeamStats(userId, timeRange);
       return Response.json(stats);
     } catch (error) {
       if (error instanceof MoodsServiceError) {
@@ -210,7 +214,7 @@ export const moodsController = {
     }
 
     try {
-      const distribution = await moods.getTeamDistribution(userId, timeRange);
+      const distribution = await getTeamDistribution(userId, timeRange);
       return Response.json(distribution);
     } catch (error) {
       if (error instanceof MoodsServiceError) {
@@ -234,7 +238,7 @@ export const moodsController = {
     }
 
     try {
-      const trend = await moods.getTeamTrend(userId, timeRange);
+      const trend = await getTeamTrend(userId, timeRange);
       return Response.json(trend);
     } catch (error) {
       if (error instanceof MoodsServiceError) {
@@ -258,7 +262,7 @@ export const moodsController = {
     }
 
     try {
-      const insights = await moods.getTeamInsights(userId, timeRange);
+      const insights = await getTeamInsights(userId, timeRange);
       return Response.json(insights);
     } catch (error) {
       if (error instanceof MoodsServiceError) {

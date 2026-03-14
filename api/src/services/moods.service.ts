@@ -1,9 +1,36 @@
-import { moods, type Mood, db } from "../../../packages/db/index.js";
+import { moods, type Mood, groupMembers } from "../../../packages/db/index.js";
 import { analyzeEmotion, type EmotionAnalysisResult } from "./moodAnalysis.service.js";
 
 export type MoodWithAnalysis = Mood & {
   analysis?: EmotionAnalysisResult;
 };
+
+// 团队情绪统计相关类型
+export interface TeamMoodStats {
+  averageMood: number;
+  participationRate: number;
+  topEmotion: string | null;
+  totalEntries: number;
+  activeMembers: number;
+}
+
+export interface TeamMoodDistribution {
+  emotion: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TeamMoodTrend {
+  date: string;
+  averageMood: number;
+  entries: number;
+}
+
+export interface TeamInsights {
+  positiveTrends: string[];
+  areasForImprovement: string[];
+  recommendations: string[];
+}
 
 export class MoodsServiceError extends Error {
   status: number;
@@ -118,8 +145,8 @@ function getIconForSpectrum(
 async function getUserPrimaryGroupId(userId: string): Promise<string | null> {
   try {
     // 查询用户的第一个团队成员关系
-    const membership = await db.query.groupMembers.findFirst({
-      where: (members, { eq }) => eq(members.userId, userId),
+    const membership = await groupMembers.findFirst({
+      where: { userId },
       with: {
         group: true,
       },
@@ -300,8 +327,9 @@ export async function getTeamInsights(
 
     // 分析积极趋势
     const positiveTrends: string[] = [];
+    let avgMood = 0;
     if (recentMoods.length > 0) {
-      const avgMood = recentMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / recentMoods.length;
+      avgMood = recentMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / recentMoods.length;
       if (avgMood >= 4) {
         positiveTrends.push("Team mood is consistently high, showing excellent well-being.");
       } else if (avgMood >= 3.5) {

@@ -360,6 +360,18 @@ export const groupMembers = {
       orderBy: { joinedAt: "desc" },
     });
   },
+
+  async findFirst(options: { where: { userId: string }; with?: { group?: boolean } }) {
+    const include: any = {};
+    if (options.with?.group) {
+      include.group = true;
+    }
+
+    return await db.groupMember.findFirst({
+      where: options.where,
+      include,
+    });
+  },
 };
 
 export const groupInvitations = {
@@ -918,119 +930,5 @@ export const moods = {
     };
   },
 
-  async getTeamStats(groupId: string, timeRange: '7' | '30' | '90' = '7') {
-    const moodsList = await this.listByGroup(groupId);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
 
-    const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
-    const uniqueUsers = new Set(recentMoods.map(m => m.userId));
-
-    // Calculate average mood
-    const averageMood = recentMoods.length > 0
-      ? recentMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / recentMoods.length
-      : 0;
-
-    // Calculate participation rate
-    const participationRate = moodsList.length > 0
-      ? (recentMoods.length / moodsList.length) * 100
-      : 0;
-
-    // Get top emotion
-    const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
-      acc[emotion] = (acc[emotion] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topEmotion = Object.entries(emotionCounts)
-      .sort(([, a], [, b]) => b - a)[0]?.[0] || null;
-
-    return {
-      averageMood: parseFloat(averageMood.toFixed(1)),
-      participationRate: Math.round(participationRate),
-      topEmotion,
-      totalEntries: recentMoods.length,
-      activeMembers: uniqueUsers.size,
-    };
-  },
-
-  async getTeamDistribution(groupId: string, timeRange: '7' | '30' | '90' = '7') {
-    const moodsList = await this.listByGroup(groupId);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
-
-    const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
-
-    const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
-      acc[emotion] = (acc[emotion] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = recentMoods.length;
-    const distribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
-      emotion,
-      count,
-      percentage: Math.round((count / total) * 100),
-    }));
-
-    return distribution;
-  },
-
-  async getTeamTrend(groupId: string, timeRange: '7' | '30' | '90' = '7') {
-    const moodsList = await this.listByGroup(groupId);
-    const days = parseInt(timeRange);
-    const trend: TeamMoodTrend[] = [];
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-
-      const dayMoods = moodsList.filter(m => m.recordedAt.startsWith(dateStr));
-      const averageMood = dayMoods.length > 0
-        ? dayMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / dayMoods.length
-        : 0;
-
-      trend.push({
-        date: dateStr,
-        averageMood: parseFloat(averageMood.toFixed(1)),
-        entries: dayMoods.length,
-      });
-    }
-
-    return trend;
-  },
-
-  async getTeamInsights(groupId: string, timeRange: '7' | '30' | '90' = '7') {
-    const moodsList = await this.listByGroup(groupId);
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
-
-    const recentMoods = moodsList.filter((m: Mood) => new Date(m.recordedAt) >= cutoffDate);
-
-    const positiveTrends: string[] = [];
-    const areasForImprovement: string[] = [];
-    const recommendations: string[] = [];
-
-    if (recentMoods.length > 0) {
-      const avgMood = recentMoods.reduce((sum: number, m: Mood) => sum + getMoodValue(m.mood), 0) / recentMoods.length;
-      if (avgMood >= 4) {
-        positiveTrends.push("Team mood is consistently high, showing excellent well-being.");
-      } else if (avgMood >= 3.5) {
-        positiveTrends.push("Team maintains good emotional balance and engagement.");
-      }
-    }
-
-    if (recentMoods.length < 5) {
-      areasForImprovement.push("Encourage more team members to participate in mood tracking for better insights.");
-    }
-
-    return {
-      positiveTrends,
-      areasForImprovement,
-      recommendations,
-    };
-  },
 };
