@@ -6,6 +6,7 @@ import Landing from './pages/Landing'
 import Groups from './pages/Groups'
 import GroupDetail from './pages/GroupDetail'
 import GroupGoals from './pages/GroupGoals'
+import GroupGoalsNew from './pages/GroupGoalsNew'
 import GroupGoalShare from './pages/GroupGoalShare'
 import AIEvaluationSetup from './pages/AIEvaluationSetup'
 import AIEvaluationResults from './pages/AIEvaluationResults'
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/group/:groupId" element={<Navigate to="goals" replace />} />
               <Route path="/group/:groupId/ideas" element={<GroupDetail />} />
               <Route path="/group/:groupId/goals" element={<GroupGoals />} />
+              <Route path="/group/:groupId/goals-new" element={<GroupGoalsNew />} />
               <Route path="/group/:groupId/settings" element={<GroupSettings />} />
               <Route path="/group/:groupId/ai-evaluate" element={<AIEvaluationSetup />} />
               <Route path="/group/:groupId/ai-evaluated/:settingId" element={<AIEvaluationResults />} />
