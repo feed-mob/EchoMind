@@ -282,7 +282,10 @@ export async function getTeamTrend(
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
 
-      const dayMoods = moodsList.filter(m => m.recordedAt.startsWith(dateStr));
+      const dayMoods = moodsList.filter(m => {
+        const recordedDateStr = new Date(m.recordedAt).toISOString().split('T')[0];
+        return recordedDateStr === dateStr;
+      });
       const averageMood = dayMoods.length > 0
         ? dayMoods.reduce((sum, m) => sum + getMoodValue(m.mood), 0) / dayMoods.length
         : 0;
