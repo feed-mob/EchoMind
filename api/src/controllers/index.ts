@@ -5,3 +5,4 @@ export { goalsController } from "./goals.controller.js";
 export { aiEvaluationSettingsController } from "./aiEvaluationSettings.controller.js";
 export { healthController } from "./health.controller.js";
 export { moodsController } from "./moods.controller.js";
+export { goalSourcesController } from "./goalSources.controller.js";

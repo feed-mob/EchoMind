@@ -657,6 +657,69 @@ export const goals = {
   },
 };
 
+export interface GoalSource {
+  id: string;
+  goalId: string;
+  type: string;
+  title: string;
+  description?: string | null;
+  metadata?: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const goalSources = {
+  async create(data: {
+    goalId: string;
+    type: string;
+    title: string;
+    description?: string;
+    metadata?: unknown;
+  }) {
+    return await (db as any).goalSource.create({
+      data: {
+        goalId: data.goalId,
+        type: data.type,
+        title: data.title,
+        description: data.description,
+        metadata: data.metadata as any,
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await (db as any).goalSource.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByGoal(goalId: string) {
+    return await (db as any).goalSource.findMany({
+      where: { goalId },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  async update(id: string, data: Partial<GoalSource>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.goalId;
+
+    return await (db as any).goalSource.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await (db as any).goalSource.delete({
+      where: { id },
+    });
+  },
+};
+
 export const aiEvaluationSettings = {
   async create(data: {
     groupId: string;
