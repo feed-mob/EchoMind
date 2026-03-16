@@ -182,3 +182,30 @@ export interface EmotionSpectrumConfig {
   icon: string;
   container: string;
 }
+
+// Team Mood Analytics Types
+export interface TeamMoodStats {
+  averageMood: number;
+  participationRate: number;
+  topEmotion: string | null;
+  totalEntries: number;
+  activeMembers: number;
+}
+
+export interface TeamMoodDistribution {
+  emotion: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TeamMoodTrend {
+  date: string;
+  averageMood: number;
+  entries: number;
+}
+
+export interface TeamInsights {
+  positiveTrends: string[];
+  areasForImprovement: string[];
+  recommendations: string[];
+}

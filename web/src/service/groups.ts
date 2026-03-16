@@ -1,10 +1,16 @@
 import { buildApiUrl, throwApiError } from './http';
-import type { Group, GroupInvitation, GroupMember, GroupSettings, User } from './types';
+import type { Group, GroupInvitation, GroupMember, GroupSettings, User, UserGroupMembership } from './types';
 
 export const groupsApi = {
   list: async (): Promise<Group[]> => {
     const response = await fetch(buildApiUrl('/api/groups'));
     if (!response.ok) throw new Error('Failed to fetch groups');
+    return response.json();
+  },
+
+  getUserGroups: async (): Promise<UserGroupMembership[]> => {
+    const response = await fetch(buildApiUrl('/api/groups/user'));
+    if (!response.ok) throw new Error('Failed to fetch user groups');
     return response.json();
   },
 

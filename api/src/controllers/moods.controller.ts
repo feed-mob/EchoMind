@@ -5,6 +5,10 @@ import {
   analyzeAndCreateMood,
   getUserMoodHistory,
   getRecentMoodSpectrum,
+  getTeamStats,
+  getTeamDistribution,
+  getTeamTrend,
+  getTeamInsights,
   MoodsServiceError,
 } from "../services/moods.service.js";
 
@@ -174,6 +178,102 @@ export const moodsController = {
     });
 
     return Response.json(updated);
+  },
+
+  async getTeamStats(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const timeRange = url.searchParams.get("timeRange") as '7' | '30' | '90' || '7';
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const stats = await getTeamStats(userId, timeRange);
+      return Response.json(stats);
+    } catch (error) {
+      if (error instanceof MoodsServiceError) {
+        return Response.json({ error: error.message }, { status: error.status });
+      }
+      console.error("Get team mood stats error:", error);
+      return Response.json(
+        { error: "Failed to fetch team mood stats" },
+        { status: 500 }
+      );
+    }
+  },
+
+  async getTeamDistribution(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const timeRange = url.searchParams.get("timeRange") as '7' | '30' | '90' || '7';
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const distribution = await getTeamDistribution(userId, timeRange);
+      return Response.json(distribution);
+    } catch (error) {
+      if (error instanceof MoodsServiceError) {
+        return Response.json({ error: error.message }, { status: error.status });
+      }
+      console.error("Get team mood distribution error:", error);
+      return Response.json(
+        { error: "Failed to fetch team mood distribution" },
+        { status: 500 }
+      );
+    }
+  },
+
+  async getTeamTrend(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const timeRange = url.searchParams.get("timeRange") as '7' | '30' | '90' || '7';
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const trend = await getTeamTrend(userId, timeRange);
+      return Response.json(trend);
+    } catch (error) {
+      if (error instanceof MoodsServiceError) {
+        return Response.json({ error: error.message }, { status: error.status });
+      }
+      console.error("Get team mood trend error:", error);
+      return Response.json(
+        { error: "Failed to fetch team mood trend" },
+        { status: 500 }
+      );
+    }
+  },
+
+  async getTeamInsights(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const timeRange = url.searchParams.get("timeRange") as '7' | '30' | '90' || '7';
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const insights = await getTeamInsights(userId, timeRange);
+      return Response.json(insights);
+    } catch (error) {
+      if (error instanceof MoodsServiceError) {
+        return Response.json({ error: error.message }, { status: error.status });
+      }
+      console.error("Get team insights error:", error);
+      return Response.json(
+        { error: "Failed to fetch team insights" },
+        { status: 500 }
+      );
+    }
   },
 
   async delete(req: Request) {

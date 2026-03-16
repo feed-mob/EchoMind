@@ -111,6 +111,33 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+// Helper function to convert mood string to numeric value
+function getMoodValue(mood: string): number {
+  const moodMap: Record<string, number> = {
+    awesome: 5,
+    good: 4,
+    neutral: 3,
+    low: 2,
+    poor: 1,
+    joyful: 5,
+    calm: 4,
+    anxious: 2,
+    stressed: 1,
+    excited: 5,
+    tired: 2,
+    grateful: 4,
+    frustrated: 1,
+  };
+  return moodMap[mood.toLowerCase()] || 3;
+}
+
+// Team mood trend type
+interface TeamMoodTrend {
+  date: string;
+  averageMood: number;
+  entries: number;
+}
+
 export const users = {
   async create(data: { email: string; name?: string; avatar?: string }) {
     return await db.user.create({
@@ -331,6 +358,18 @@ export const groupMembers = {
         },
       },
       orderBy: { joinedAt: "desc" },
+    });
+  },
+
+  async findFirst(options: { where: { userId: string }; with?: { group?: boolean } }) {
+    const include: any = {};
+    if (options.with?.group) {
+      include.group = true;
+    }
+
+    return await db.groupMember.findFirst({
+      where: options.where,
+      include,
     });
   },
 };
@@ -775,6 +814,37 @@ export const moods = {
     });
   },
 
+  async listByGroup(groupId: string, options?: { startDate?: Date; endDate?: Date }) {
+    const groupMembers = await (db as any).groupMember.findMany({
+      where: { groupId },
+      select: { userId: true },
+    });
+
+    const memberIds = groupMembers.map((m: any) => m.userId);
+    if (memberIds.length === 0) {
+      return [];
+    }
+
+    const where: any = {
+      userId: { in: memberIds },
+    };
+
+    if (options?.startDate || options?.endDate) {
+      where.recordedAt = {};
+      if (options.startDate) {
+        where.recordedAt.gte = options.startDate;
+      }
+      if (options.endDate) {
+        where.recordedAt.lte = options.endDate;
+      }
+    }
+
+    return await (db as any).mood.findMany({
+      where,
+      orderBy: { recordedAt: "desc" },
+    });
+  },
+
   async update(id: string, data: Partial<Mood>) {
     const updateData: any = { ...data };
     delete updateData.id;
@@ -859,4 +929,6 @@ export const moods = {
       mostFrequentMood,
     };
   },
+
+
 };
