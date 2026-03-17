@@ -111,6 +111,33 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+// Helper function to convert mood string to numeric value
+function getMoodValue(mood: string): number {
+  const moodMap: Record<string, number> = {
+    awesome: 5,
+    good: 4,
+    neutral: 3,
+    low: 2,
+    poor: 1,
+    joyful: 5,
+    calm: 4,
+    anxious: 2,
+    stressed: 1,
+    excited: 5,
+    tired: 2,
+    grateful: 4,
+    frustrated: 1,
+  };
+  return moodMap[mood.toLowerCase()] || 3;
+}
+
+// Team mood trend type
+interface TeamMoodTrend {
+  date: string;
+  averageMood: number;
+  entries: number;
+}
+
 export const users = {
   async create(data: { email: string; name?: string; avatar?: string }) {
     return await db.user.create({
@@ -331,6 +358,18 @@ export const groupMembers = {
         },
       },
       orderBy: { joinedAt: "desc" },
+    });
+  },
+
+  async findFirst(options: { where: { userId: string }; with?: { group?: boolean } }) {
+    const include: any = {};
+    if (options.with?.group) {
+      include.group = true;
+    }
+
+    return await db.groupMember.findFirst({
+      where: options.where,
+      include,
     });
   },
 };
@@ -705,4 +744,191 @@ export const aiEvaluationResults = {
       orderBy: [{ rank: "asc" }, { totalScore: "desc" }],
     });
   },
+};
+
+export interface Mood {
+  id: string;
+  userId: string;
+  mood: string;
+  emotion?: string | null;
+  notes?: string | null;
+  recordedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  // 情绪光谱系统 Emotion Spectrum System
+  spectrum?: string | null;  // stress, boredom, anxiety, anger, joy, achievement, warmth, calm
+  color?: string | null;     // hex color code
+  icon?: string | null;      // icon name
+  intensity?: number | null;   // 1-10 intensity level
+}
+
+export const moods = {
+  async create(data: {
+    userId: string;
+    mood: string;
+    emotion?: string;
+    notes?: string;
+    recordedAt?: Date;
+    spectrum?: string;
+    color?: string;
+    icon?: string;
+    intensity?: number;
+  }) {
+    return await (db as any).mood.create({
+      data: {
+        userId: data.userId,
+        mood: data.mood,
+        emotion: data.emotion,
+        notes: data.notes,
+        recordedAt: data.recordedAt || new Date(),
+        spectrum: data.spectrum,
+        color: data.color,
+        icon: data.icon,
+        intensity: data.intensity,
+      },
+    });
+  },
+
+  async findById(id: string) {
+    return await (db as any).mood.findUnique({
+      where: { id },
+    });
+  },
+
+  async listByUser(userId: string, options?: { startDate?: Date; endDate?: Date }) {
+    const where: any = { userId };
+
+    if (options?.startDate || options?.endDate) {
+      where.recordedAt = {};
+      if (options.startDate) {
+        where.recordedAt.gte = options.startDate;
+      }
+      if (options.endDate) {
+        where.recordedAt.lte = options.endDate;
+      }
+    }
+
+    return await (db as any).mood.findMany({
+      where,
+      orderBy: { recordedAt: "desc" },
+    });
+  },
+
+  async listByGroup(groupId: string, options?: { startDate?: Date; endDate?: Date }) {
+    const groupMembers = await (db as any).groupMember.findMany({
+      where: { groupId },
+      select: { userId: true },
+    });
+
+    const memberIds = groupMembers.map((m: any) => m.userId);
+    if (memberIds.length === 0) {
+      return [];
+    }
+
+    const where: any = {
+      userId: { in: memberIds },
+    };
+
+    if (options?.startDate || options?.endDate) {
+      where.recordedAt = {};
+      if (options.startDate) {
+        where.recordedAt.gte = options.startDate;
+      }
+      if (options.endDate) {
+        where.recordedAt.lte = options.endDate;
+      }
+    }
+
+    return await (db as any).mood.findMany({
+      where,
+      orderBy: { recordedAt: "desc" },
+    });
+  },
+
+  async update(id: string, data: Partial<Mood>) {
+    const updateData: any = { ...data };
+    delete updateData.id;
+    delete updateData.createdAt;
+    delete updateData.updatedAt;
+    delete updateData.userId;
+
+    return await (db as any).mood.update({
+      where: { id },
+      data: updateData,
+    });
+  },
+
+  async delete(id: string) {
+    await (db as any).mood.delete({
+      where: { id },
+    });
+  },
+
+  async getStatsByUser(userId: string) {
+    const entries = await (db as any).mood.findMany({
+      where: { userId },
+      orderBy: { recordedAt: "desc" },
+    });
+
+    const total = entries.length;
+    if (total === 0) {
+      return {
+        total: 0,
+        moodCounts: {},
+        emotionCounts: {},
+        streakDays: 0,
+        mostFrequentMood: null,
+      };
+    }
+
+    const moodCounts: Record<string, number> = {};
+    const emotionCounts: Record<string, number> = {};
+
+    for (const entry of entries) {
+      moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+      if (entry.emotion) {
+        emotionCounts[entry.emotion] = (emotionCounts[entry.emotion] || 0) + 1;
+      }
+    }
+
+    const mostFrequentMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0];
+
+    // Calculate streak (consecutive days with entries)
+    let streakDays = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const datesWithEntries = new Set(
+      entries.map((e: any) => {
+        const d = new Date(e.recordedAt);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+      })
+    );
+
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(checkDate.getDate() - i);
+      if (datesWithEntries.has(checkDate.getTime())) {
+        if (i === streakDays) {
+          streakDays++;
+        }
+      } else if (i === 0) {
+        // If no entry today, still count streak from yesterday
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      total,
+      moodCounts,
+      emotionCounts,
+      streakDays,
+      mostFrequentMood,
+    };
+  },
+
+
 };

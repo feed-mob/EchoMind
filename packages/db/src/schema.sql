@@ -142,3 +142,20 @@ CREATE INDEX IF NOT EXISTS "idx_goal_selected_setting" ON "Goal"("selectedSettin
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_group_created_at" ON "AiEvaluationSetting"("groupId", "createdAt" DESC);
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_setting_goal" ON "AiEvaluationSetting"("goalId");
 CREATE INDEX IF NOT EXISTS "idx_ai_eval_result_setting_rank" ON "AiEvaluationResult"("settingId", "rank");
+
+-- Mood table
+CREATE TABLE IF NOT EXISTS "Mood" (
+    "id" TEXT PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "mood" TEXT NOT NULL,
+    "emotion" TEXT,
+    "notes" TEXT,
+    "recordedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP NOT NULL,
+    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
+);
+
+-- Mood indexes
+CREATE INDEX IF NOT EXISTS "idx_mood_user_recorded_at" ON "Mood"("userId", "recordedAt");
+CREATE INDEX IF NOT EXISTS "idx_mood_user" ON "Mood"("userId");

@@ -4,6 +4,7 @@ import { ideasRoutes } from "./ideas.routes.js";
 import { goalsRoutes } from "./goals.routes.js";
 import { aiEvaluationSettingsRoutes } from "./aiEvaluationSettings.routes.js";
 import { healthRoutes } from "./health.routes.js";
+import { moodsRoutes } from "./moods.routes.js";
 
 export const routes = {
   ...healthRoutes,
@@ -12,4 +13,5 @@ export const routes = {
   ...ideasRoutes,
   ...goalsRoutes,
   ...aiEvaluationSettingsRoutes,
+  ...moodsRoutes,
 };

@@ -26,6 +26,7 @@ model User {
   goals     Goal[]   @relation("GoalCreator")
   comments  Comment[]
   invitations GroupInvitation[] @relation("InvitedByUser")
+  moods Mood[]
 }
 
 model Group {
@@ -171,4 +172,27 @@ model AiEvaluationResult {
 
   @@unique([settingId, ideaId])
   @@index([settingId, rank])
+}
+
+model Mood {
+  id          String   @id @default(cuid())
+  userId      String
+  mood        String   // awesome, good, neutral, low, poor
+  emotion     String?  // joyful, calm, anxious, stressed, etc.
+  notes       String?
+  recordedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 情绪光谱系统 Emotion Spectrum System
+  spectrum    String?  // stress, boredom, anxiety, anger, joy, achievement, warmth, calm
+  color       String?  // hex color code: gray, lightGray, darkBlue, red, orange, gold, pink, green
+  icon        String?  // trash, cloud, flame, candy, star, lamp, leaf
+  intensity   Int?     // 1-10, emotion intensity level
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+  @@index([userId])
+  @@index([spectrum])
 }
