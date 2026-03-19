@@ -29,7 +29,7 @@ const emotionLabels: Record<string, string> = {
 export default function GroupMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('30');
+  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
   const [stats, setStats] = useState<TeamMoodStats | null>(null);
   const [distribution, setDistribution] = useState<TeamMoodDistribution[]>([]);
   const [trend, setTrend] = useState<TeamMoodTrend[]>([]);
