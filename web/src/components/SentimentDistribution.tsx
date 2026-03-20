@@ -41,13 +41,13 @@ export default function SentimentDistribution({ distribution }: SentimentDistrib
         {/* 图例 */}
         <div className="flex flex-col gap-3">
           {distribution.slice(0, 4).map((item, index) => (
-            <div key={item.emotion} className="flex items-center gap-2">
+            <div key={item.mood} className="flex items-center gap-2">
               <span
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: pieColors[index % pieColors.length] }}
               />
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {emotionSpectrum[item.emotion]?.label || item.emotion} ({item.percentage}%)
+                {emotionSpectrum[item.mood]?.label || item.mood} ({item.percentage}%)
               </span>
             </div>
           ))}

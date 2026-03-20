@@ -15,7 +15,7 @@ export interface TeamMoodStats {
 }
 
 export interface TeamMoodDistribution {
-  emotion: string;
+  mood: string;
   count: number;
   percentage: number;
 }
@@ -198,7 +198,7 @@ export async function getTeamStats(
 
     // 获取主要情绪
     const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
+      const emotion = m.mood || m.emotion;
       acc[emotion] = (acc[emotion] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -240,14 +240,14 @@ export async function getTeamDistribution(
     const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
 
     const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
-      acc[emotion] = (acc[emotion] || 0) + 1;
+      const mood = m.mood || m.emotion;
+      acc[mood] = (acc[mood] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const total = recentMoods.length;
-    const distribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
-      emotion,
+    const distribution = Object.entries(emotionCounts).map(([mood, count]) => ({
+      mood,
       count,
       percentage: Math.round((count / total) * 100),
     }));

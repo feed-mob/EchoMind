@@ -125,7 +125,7 @@ export const moodsApi = {
     return response.json();
   },
 
-  getTeamDistribution: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ emotion: string; count: number; percentage: number }[]> => {
+  getTeamDistribution: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ mood: string; count: number; percentage: number }[]> => {
     const response = await fetch(buildApiUrl(`/api/moods/team-distribution?userId=${userId}&timeRange=${timeRange}`));
     if (!response.ok) throw new Error('Failed to fetch team mood distribution');
     return response.json();

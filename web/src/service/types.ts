@@ -193,7 +193,7 @@ export interface TeamMoodStats {
 }
 
 export interface TeamMoodDistribution {
-  emotion: string;
+  mood: string;
   count: number;
   percentage: number;
 }
