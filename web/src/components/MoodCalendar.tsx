@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Mood } from '../service/types';
-import { moodColorMap } from '../config/enum';
+import { emotionSpectrum, neutralColor, negativeColor, positiveColor } from '../config/enum';
 
 interface MoodCalendarProps {
   currentDate: Date;
@@ -41,8 +41,8 @@ export default function MoodCalendar({
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
 
-      const color = moodColorMap[entry?.mood];
-      const bgColor = color ? `${color}33` : '';
+      const color = entry?.mood ? emotionSpectrum[entry?.mood]?.color : '#99a1af';
+      const bgColor = entry?.mood ? `${color}33` : '#fff';
       days.push({
         date: i,
         mood: entry?.mood ?? undefined,
@@ -143,15 +143,15 @@ export default function MoodCalendar({
       </div>
       <div className="mt-8 flex flex-wrap gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: positiveColor}}></span>
           <span className="text-xs font-medium text-slate-500">Positive</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-primary"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: neutralColor}}></span>
           <span className="text-xs font-medium text-slate-500">Neutral</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-slate-400"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: negativeColor}}></span>
           <span className="text-xs font-medium text-slate-500">Negative</span>
         </div>
         <div className="flex items-center gap-2">

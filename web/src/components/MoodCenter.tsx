@@ -3,18 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { useToast } from './ToastProvider';
 import { api } from '../service';
 import type { Mood } from '../service/types';
-
-// 情绪光谱系统配置
-const emotionSpectrum: Record<string, { label: string; color: string; icon: string }> = {
-  stress: { label: '压力', color: '#6B7280', icon: 'delete_outline' },
-  boredom: { label: '无聊', color: '#9CA3AF', icon: 'hourglass_empty' },
-  anxiety: { label: '焦虑', color: '#1E40AF', icon: 'cloud' },
-  anger: { label: '愤怒', color: '#DC2626', icon: 'local_fire_department' },
-  joy: { label: '快乐', color: '#F97316', icon: 'restaurant' },
-  achievement: { label: '成就', color: '#EAB308', icon: 'star' },
-  warmth: { label: '温暖', color: '#EC4899', icon: 'lightbulb' },
-  calm: { label: '平静', color: '#22C55E', icon: 'eco' },
-};
+import { emotionSpectrum, positiveEmotions, negativeEmotions } from "../config/enum";
 
 export default function MoodCenter() {
   const { user } = useAuth();
@@ -26,10 +15,7 @@ export default function MoodCenter() {
   const [positiveAnimating, setPositiveAnimating] = useState(false);
   const [negativeAnimating, setNegativeAnimating] = useState(false);
 
-  // 积极情绪列表
-  const positiveEmotions = ['joy', 'achievement', 'warmth', 'calm'];
-  // 不积极情绪列表
-  const negativeEmotions = ['stress', 'boredom', 'anxiety', 'anger'];
+
 
   // 获取情绪历史
   const fetchMoodHistory = useCallback(async () => {
@@ -162,7 +148,7 @@ export default function MoodCenter() {
                     <span className="material-icons text-[10px]" style={{ color: config?.color }}>
                       {config?.icon || 'sentiment_satisfied'}
                     </span>
-                    <span className="text-slate-600 dark:text-slate-300">{config?.label}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{mood?.emotion}</span>
                   </div>
                 );
               })}

@@ -1,10 +1,22 @@
-export const moodColorMap = {
-  stress: "#6B7280", // gray-500
-  boredom: "#9CA3AF", // gray-400
-  anxiety: "#1E40AF", // blue-800
-  anger: "#DC2626", // red-600
-  joy: "#F97316", // orange-500
-  achievement: "#EAB308", // yellow-500
-  warmth: "#EC4899", // pink-500
-  calm: "#22C55E", // green-500
-}
+// 情绪光谱系统配置
+export const emotionSpectrum: Record<string, { color: string; icon: string }> = {
+  stress: {  color: '#6B7280', icon: 'delete_outline' },
+  boredom: { color: '#9CA3AF', icon: 'hourglass_empty' },
+  anxiety: { color: '#1E40AF', icon: 'cloud' },
+  anger: { color: '#DC2626', icon: 'local_fire_department' },
+  joy: { color: '#F97316', icon: 'restaurant' },
+  achievement: { color: '#EAB308', icon: 'star' },
+  warmth: { color: '#EC4899', icon: 'lightbulb' },
+  calm: { color: '#22C55E', icon: 'eco' },
+};
+
+// 积极情绪列表
+export const positiveEmotions = ['joy', 'achievement', 'warmth', 'calm'];
+export const positiveColor = '#ff6900';
+
+// 中间情绪颜色
+export const neutralColor = '#137fec';
+
+// 不积极情绪列表
+export const negativeEmotions = ['stress', 'boredom', 'anxiety', 'anger'];
+export const negativeColor = '#90a1b9';
