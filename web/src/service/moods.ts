@@ -3,8 +3,8 @@ import type { Mood, EmotionAnalysisResult } from './types';
 
 interface MoodStats {
   total: number;
-  currentStreak: number;
-  topEmotion: string | null;
+  streakDays: number;
+  mostFrequentMood: string | null;
   moodDistribution: Record<string, number>;
 }
 

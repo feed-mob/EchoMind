@@ -6,23 +6,15 @@ import type { Mood } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
 
+import { emotionSpectrum } from "../config/enum";
+
+
 interface MoodStats {
   total: number;
-  currentStreak: number;
-  topEmotion: string | null;
+  streakDays: number;
+  mostFrequentMood: string | null;
   moodDistribution: Record<string, number>;
 }
-
-const emotionLabels: Record<string, string> = {
-  joyful: 'Joyful',
-  calm: 'Calm',
-  anxious: 'Anxious',
-  stressed: 'Stressed',
-  excited: 'Excited',
-  tired: 'Tired',
-  grateful: 'Grateful',
-  frustrated: 'Frustrated',
-};
 
 export default function MyMood() {
   const navigate = useNavigate();
@@ -153,7 +145,7 @@ export default function MyMood() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Current Streak</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.currentStreak || 0} Days</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.streakDays || 0} Days</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
@@ -171,22 +163,26 @@ export default function MyMood() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Emotion</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.topEmotion ? emotionLabels[stats.topEmotion] || stats.topEmotion : 'None'}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.label || stats.mostFrequentMood : 'None'}</p>
             </div>
           </div>
         </div>
 
         {/* Main Grid: Calendar and Trend */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Calendar Section */}
-          <MoodCalendar
-            currentDate={currentDate}
-            entries={entries}
-            onNavigateMonth={navigateMonth}
-          />
+          <div className="lg:col-span-7">
+            <div></div>
+          </div>
 
-          {/* Mood Trend Chart Section */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            {/* Calendar Section */}
+            <MoodCalendar
+              currentDate={currentDate}
+              entries={entries}
+              onNavigateMonth={navigateMonth}
+            />
+
+            {/* Mood Trend Chart Section */}
             <MoodTrendChart
               timeRange={timeRange}
               entries={entries}
@@ -201,8 +197,8 @@ export default function MyMood() {
               <div className="relative z-10">
                 <h3 className="font-bold text-lg mb-2">Weekly Mood Insight</h3>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-md">
-                  {stats?.topEmotion
-                    ? `You've been feeling mostly ${emotionLabels[stats.topEmotion] || stats.topEmotion.toLowerCase()}. Keep tracking your mood to discover patterns!`
+                  {stats?.mostFrequentMood
+                    ? `You've been feeling mostly ${emotionSpectrum[stats.mostFrequentMood].label || stats.mostFrequentMood.toLowerCase()}. Keep tracking your mood to discover patterns!`
                     : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
                 </p>
                 <button onClick={() => navigate('/group/mood')} className="mt-4 px-4 py-2 bg-white text-primary rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">

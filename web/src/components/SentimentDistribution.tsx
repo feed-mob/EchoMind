@@ -1,23 +1,10 @@
 import type { TeamMoodDistribution } from '../service/types';
+import { emotionSpectrum } from "../config/enum";
+
 
 interface SentimentDistributionProps {
   distribution: TeamMoodDistribution[];
 }
-
-const emotionLabels: Record<string, string> = {
-  joyful: 'Joyful',
-  calm: 'Calm',
-  anxious: 'Anxious',
-  stressed: 'Stressed',
-  excited: 'Excited',
-  tired: 'Tired',
-  grateful: 'Grateful',
-  frustrated: 'Frustrated',
-  positive: 'Positive',
-  neutral: 'Neutral',
-  negative: 'Negative',
-  productive: 'Productive',
-};
 
 const pieColors = ['#22C55E', '#EAB308', '#DC2626', '#F97316', '#1E40AF', '#EC4899', '#9CA3AF', '#6B7280'];
 
@@ -60,7 +47,7 @@ export default function SentimentDistribution({ distribution }: SentimentDistrib
                 style={{ backgroundColor: pieColors[index % pieColors.length] }}
               />
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {emotionLabels[item.emotion] || item.emotion} ({item.percentage}%)
+                {emotionSpectrum[item.emotion]?.label || item.emotion} ({item.percentage}%)
               </span>
             </div>
           ))}

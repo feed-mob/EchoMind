@@ -61,7 +61,7 @@ export default function MoodCalendar({
   };
 
   return (
-    <div className="lg:col-span-5 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
           {formatMonth(currentDate)}
