@@ -141,7 +141,7 @@ export default function MyMood() {
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8">
         {/* Title Section */}
         <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Your Mood Journey</h1>
+          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Mood Journey</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2">Visualizing your emotional well-being over the last {timeRange} days.</p>
         </div>
 

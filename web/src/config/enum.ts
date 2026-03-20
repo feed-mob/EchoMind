@@ -11,11 +11,12 @@ export const emotionSpectrum: Record<string, { color: string; icon: string }> = 
 };
 
 // 积极情绪列表
-export const positiveEmotions = ['joy', 'achievement', 'warmth', 'calm'];
+export const positiveEmotions = ['joy', 'achievement', 'warmth'];
 export const positiveColor = '#ff6900';
 
-// 中间情绪颜色
-export const neutralColor = '#137fec';
+// 中间情绪列表
+export const neutralEmotions = ['calm'];
+export const neutralColor = '#22C55E';
 
 // 不积极情绪列表
 export const negativeEmotions = ['stress', 'boredom', 'anxiety', 'anger'];

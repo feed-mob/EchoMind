@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { Mood } from '../service/types';
-import { emotionSpectrum, neutralColor, negativeColor, positiveColor } from '../config/enum';
+import { emotionSpectrum, neutralEmotions, neutralColor, negativeEmotions,negativeColor, positiveEmotions, positiveColor } from '../config/enum';
 
 interface MoodCalendarProps {
   currentDate: Date;
@@ -115,6 +115,8 @@ export default function MoodCalendar({
             currentDate.getMonth() === new Date().getMonth();
 
           const moodColor = day.color;
+          const moodStyle = moodColor && isCurrentMonth ? { backgroundColor: day.backgroundColor, color: day.color } : undefined;
+          const cellStyle = day.mood ? moodStyle : {border: `1px dashed #cad5e2`};
 
           return (
             <div
@@ -127,14 +129,7 @@ export default function MoodCalendar({
                 ${isToday && moodColor ? 'ring-4 ring-white/30' : ''}
                 transition-colors cursor-pointer
               `}
-              style={
-                moodColor && isCurrentMonth
-                  ? {
-                      backgroundColor: day.backgroundColor,
-                      color: day.color,
-                    }
-                  : undefined
-              }
+              style={cellStyle}
             >
               <span className={day.mood ? 'font-bold' : ''}>{day.date}</span>
             </div>
