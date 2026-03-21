@@ -5,8 +5,11 @@ import { api } from '../service';
 import type { Mood } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
+import MomentumCard from '../components/MomentumCard';
+import EmotionalPuzzle from '../components/EmotionalPuzzle';
 
 import { emotionSpectrum } from "../config/enum";
+import { MIN_PUZZLE_DAYS } from "../config/constants";
 
 
 interface MoodStats {
@@ -169,9 +172,24 @@ export default function MyMood() {
         </div>
 
         {/* Main Grid: Calendar and Trend */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7">
-            <div></div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            {/* Momentum Card */}
+            <MomentumCard
+              streakDays={stats?.streakDays || 0}
+              moodStatus="great"
+            />
+
+            {/* Emotional Puzzle */}
+            <EmotionalPuzzle
+              completedDays={stats?.streakDays || 0}
+              totalDays={MIN_PUZZLE_DAYS}
+              quote="Every step forward is progress. Keep going!"
+              onGetReward={() => {
+                // TODO: Implement reward logic
+                console.log('Reward claimed!');
+              }}
+            />
           </div>
 
           <div className="lg:col-span-5 flex flex-col gap-6">
