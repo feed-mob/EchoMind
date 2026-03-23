@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
 import type { Mood, MoodStats } from '../service/types';
@@ -8,18 +8,34 @@ import MoodTrendChart from '../components/MoodTrendChart';
 import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 
-import { emotionSpectrum } from "../config/enum";
+import { emotionSpectrum} from '../config/enum';
 import { MIN_PUZZLE_DAYS } from "../config/constants";
+
+import { generateDayMood } from "../tools/functions";
+
+const getDaysByKind = (list:[], kind:string) => {
+  let result = 0;
+  list.forEach((v)=>{
+    if (kind == v) {
+      result += 1;
+    }
+  })
+  return result;
+}
 
 export default function MyMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const moodKind = searchParams.get('kind') || '';
+
   const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
+  const [kindCheckInDays, setKindCheckInDays] = useState<number>(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -41,6 +57,9 @@ export default function MyMood() {
 
       setEntries(entriesData);
       setStats(statsData);
+      const dayMood = generateDayMood(entriesData)
+      const days = getDaysByKind(Object.values(dayMood), moodKind);
+      setKindCheckInDays(days);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
@@ -168,13 +187,13 @@ export default function MyMood() {
           <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Momentum Card */}
             <MomentumCard
-              checkInDays={stats?.checkInDays || 0}
-              moodStatus="great"
+              checkInDays={kindCheckInDays}
+              moodStatus={moodKind}
             />
 
             {/* Emotional Puzzle */}
             <EmotionalPuzzle
-              completedDays={stats?.checkInDays || 0}
+              completedDays={kindCheckInDays}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {

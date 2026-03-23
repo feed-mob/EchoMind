@@ -1,6 +1,23 @@
 import { useMemo } from 'react';
 import type { Mood } from '../service/types';
-import { emotionSpectrum, neutralEmotions, neutralColor, negativeEmotions,negativeColor, positiveEmotions, positiveColor } from '../config/enum';
+import { neutralColor, negativeColor, positiveColor, } from '../config/enum';
+import { generateDayMood } from "../tools/functions";
+
+const getDayColor = (k:string) => {
+  if (k) {
+    if (k == 'positive') {
+      return positiveColor;
+    }
+    if (k == 'negative') {
+      return negativeColor;
+    }
+    if(k == 'neutral' ){
+      return neutralColor;
+    }
+  }
+  return '#99a1af';
+};
+
 
 interface MoodCalendarProps {
   currentDate: Date;
@@ -23,11 +40,9 @@ export default function MoodCalendar({
 
     const days: Array<{
       date: number;
-      mood?: string;
-      emotion?: string;
+      specstrum?: string;
       color?: string;
       backgroundColor?: string;
-      entry?: Mood;
     }> = [];
 
     // Previous month days
@@ -36,20 +51,21 @@ export default function MoodCalendar({
       days.push({ date: prevMonthLastDay - i });
     }
 
+    const dayMood = generateDayMood(entries);
+
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-      const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
 
-      const color = entry?.mood ? emotionSpectrum[entry?.mood]?.color : '#99a1af';
-      const bgColor = entry?.mood ? `${color}33` : '#fff';
+      // const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
+
+      const color = getDayColor(dayMood[dateStr]);
+      const bgColor = color ? `${color}33` : '#fff';
       days.push({
         date: i,
-        mood: entry?.mood ?? undefined,
-        emotion: entry?.emotion ?? undefined,
+        specstrum: dayMood[dateStr] ?? undefined,
         color: color,
         backgroundColor: bgColor,
-        entry,
       });
     }
 
@@ -116,7 +132,7 @@ export default function MoodCalendar({
 
           const moodColor = day.color;
           const moodStyle = moodColor && isCurrentMonth ? { backgroundColor: day.backgroundColor, color: day.color } : undefined;
-          const cellStyle = day.mood ? moodStyle : {border: `1px dashed #cad5e2`};
+          const cellStyle = day.specstrum ? moodStyle : {border: `1px dashed #cad5e2`};
 
           return (
             <div
@@ -124,14 +140,15 @@ export default function MoodCalendar({
               className={`
                 aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
                 ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
-                ${isCurrentMonth && !day.mood ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
+                ${isCurrentMonth && !day.specstrum ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
                 ${isToday && !moodColor ? 'ring-4 ring-primary/20' : ''}
                 ${isToday && moodColor ? 'ring-4 ring-white/30' : ''}
                 transition-colors cursor-pointer
               `}
               style={cellStyle}
+              title={day.specstrum}
             >
-              <span className={day.mood ? 'font-bold' : ''}>{day.date}</span>
+              <span className={day.specstrum ? 'font-bold' : ''}>{day.date}</span>
             </div>
           );
         })}
