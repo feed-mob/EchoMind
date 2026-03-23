@@ -1,16 +1,5 @@
 import { buildApiUrl, throwApiError } from './http';
-import type { Mood, EmotionAnalysisResult } from './types';
-
-interface MoodStats {
-  total: number;
-  streakDays: number;
-  mostFrequentMood: string | null;
-  moodDistribution: Record<string, number>;
-}
-
-interface MoodWithAnalysis extends Mood {
-  analysis?: EmotionAnalysisResult;
-}
+import type { Mood, MoodStats } from './types';
 
 export const moodsApi = {
   list: async (userId: string, startDate?: string, endDate?: string): Promise<Mood[]> => {
@@ -140,6 +129,36 @@ export const moodsApi = {
   getTeamInsights: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ positiveTrends: string[]; areasForImprovement: string[]; recommendations: string[] }> => {
     const response = await fetch(buildApiUrl(`/api/moods/team-insights?userId=${userId}&timeRange=${timeRange}`));
     if (!response.ok) throw new Error('Failed to fetch team insights');
+    return response.json();
+  },
+
+  // 拼图奖励相关接口
+  getPuzzleProgress: async (userId: string): Promise<{
+    unredeemedCount: number;
+    canRedeem: boolean;
+    minRequired: number;
+    progressPercentage: number;
+  }> => {
+    const response = await fetch(buildApiUrl(`/api/moods/puzzle-progress?userId=${userId}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch puzzle progress');
+    }
+    return response.json();
+  },
+
+  redeemReward: async (moodId: string, userId: string): Promise<{
+    success: boolean;
+    message: string;
+    mood: Mood;
+  }> => {
+    const response = await fetch(buildApiUrl(`/api/moods/${moodId}/redeem-reward`), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to redeem reward');
+    }
     return response.json();
   },
 };

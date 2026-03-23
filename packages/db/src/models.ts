@@ -760,6 +760,9 @@ export interface Mood {
   color?: string | null;     // hex color code
   icon?: string | null;      // icon name
   intensity?: number | null;   // 1-10 intensity level
+  // 拼图奖励系统 Puzzle Reward System
+  rewardRedeemed?: boolean;  // 奖励是否已兑换
+  cycleCompletedAt?: Date | null;  // 本轮完成时间
 }
 
 export const moods = {
@@ -773,6 +776,8 @@ export const moods = {
     color?: string;
     icon?: string;
     intensity?: number;
+    rewardRedeemed?: boolean;
+    cycleCompletedAt?: Date;
   }) {
     return await (db as any).mood.create({
       data: {
@@ -785,6 +790,8 @@ export const moods = {
         color: data.color,
         icon: data.icon,
         intensity: data.intensity,
+        rewardRedeemed: data.rewardRedeemed ?? false,
+        cycleCompletedAt: data.cycleCompletedAt,
       },
     });
   },
@@ -864,9 +871,38 @@ export const moods = {
     });
   },
 
+
+  /**
+   * 标记奖励已兑换
+   */
+  async redeemReward(id: string) {
+    return await (db as any).mood.update({
+      where: { id },
+      data: {
+        rewardRedeemed: true,
+        cycleCompletedAt: new Date(),
+      },
+    });
+  },
+
   async getStatsByUser(userId: string) {
+    // 查找最近一次完成的周期时间
+    const lastCompletedEntry = await (db as any).mood.findFirst({
+      where: { userId, rewardRedeemed: true },
+      orderBy: { cycleCompletedAt: "desc" },
+    });
+
+    // 构建查询条件：本轮的记录（在最后一次完成时间之后，或未兑换的记录）
+    const where: any = { userId };
+    if (lastCompletedEntry?.cycleCompletedAt) {
+      where.OR = [
+        { recordedAt: { gt: lastCompletedEntry.cycleCompletedAt } },
+        { rewardRedeemed: false },
+      ];
+    }
+
     const entries = await (db as any).mood.findMany({
-      where: { userId },
+      where,
       orderBy: { recordedAt: "desc" },
     });
 
@@ -876,7 +912,7 @@ export const moods = {
         total: 0,
         moodCounts: {},
         emotionCounts: {},
-        streakDays: 0,
+        checkInDays: 0,  // 本轮签到天数
         mostFrequentMood: null,
       };
     }
@@ -893,39 +929,20 @@ export const moods = {
 
     const mostFrequentMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0];
 
-    // Calculate streak (consecutive days with entries)
-    let streakDays = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const datesWithEntries = new Set(
+    // 计算本轮签到天数（基于记录日期的唯一天数）
+    const uniqueDays = new Set(
       entries.map((e: any) => {
         const d = new Date(e.recordedAt);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime();
+        return d.toISOString().split('T')[0];  // YYYY-MM-DD 格式
       })
     );
-
-    for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(checkDate.getDate() - i);
-      if (datesWithEntries.has(checkDate.getTime())) {
-        if (i === streakDays) {
-          streakDays++;
-        }
-      } else if (i === 0) {
-        // If no entry today, still count streak from yesterday
-        continue;
-      } else {
-        break;
-      }
-    }
+    const checkInDays = uniqueDays.size;
 
     return {
       total,
       moodCounts,
       emotionCounts,
-      streakDays,
+      checkInDays,  // 本轮签到天数
       mostFrequentMood,
     };
   },

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
-import type { Mood } from '../service/types';
+import type { Mood, MoodStats } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
 import MomentumCard from '../components/MomentumCard';
@@ -10,14 +10,6 @@ import EmotionalPuzzle from '../components/EmotionalPuzzle';
 
 import { emotionSpectrum } from "../config/enum";
 import { MIN_PUZZLE_DAYS } from "../config/constants";
-
-
-interface MoodStats {
-  total: number;
-  streakDays: number;
-  mostFrequentMood: string | null;
-  moodDistribution: Record<string, number>;
-}
 
 export default function MyMood() {
   const navigate = useNavigate();
@@ -147,8 +139,8 @@ export default function MyMood() {
               <span className="material-icons text-3xl">local_fire_department</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Current Streak</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.streakDays || 0} Days</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">All Check-In</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.checkInDays || 0} Days</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
@@ -172,17 +164,17 @@ export default function MyMood() {
         </div>
 
         {/* Main Grid: Calendar and Trend */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          <div className="lg:col-span-7 flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Momentum Card */}
             <MomentumCard
-              streakDays={stats?.streakDays || 0}
+              checkInDays={stats?.checkInDays || 0}
               moodStatus="great"
             />
 
             {/* Emotional Puzzle */}
             <EmotionalPuzzle
-              completedDays={stats?.streakDays || 0}
+              completedDays={stats?.checkInDays || 0}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {
@@ -192,7 +184,7 @@ export default function MyMood() {
             />
           </div>
 
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-6">
             {/* Calendar Section */}
             <MoodCalendar
               currentDate={currentDate}

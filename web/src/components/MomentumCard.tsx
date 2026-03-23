@@ -1,10 +1,10 @@
 interface MomentumCardProps {
-  streakDays: number;
+  checkInDays: number;
   moodStatus?: 'great' | 'good' | 'neutral' | 'low';
 }
 
 export default function MomentumCard({
-  streakDays,
+  checkInDays,
   moodStatus = 'great'
 }: MomentumCardProps) {
   const moodLabels: Record<string, { text: string; colorClass: string }> = {
@@ -24,7 +24,7 @@ export default function MomentumCard({
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Incredible Momentum!</h2>
         </div>
         <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
-          You've been feeling <span className={`${mood.colorClass} font-bold`}>{mood.text}</span> for {streakDays} days straight! Your consistency is helping you build a deeper understanding of your well-being.
+          You've been feeling <span className={`${mood.colorClass} font-bold`}>{mood.text}</span> for {checkInDays} days straight! Your consistency is helping you build a deeper understanding of your well-being.
         </p>
       </div>
       <div className="absolute -right-8 -bottom-8 opacity-5 text-slate-900 dark:text-white">

@@ -1,21 +1,112 @@
-import { MIN_PUZZLE_DAYS } from "../config/constants";
-
 interface PuzzlePiece {
   id: string;
   icon: string;
-  className: string;
-  iconTransform: string;
+  row: number;
+  col: number;
+  // 0: flat, 1: out, -1: in (for each side: top, right, bottom, left)
+  edges: [number, number, number, number];
 }
 
-const puzzlePieces: PuzzlePiece[] = [
-  { id: 'p1', icon: 'sentiment_satisfied', className: 'p1-new', iconTransform: 'translate(-100px, -100px)' },
-  { id: 'p2', icon: 'sentiment_very_satisfied', className: 'p2-new', iconTransform: 'translate(100px, -112px)' },
-  { id: 'p3', icon: 'mood', className: 'p3-new', iconTransform: 'translate(50px, -25px)' },
-  { id: 'p4', icon: 'sunny', className: 'p4-new', iconTransform: 'translate(-100px, 50px)' },
-  { id: 'p5', icon: 'volunteer_activism', className: 'p5-new', iconTransform: 'translate(75px, 37px)' },
-  { id: 'p6', icon: 'auto_awesome', className: 'p6-new', iconTransform: 'translate(-12px, 87px)' },
-  { id: 'p7', icon: 'workspace_premium', className: 'p7-new', iconTransform: 'translate(62px, 100px)' },
+const iconPool = [
+  'sentiment_satisfied', 'sentiment_very_satisfied', 'mood', 'sunny',
+  'volunteer_activism', 'auto_awesome', 'workspace_premium', 'favorite',
+  'star', 'lightbulb', 'emoji_emotions', 'psychology', 'self_improvement',
+  'spa', 'wb_sunny', 'heart_plus', 'local_fire_department', 'rocket_launch',
+  'emoji_objects', 'brightness_7', 'filter_vintage', 'flutter_dash',
 ];
+
+// Generate consistent puzzle edges based on position
+function generateEdge(row: number, col: number, side: number, rows: number, cols: number): number {
+  // side: 0=top, 1=right, 2=bottom, 3=left
+
+  // Border edges are flat
+  if (side === 0 && row === 0) return 0;
+  if (side === 1 && col === cols - 1) return 0;
+  if (side === 2 && row === rows - 1) return 0;
+  if (side === 3 && col === 0) return 0;
+
+  // Matching edges: one piece's out matches neighbor's in
+  // Use position-based deterministic "random"
+  const seed = row * 1000 + col * 100 + side * 10;
+  return (seed % 7) > 3 ? 1 : -1;
+}
+
+function generatePuzzlePieces(totalDays: number): { pieces: PuzzlePiece[]; rows: number; cols: number } {
+  // Calculate grid dimensions to form a rectangle
+  const cols = Math.ceil(Math.sqrt(totalDays));
+  const rows = Math.ceil(totalDays / cols);
+
+  const pieces: PuzzlePiece[] = [];
+  for (let i = 0; i < totalDays; i++) {
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+
+    // Generate edges
+    const top = generateEdge(row, col, 0, rows, cols);
+    const right = generateEdge(row, col, 1, rows, cols);
+    const bottom = generateEdge(row, col, 2, rows, cols);
+    const left = generateEdge(row, col, 3, rows, cols);
+
+    pieces.push({
+      id: `p${i}`,
+      icon: iconPool[i % iconPool.length],
+      row,
+      col,
+      edges: [top, right, bottom, left],
+    });
+  }
+
+  return { pieces, rows, cols };
+}
+
+// Generate SVG path for puzzle piece with curved edges
+function generatePiecePath(edges: [number, number, number, number], size: number = 100): string {
+  const [top, right, bottom, left] = edges;
+  const tabSize = size * 0.25;
+  const curveDepth = size * 0.12;
+
+  let path = '';
+
+  // Top edge
+  if (top === 0) {
+    path += `M 0 0 L ${size} 0`;
+  } else if (top === 1) {
+    // Outward tab
+    path += `M 0 0 L ${size * 0.35} 0 Q ${size * 0.5} -${curveDepth} ${size * 0.65} 0 L ${size} 0`;
+  } else {
+    // Inward tab
+    path += `M 0 0 L ${size * 0.35} 0 Q ${size * 0.5} ${curveDepth} ${size * 0.65} 0 L ${size} 0`;
+  }
+
+  // Right edge
+  if (right === 0) {
+    path += ` L ${size} ${size}`;
+  } else if (right === 1) {
+    path += ` L ${size} ${size * 0.35} Q ${size + curveDepth} ${size * 0.5} ${size} ${size * 0.65} L ${size} ${size}`;
+  } else {
+    path += ` L ${size} ${size * 0.35} Q ${size - curveDepth} ${size * 0.5} ${size} ${size * 0.65} L ${size} ${size}`;
+  }
+
+  // Bottom edge
+  if (bottom === 0) {
+    path += ` L 0 ${size}`;
+  } else if (bottom === 1) {
+    path += ` L ${size * 0.65} ${size} Q ${size * 0.5} ${size + curveDepth} ${size * 0.35} ${size} L 0 ${size}`;
+  } else {
+    path += ` L ${size * 0.65} ${size} Q ${size * 0.5} ${size - curveDepth} ${size * 0.35} ${size} L 0 ${size}`;
+  }
+
+  // Left edge
+  if (left === 0) {
+    path += ` L 0 0`;
+  } else if (left === 1) {
+    path += ` L 0 ${size * 0.65} Q ${size - curveDepth} ${size * 0.5} 0 ${size * 0.35} L 0 0`;
+  } else {
+    path += ` L 0 ${size * 0.65} Q ${curveDepth} ${size * 0.5} 0 ${size * 0.35} L 0 0`;
+  }
+
+  return path;
+}
 
 interface EmotionalPuzzleProps {
   completedDays?: number;
@@ -25,12 +116,14 @@ interface EmotionalPuzzleProps {
 }
 
 export default function EmotionalPuzzle({
-  completedDays = 7,
-  totalDays = MIN_PUZZLE_DAYS,
+  completedDays = 0,
+  totalDays = 0,
   quote = "Every step forward is progress. Keep going!",
   onGetReward
 }: EmotionalPuzzleProps) {
   const isComplete = completedDays >= totalDays;
+
+  const { pieces: puzzlePieces, rows, cols } = generatePuzzlePieces(totalDays || 7);
 
   const handleGetReward = () => {
     if (onGetReward) {
@@ -62,16 +155,44 @@ export default function EmotionalPuzzle({
         <div className="puzzle-container group relative h-full">
           {/* Puzzle Wrapper */}
           <div className="puzzle-wrapper">
-            {puzzlePieces.map((piece) => (
-              <div key={piece.id} className={`puzzle-piece-custom ${piece.className}`}>
-                <span
-                  className="material-icons text-3xl"
-                  style={{ transform: piece.iconTransform }}
+            {puzzlePieces.map((piece, index) => {
+              // Calculate exact grid position
+              const col = index % cols;
+              const row = Math.floor(index / cols);
+
+              // Calculate position percentages to form a seamless grid
+              const left = (col / cols) * 100;
+              const top = (row / rows) * 100;
+              const width = (1 / cols) * 100;
+              const height = (1 / rows) * 100;
+
+              // Generate SVG path for this piece
+              const piecePath = generatePiecePath(piece.edges, 100);
+
+              return (
+                <div
+                  key={piece.id}
+                  className="puzzle-piece-custom"
+                  style={{
+                    left: `${left}%`,
+                    top: `${top}%`,
+                    width: `${width}%`,
+                    height: `${height}%`,
+                    backgroundColor: `hsl(${200 + ((index * 137.5) % 160)}, 70%, ${45 + (index % 3) * 10}%)`,
+                    clipPath: `path('${piecePath}')`,
+                    animationDelay: `${index * 0.05}s`,
+                    zIndex: index,
+                  }}
                 >
-                  {piece.icon}
-                </span>
-              </div>
-            ))}
+                  <span
+                    className="material-icons text-3xl"
+                    style={{ opacity: 0.85, fontSize: 'min(3rem, 5vw)' }}
+                  >
+                    {piece.icon}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Quote Overlay */}
@@ -85,18 +206,18 @@ export default function EmotionalPuzzle({
           </div>
 
           {/* Reward Button */}
-          {isComplete && (
-            <div className="absolute bottom-10 left-0 right-0 flex justify-center z-20">
-              <button
-                onClick={handleGetReward}
-                className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3"
-              >
-                <span className="material-icons animate-bounce">card_giftcard</span>
-                Get Reward
-                <div className="absolute inset-0 rounded-xl bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
-              </button>
-            </div>
-          )}
+          <div className="absolute bottom-10 left-0 right-0 flex justify-center z-20">
+            <button
+              onClick={handleGetReward}
+              className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3"
+              disabled={isComplete}
+            >
+              <span className="material-icons animate-bounce">card_giftcard</span>
+              Get Reward
+              <div className="absolute inset-0 rounded-xl bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -113,55 +234,40 @@ export default function EmotionalPuzzle({
 
         .puzzle-piece-custom {
           position: absolute;
-          width: 100%;
-          height: 100%;
           top: 0;
           left: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: rgba(255, 255, 255, 0.6);
-          transition: transform 0.3s ease;
+          color: rgba(255, 255, 255, 0.8);
+          transition: transform 0.3s ease, opacity 0.3s ease;
+          animation: fadeInScale 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
 
         .puzzle-wrapper {
           position: relative;
-          width: 400px;
-          height: 400px;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
           filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
         }
 
-        /* 7 Pieces with irregular, curved, and tilted boundaries using clip-path */
-        .p1-new {
-          clip-path: path('M0,0 L225,0 C212,50 237,100 187,137 C137,175 87,150 50,200 C25,225 0,212 0,250 Z');
-          background-color: #1e40af;
-        }
-        .p2-new {
-          clip-path: path('M225,0 L400,0 L400,175 C350,162 300,200 262,162 C225,125 250,75 225,0 Z');
-          background-color: #1d4ed8;
-        }
-        .p3-new {
-          clip-path: path('M187,137 C237,100 212,50 225,0 C250,75 225,125 262,162 C300,200 350,162 400,175 L400,250 L300,275 C275,225 225,237 187,262 C150,287 137,212 187,137 Z');
-          background-color: #2563eb;
-        }
-        .p4-new {
-          clip-path: path('M0,250 C0,212 25,225 50,200 C87,150 137,175 187,137 C137,212 150,287 187,262 L175,400 L0,400 Z');
-          background-color: #3b82f6;
-        }
-        .p5-new {
-          clip-path: path('M400,250 L400,325 C350,325 325,287 275,312 C225,337 212,287 187,262 C225,237 275,225 300,275 L400,250 Z');
-          background-color: #60a5fa;
-        }
-        .p6-new {
-          clip-path: path('M175,400 L187,262 C212,287 225,337 275,312 L300,400 Z');
-          background-color: #93c5fd;
-        }
-        .p7-new {
-          clip-path: path('M300,400 L275,312 C325,287 350,325 400,325 L400,400 Z');
-          background-color: #bfdbfe;
+        /* Dynamic puzzle pieces - sizing and positioning calculated based on totalDays */
+        .puzzle-wrapper .puzzle-piece-custom {
+          width: var(--piece-width, 100%);
+          height: var(--piece-height, 100%);
         }
 
         .dark .puzzle-piece-custom {

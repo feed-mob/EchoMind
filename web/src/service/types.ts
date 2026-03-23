@@ -165,6 +165,21 @@ export interface Mood {
   color?: string | null;
   icon?: string | null;
   intensity?: number | null;
+
+  // 拼图奖励系统 Puzzle Reward System
+  rewardRedeemed?: boolean;
+  cycleCompletedAt?: string | null;
+}
+
+export interface MoodStats {
+  total: number;
+  checkInDays: number;
+  mostFrequentMood: string | null;
+  moodDistribution: Record<string, number>;
+}
+
+export interface MoodWithAnalysis extends Mood {
+  analysis?: EmotionAnalysisResult;
 }
 
 export interface EmotionAnalysisResult {
