@@ -33,7 +33,8 @@
             },
         }
     </script>
-<style>        body { font-family: 'Inter', sans-serif; }
+<style>
+        body { font-family: 'Inter', sans-serif; }
         .chart-gradient {
             background: linear-gradient(180deg, rgba(23, 84, 207, 0.1) 0%, rgba(23, 84, 207, 0) 100%);
         }
@@ -52,49 +53,23 @@
 
         .trash-bin {
             position: relative;
-            width: 200px;
-            height: 260px;
+            width: 180px;
+            height: 240px;
             background: #cbd5e1;
-            border-radius: 4px 4px 40px 40px;
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.05), 0 10px 25px -5px rgba(0,0,0,0.1);
+            border-radius: 20px 20px 40px 40px;
+            box-shadow: inset -15px 0 20px rgba(0,0,0,0.1);
             z-index: 10;
-            display: flex;
-            justify-content: space-evenly;
-            padding: 20px 10px 0;
-            overflow: hidden;
         }
 
-        .bin-panel {
-            width: 15%;
-            height: 80%;
-            margin-top: auto;
-            margin-bottom: auto;
-            background: rgba(0,0,0,0.05);
-            border-radius: 2px;
-        }
-
-        /* Premium Lid Design */
-        .bin-lid-top {
+        .trash-bin::before {
+            content: '';
             position: absolute;
-            top: -15px;
-            left: -15px;
-            right: -15px;
+            top: -10px;
+            left: -10px;
+            right: -10px;
             height: 20px;
             background: #94a3b8;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            z-index: 15;
-        }
-        .bin-lid-handle {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 12px;
-            background: #64748b;
-            border-radius: 6px 6px 0 0;
-            z-index: 14;
+            border-radius: 10px;
         }
 
         .worry-cloud {
@@ -111,36 +86,40 @@
             50% { transform: translateY(-15px) rotate(2deg); }
         }
 
-        .bin-contents {
+        .bulge-content {
             position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 120px;
+            background: #e2e8f0;
+            border-radius: 50% 50% 0 0;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            padding: 10px;
-            gap: 4px;
-            z-index: 11;
-            opacity: 0.2; /* 80% transparent */
+            align-content: flex-start;
+            padding-top: 20px;
+            overflow: visible;
         }
 
         .worry-item {
-            font-size: 14px;
-            font-weight: 800;
-            color: #334155;
+            font-size: 10px;
+            font-weight: 600;
+            color: #64748b;
             background: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             white-space: nowrap;
         }
 
         .dark .trash-bin { background: #334155; }
-        .dark .bin-lid-top { background: #475569; }
-        .dark .bin-lid-handle { background: #64748b; }
-        .dark .bin-panel { background: rgba(255,255,255,0.05); }
-        .dark .worry-item { background: #0f172a; color: #cbd5e1; }</style>
+        .dark .trash-bin::before { background: #475569; }
+        .dark .bulge-content { background: #1e293b; }
+        .dark .worry-item { background: #0f172a; color: #94a3b8; }
+    </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-200">
 <div class="relative flex min-h-screen w-full flex-col">
@@ -233,47 +212,39 @@
 </div>
 <div class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[550px]">
 <!-- Bulging Trash Bin Visual -->
-<div class="bin-container group relative h-full"><!-- Quote Overlay -->
-<div class="absolute inset-x-0 top-12 flex items-center justify-center p-6 text-center z-10">
+<div class="bin-container group relative h-full">
+<div class="relative mt-20">
+<div class="bulge-content">
+<span class="worry-item" style="transform: rotate(-5deg)">Work stress</span>
+<span class="worry-item" style="transform: rotate(3deg)">Overthinking</span>
+<span class="worry-item" style="transform: rotate(-2deg)">Deadline</span>
+<span class="worry-item" style="transform: rotate(4deg)">Tiredness</span>
+<span class="worry-item" style="transform: rotate(-8deg)">Social anxiety</span>
+<span class="worry-item" style="transform: rotate(2deg)">Poor sleep</span>
+</div>
+<div class="trash-bin">
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400/30 text-6xl">delete_outline</span>
+</div>
+</div>
+</div>
+<!-- Quote Overlay -->
+<div class="absolute inset-x-0 top-12 flex items-center justify-center p-6 text-center">
 <div class="max-w-md">
 <p class="text-xl font-medium text-slate-500 dark:text-slate-400 leading-tight">
-            "Letting go isn't giving up, it's making room for better things."
-        </p>
-</div>
-</div>
-<div class="relative mt-32">
-<!-- Detailed Premium Lid -->
-<div class="bin-lid-handle"></div>
-<div class="bin-lid-top"></div>
-<!-- Trash Bin Body -->
-<div class="trash-bin">
-<!-- 5 Vertical Panels -->
-<div class="bin-panel"></div>
-<div class="bin-panel"></div>
-<div class="bin-panel"></div>
-<div class="bin-panel"></div>
-<div class="bin-panel"></div>
-<!-- Worries Inside (80% transparent via CSS) -->
-<div class="bin-contents">
-<span class="worry-item" style="transform: rotate(-12deg)">Work stress</span>
-<span class="worry-item" style="transform: rotate(8deg)">Overthinking</span>
-<span class="worry-item" style="transform: rotate(-5deg)">Deadline</span>
-<span class="worry-item" style="transform: rotate(15deg)">Tiredness</span>
-<span class="worry-item" style="transform: rotate(-10deg)">Social anxiety</span>
-<span class="worry-item" style="transform: rotate(4deg)">Poor sleep</span>
-<span class="worry-item" style="transform: rotate(-18deg)">Expectations</span>
-<span class="worry-item" style="transform: rotate(7deg)">Finances</span>
-</div>
+                                        "Letting go isn't giving up, it's making room for better things."
+                                    </p>
 </div>
 </div>
 <!-- Release Button -->
 <div class="absolute bottom-10 left-0 right-0 flex justify-center z-20">
 <button class="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3">
 <span class="material-symbols-outlined">delete_sweep</span>
-        Release Your Worries
-        <div class="absolute inset-0 rounded-xl bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
+                                    Release Your Worries
+                                    <div class="absolute inset-0 rounded-xl bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
 </button>
-</div></div>
+</div>
+</div>
 </div>
 </div>
 </div>

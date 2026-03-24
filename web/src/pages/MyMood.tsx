@@ -7,9 +7,10 @@ import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
 import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
+import WorryRelease from '../components/WorryRelease';
 
 import { emotionSpectrum} from '../config/enum';
-import { MIN_PUZZLE_DAYS } from "../config/constants";
+import { MIN_PUZZLE_DAYS, MIN_NEGATIVE_DAYS } from "../config/constants";
 
 import { generateDayMood } from "../tools/functions";
 
@@ -203,7 +204,10 @@ export default function MyMood() {
               }}
             />}
 
-            {moodKind == 'negative' && (<></>)}
+            {moodKind == 'negative' && <WorryRelease
+              completedDays={kindCheckInDays}
+              totalDays={MIN_NEGATIVE_DAYS}
+            />}
 
           </div>
 
