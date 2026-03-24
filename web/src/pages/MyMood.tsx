@@ -13,8 +13,9 @@ import { MIN_PUZZLE_DAYS } from "../config/constants";
 
 import { generateDayMood } from "../tools/functions";
 
-const getDaysByKind = (list:[], kind:string) => {
+const getDaysByKind = (obj:Record<string, 'positive' | 'neutral' | 'negative'>, kind:string) => {
   let result = 0;
+  const list = Object.values(obj);
   list.forEach((v)=>{
     if (kind == v) {
       result += 1;
@@ -27,7 +28,7 @@ export default function MyMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const moodKind = searchParams.get('kind') || '';
+  const moodKind = searchParams.get('kind') || 'positive';
 
   const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
@@ -57,8 +58,8 @@ export default function MyMood() {
 
       setEntries(entriesData);
       setStats(statsData);
-      const dayMood = generateDayMood(entriesData)
-      const days = getDaysByKind(Object.values(dayMood), moodKind);
+      const dayMood = generateDayMood(entriesData);
+      const days = getDaysByKind(dayMood, moodKind);
       setKindCheckInDays(days);
       setError(null);
     } catch (err) {
@@ -192,7 +193,7 @@ export default function MyMood() {
             />
 
             {/* Emotional Puzzle */}
-            <EmotionalPuzzle
+            {moodKind == 'positive' && <EmotionalPuzzle
               completedDays={kindCheckInDays}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
@@ -200,7 +201,10 @@ export default function MyMood() {
                 // TODO: Implement reward logic
                 console.log('Reward claimed!');
               }}
-            />
+            />}
+
+            {moodKind == 'negative' && (<></>)}
+
           </div>
 
           <div className="lg:col-span-4 flex flex-col gap-6">

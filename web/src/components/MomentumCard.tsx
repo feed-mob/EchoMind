@@ -1,20 +1,41 @@
 interface MomentumCardProps {
   checkInDays: number;
-  moodStatus?: 'great' | 'good' | 'neutral' | 'low';
+  moodStatus?: 'positive' | 'negative' | 'neutral';
 }
 
 export default function MomentumCard({
   checkInDays,
-  moodStatus = 'great'
+  moodStatus = 'positive'
 }: MomentumCardProps) {
+  // Negative mood: supportive card
+
+
+  // Positive and neutral mood: momentum card
   const moodLabels: Record<string, { text: string; colorClass: string }> = {
-    great: { text: 'great', colorClass: 'text-orange-500' },
-    good: { text: 'good', colorClass: 'text-emerald-500' },
-    neutral: { text: 'okay', colorClass: 'text-primary' },
-    low: { text: 'low', colorClass: 'text-slate-500' }
+    positive: { text: 'great', colorClass: 'text-orange-500' },
+    neutral: { text: 'okay', colorClass: 'text-primary' }
   };
 
-  const mood = moodLabels[moodStatus] || moodLabels.great;
+  const mood = moodLabels[moodStatus] || moodLabels.positive;
+
+  if (moodStatus === 'negative') {
+    return (
+      <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="material-icons text-primary text-4xl">favorite</span>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">It's Okay to Feel This Way</h2>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+            Some days are heavier than others. Take a deep breath—you are doing enough. You don't have to carry it all today.
+          </p>
+        </div>
+        <div className="absolute -right-8 -bottom-8 opacity-5 text-slate-900 dark:text-white">
+          <span className="material-symbols-outlined text-[180px]">self_improvement</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative">
