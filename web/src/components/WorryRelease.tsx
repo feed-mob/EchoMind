@@ -46,10 +46,10 @@ export default function WorryRelease({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[650px]">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[600px]">
         {/* Bulging Trash Bin Visual */}
         <div className="bin-container group relative h-full">
-          <div className="relative mt-32 bin-container-wrapper ">
+          <div className="relative bin-container-wrapper ">
             {/* Detailed Premium Lid */}
             <div className="bin-lid flex flex-col items-center z-20">
               <div className="bin-lid-handle"></div>
