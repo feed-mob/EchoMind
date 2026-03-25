@@ -1,9 +1,8 @@
 [phases.setup]
-nixPkgs = ["curl", "unzip"]
-cmds = ["curl -fsSL https://bun.sh/install | bash -s -- bun-v1.3.8"]
+nixPkgs = ["bun"]
 
 [phases.install]
-cmds = ["/root/.bun/bin/bun install --frozen-lockfile"]
+cmds = ["bun install --frozen-lockfile"]
 
 [start]
-cmd = "/root/.bun/bin/bun run start"
+cmd = "bun run start"

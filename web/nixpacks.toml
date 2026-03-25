@@ -1,12 +1,11 @@
 [phases.setup]
-nixPkgs = ["curl", "unzip", "nodejs_22"]
-cmds = ["curl -fsSL https://bun.sh/install | bash -s -- bun-v1.3.8"]
+nixPkgs = ["bun", "nodejs_22"]
 
 [phases.install]
-cmds = ["/root/.bun/bin/bun install --frozen-lockfile"]
+cmds = ["bun install --frozen-lockfile"]
 
 [phases.build]
-cmds = ["/root/.bun/bin/bun run build"]
+cmds = ["bun run build"]
 
 [start]
-cmd = "/root/.bun/bin/bun run start"
+cmd = "bun run start"
