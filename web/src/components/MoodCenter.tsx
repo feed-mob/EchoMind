@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useToast } from './ToastProvider';
 import { api } from '../service';
@@ -22,6 +22,14 @@ export default function MoodCenter() {
   const [inputText, setInputText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moodHistory, setMoodHistory] = useState<Mood[]>([]);
+  // 动画状态：positive = 发光动画, negative = 晃动动画
+  const [positiveAnimating, setPositiveAnimating] = useState(false);
+  const [negativeAnimating, setNegativeAnimating] = useState(false);
+
+  // 积极情绪列表
+  const positiveEmotions = ['joy', 'achievement', 'warmth', 'calm'];
+  // 不积极情绪列表
+  const negativeEmotions = ['stress', 'boredom', 'anxiety', 'anger'];
 
   // 获取情绪历史
   const fetchMoodHistory = useCallback(async () => {
@@ -44,7 +52,20 @@ export default function MoodCenter() {
 
     try {
       setIsSubmitting(true);
-      await api.moods.analyze(user.id, inputText.trim());
+      const result = await api.moods.analyze(user.id, inputText.trim());
+
+      // 根据情绪类型触发对应的动画
+      const spectrum = result.spectrum || result.analysis?.spectrum;
+      if (spectrum) {
+        if (positiveEmotions.includes(spectrum)) {
+          setPositiveAnimating(true);
+          setTimeout(() => setPositiveAnimating(false), 3000);
+        } else if (negativeEmotions.includes(spectrum)) {
+          setNegativeAnimating(true);
+          setTimeout(() => setNegativeAnimating(false), 2000);
+        }
+      }
+
       toast.success('Mood recorded!');
       setInputText('');
       await fetchMoodHistory();
@@ -87,14 +108,14 @@ export default function MoodCenter() {
         </p>
         <div className="flex gap-4 mb-8">
           <div className="group/item flex-1 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-3 rounded-xl border border-white dark:border-slate-700 flex flex-col items-center gap-2 text-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">
-            <div className="size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500">
+            <div className={`size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-500 ${positiveAnimating ? 'animate-glow' : ''}`}>
               <span className="material-icons text-3xl">restaurant</span>
             </div>
             <span className="text-[10px] font-bold uppercase text-orange-600 dark:text-orange-400">Candy Jar</span>
             <p className="text-[9px] text-slate-500 dark:text-slate-400">Store joy</p>
           </div>
           <div className="group/item flex-1 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-3 rounded-xl border border-white dark:border-slate-700 flex flex-col items-center gap-2 text-center cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all">
-            <div className="size-12 rounded-full bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center text-slate-400">
+            <div className={`size-12 rounded-full bg-slate-100 dark:bg-slate-900/50 flex items-center justify-center text-slate-400 ${negativeAnimating ? 'animate-shake' : ''}`}>
               <span className="material-icons text-3xl">delete_outline</span>
             </div>
             <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">Recycle</span>
