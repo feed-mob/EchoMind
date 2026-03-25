@@ -23,18 +23,6 @@ export default function GoalsSidebar({
   onChangeViewMode,
   onCreateGoal,
 }: GoalsSidebarProps) {
-  const getFallbackAvatar = (name?: string | null) => {
-    const initial = (name || 'A')
-      .split(' ')
-      .filter(Boolean)
-      .map((part) => part[0]?.toUpperCase() || '')
-      .join('')
-      .charAt(0) || 'A';
-
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" rx="20" fill="#dbeafe"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700" fill="#137fec">${initial}</text></svg>`;
-    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-  };
-
   return (
     <aside
       className={`border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden bg-white dark:bg-background-dark/50 lg:w-[280px] xl:w-[320px] lg:flex-none ${className || ''}`}

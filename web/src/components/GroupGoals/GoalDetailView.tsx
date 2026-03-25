@@ -22,13 +22,6 @@ interface GoalDetailViewProps {
 }
 
 const getGoalHeroBackground = () => {
-  const escapeSvgText = (value: string) =>
-    value
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&apos;');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="480" viewBox="0 0 1600 480" fill="none">
     <rect width="1600" height="480" fill="#0f172a"/>
     <rect width="1600" height="480" fill="url(#bg)"/>

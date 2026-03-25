@@ -41,7 +41,10 @@ export default function MoodCalendar({
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
 
-      const color = moodColorMap[entry?.mood];
+      const color =
+        entry?.mood && entry.mood in moodColorMap
+          ? moodColorMap[entry.mood as keyof typeof moodColorMap]
+          : undefined;
       const bgColor = color ? `${color}33` : '';
       days.push({
         date: i,
