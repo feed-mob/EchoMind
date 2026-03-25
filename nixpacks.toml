@@ -1,10 +1,11 @@
 providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["bun"]
+nixPkgs = ["curl", "unzip"]
+cmds = ["curl -fsSL https://bun.sh/install | bash -s -- bun-v1.3.8"]
 
 [phases.install]
-cmds = ["cd api && bun install --frozen-lockfile"]
+cmds = ["cd api && /root/.bun/bin/bun install --frozen-lockfile"]
 
 [start]
-cmd = "cd api && bun run start"
+cmd = "cd api && /root/.bun/bin/bun run start"
