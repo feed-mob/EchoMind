@@ -49,10 +49,12 @@ export default function WorryRelease({
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[650px]">
         {/* Bulging Trash Bin Visual */}
         <div className="bin-container group relative h-full">
-          <div className="relative mt-32">
+          <div className="relative mt-32 bin-container-wrapper ">
             {/* Detailed Premium Lid */}
-            <div className="bin-lid-handle"></div>
-            <div className="bin-lid-top"></div>
+            <div className="bin-lid flex flex-col items-center z-20">
+              <div className="bin-lid-handle"></div>
+              <div className="bin-lid-top"></div>
+            </div>
 
             {/* Trash Bin Body */}
             <div className="trash-bin">
@@ -173,12 +175,15 @@ export default function WorryRelease({
         }
 
         /* Premium Lid Design */
-        .bin-lid-top {
+        .bin-lid {
           position: absolute;
           top: -15px;
           left: -15px;
           right: -15px;
+        }
+        .bin-lid-top {
           height: 20px;
+          width: 100%;
           background: #94a3b8;
           border-radius: 12px;
           box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
@@ -186,10 +191,6 @@ export default function WorryRelease({
         }
 
         .bin-lid-handle {
-          position: absolute;
-          top: -25px;
-          left: 50%;
-          transform: translateX(-50%);
           width: 60px;
           height: 12px;
           background: #64748b;
@@ -197,20 +198,30 @@ export default function WorryRelease({
           z-index: 14;
         }
 
+        .bin-container-wrapper:hover .bin-lid{
+          animation: shake 0.6s ease-in-out;
+        }
+
         .worry-wrapper {
           transition: transform 0.2s ease-in-out;
         }
         .trash-bin:hover .worry-wrapper:nth-child(n) {
-          transform: translateY(-14px);
+          animation: jampp-4 1.2s ease-in-out;
         }
         .trash-bin:hover .worry-wrapper:nth-last-child(1) {
-          transform: translateY(-3px);
+          animation: jampp 1.2s ease-in-out;
         }
         .trash-bin:hover .worry-wrapper:nth-last-child(2) {
-          transform: translateY(-6px);
+          animation: jampp-1 1.2s ease-in-out;
         }
         .trash-bin:hover .worry-wrapper:nth-last-child(3) {
-          transform: translateY(-8px);
+          animation: jampp-2 1.2s ease-in-out;
+        }
+        .trash-bin:hover .worry-wrapper:nth-last-child(4) {
+          animation: jampp-3 1.2s ease-in-out;
+        }
+        .trash-bin:hover .worry-wrapper:nth-last-child(5) {
+          animation: jampp-3 1.2s ease-in-out;
         }
 
 
@@ -228,15 +239,34 @@ export default function WorryRelease({
 
         @keyframes shake {
           0%, 100% { transform: rotate(0deg); }
-          20% { transform: rotate(-6deg); }
-          40% { transform: rotate(6deg); }
-          60% { transform: rotate(-4deg); }
-          80% { transform: rotate(4deg); }
+          20% { transform: rotate(-3deg); }
+          40% { transform: rotate(3deg); }
+          60% { transform: rotate(-2deg); }
+          80% { transform: rotate(2deg); }
         }
 
         @keyframes jampp {
           0%, 100% { transform: translateY(0px); }
-          10% { transform: translateY(-6px); }
+          15% { transform: translateY(-5px); }
+        }
+
+        @keyframes jampp-1 {
+          0%, 100% { transform: translateY(0px); }
+          15% { transform: translateY(-6px); }
+        }
+
+        @keyframes jampp-2 {
+          0%, 100% { transform: translateY(0px); }
+          15% { transform: translateY(-8px); }
+        }
+
+        @keyframes jampp-3 {
+          0%, 100% { transform: translateY(0px); }
+          15% { transform: translateY(-14px); }
+        }
+        @keyframes jampp-4 {
+          0%, 100% { transform: translateY(0px); }
+          15% { transform: translateY(-20px); }
         }
 
         .dark .trash-bin { background: #334155; }
