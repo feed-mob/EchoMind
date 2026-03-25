@@ -66,7 +66,7 @@ export default function WorryRelease({
               <div className="bin-panel"></div>
 
               {/* Worries Inside (80% transparent via CSS) */}
-              <div className={`bin-contents transition-all duration-1000 ${isReleasing ? 'opacity-0 translate-y-10' : ''}`}>
+              <div className={`bin-contents transition-all duration-1000 ${isReleasing ? 'opacity-0' : ''}`}>
                 {worryItems.map((item, index) => (
                   <div className="worry-wrapper">
 
@@ -172,6 +172,9 @@ export default function WorryRelease({
           gap: 4px;
           z-index: 11;
           opacity: 0.4;
+        }
+        .bin-contents.opacity-0 {
+          opacity: 0;
         }
 
         /* Premium Lid Design */
