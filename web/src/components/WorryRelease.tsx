@@ -25,16 +25,17 @@ export default function WorryRelease({
     onDump
   }: WorryReleaseProps) {
   const [isReleasing, setIsReleasing] = useState(false);
-  const [showThankYou, setShowThankYou] = useState(false);
+  const [isReleased, setIsReleased] = useState(false);
 
   const handleRelease = () => {
     setIsReleasing(true);
     setTimeout(() => {
-      setShowThankYou(true);
+      setIsReleasing(false);
+      setIsReleased(true);
       if(onDump){
         onDump()
       }
-    }, 1000);
+    }, 3000);
   };
 
   return (
@@ -48,84 +49,83 @@ export default function WorryRelease({
 
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[600px]">
         {/* Bulging Trash Bin Visual */}
-        <div className="bin-container group relative h-full">
-          <div className={`relative bin-container-wrapper ${isReleasing ? 'lid-tilt' : ''}`}>
-            {/* Detailed Premium Lid */}
-            <div className={`bin-lid flex flex-col items-center z-20 ${isReleasing ? 'lid-open' : ''}`}>
-              <div className="bin-lid-handle"></div>
-              <div className="bin-lid-top"></div>
-            </div>
-
-            {/* Trash Bin Body */}
-            <div className="trash-bin">
-              {/* 5 Vertical Panels */}
-              <div className="bin-panel"></div>
-              <div className="bin-panel"></div>
-              <div className="bin-panel"></div>
-              <div className="bin-panel"></div>
-              <div className="bin-panel"></div>
-
-              {/* Worries Inside (80% transparent via CSS) */}
-              <div className="bin-contents">
-                {worryItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`worry-wrapper ${isReleasing ? 'worry-burst' : ''}`}
-                    style={{
-                      '--burst-delay': `${index * 0.05}s`,
-                      '--burst-x': `${(Math.random() - 0.5) * 300}px`,
-                      '--burst-rotate': `${(Math.random() - 0.5) * 360}deg`,
-                    } as React.CSSProperties}
-                  >
-                    <span
-                      className={`worry-item ${isReleasing ? 'worry-shatter' : ''}`}
-                      style={{
-                        transform: `rotate(${item.rotation}deg)`,
-                      }}
-                    >
-                      {item.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="group relative h-full">
 
           {/* Quote Overlay */}
-          {!showThankYou ? (
-            <div className="absolute inset-x-0 top-12 flex items-center justify-center p-6 text-center">
-              <div className="max-w-md">
+
+            <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
+              {!isReleased ? <div className="max-w-md">
                 <p className="text-xl font-medium text-slate-500 dark:text-slate-400 leading-tight">
                   &ldquo;Letting go isn&apos;t giving up, it&apos;s making room for better things.&rdquo;
                 </p>
-              </div>
-            </div>
-          ) : (
-            <div className="absolute inset-x-0 top-12 flex items-center justify-center p-6 text-center">
-              <div className="max-w-md">
+              </div> : <div className="max-w-md">
                 <span className="material-symbols-outlined text-6xl text-primary mb-4">check_circle</span>
                 <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">Worries Released</p>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-tight">
                   Take a deep breath. You&apos;ve taken the first step toward a lighter mind.
                 </p>
+              </div>}
+            </div>
+
+
+
+          <div className="bin-container">
+            <div className={`relative bin-container-wrapper ${isReleasing ? 'lid-tilt' : ''}`}>
+              {/* Detailed Premium Lid */}
+              <div className={`bin-lid flex flex-col items-center z-20 ${isReleasing ? 'lid-open' : ''}`}>
+                <div className="bin-lid-handle"></div>
+                <div className="bin-lid-top"></div>
+              </div>
+
+              {/* Trash Bin Body */}
+              <div className={`trash-bin ${isReleasing ? 'releasing' : ''}`}>
+                {/* 5 Vertical Panels */}
+                <div className="bin-panel"></div>
+                <div className="bin-panel"></div>
+                <div className="bin-panel"></div>
+                <div className="bin-panel"></div>
+                <div className="bin-panel"></div>
+
+                {/* Worries Inside (80% transparent via CSS) */}
+                {!isReleased && <div className="bin-contents">
+                  {worryItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`worry-wrapper ${isReleasing ? 'worry-throw' : ''}`}
+                      style={{
+                        '--throw-delay': `${index * 0.12 + 1}s`,
+                        '--item-index': index,
+                      } as React.CSSProperties}
+                    >
+                      <span
+                        className={`worry-item ${isReleasing ? 'worry-land' : ''}`}
+                        style={{
+                          transform: `rotate(${item.rotation}deg)`,
+                        }}
+                      >
+                        {item.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>}
+
               </div>
             </div>
-          )}
+          </div>
 
           {/* Release Button */}
-          {!showThankYou && (
-            <div className="absolute bottom-10 left-0 right-0 flex justify-center z-20">
-              <button
-                onClick={handleRelease}
-                disabled={isReleasing}
-                className="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-              >
-                <span className="material-symbols-outlined">delete_sweep</span>
-                Release Your Worries
-                <div className="absolute inset-0 rounded-xl bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-500" />
-              </button>
-            </div>
-          )}
+          <div className="flex justify-center px-6 pt-28 pb-20">
+            <button
+              onClick={handleRelease}
+              disabled={isReleasing || isReleased}
+              className="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            >
+              <span className="material-symbols-outlined">delete_sweep</span>
+              Release Your Worries
+              <div className="absolute inset-0 rounded-xl bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-500" />
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -133,14 +133,10 @@ export default function WorryRelease({
       <style>{`
         .bin-container {
           position: relative;
-          width: 100%;
-          height: 100%;
+          width: 200px;
           margin: 0 auto;
           background-color: transparent;
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          overflow: visible;
         }
 
         .trash-bin {
@@ -155,6 +151,10 @@ export default function WorryRelease({
           justify-content: space-evenly;
           padding: 20px 10px 0;
           overflow: hidden;
+        }
+
+        .trash-bin.releasing{
+          overflow: visible;
         }
 
         .bin-panel {
@@ -208,7 +208,7 @@ export default function WorryRelease({
         }
 
         .bin-container-wrapper.lid-tilt {
-          animation: tilt 1s ease-in-out 0.6s forwards;
+          animation: tilt 1.2s ease-in-out 0.3s forwards;
         }
 
         @keyframes tilt {
@@ -216,7 +216,7 @@ export default function WorryRelease({
             transform: rotate(0deg);
           }
           100% {
-            transform: rotate(65deg);
+            transform: rotate(60deg);
           }
         }
 
@@ -235,7 +235,7 @@ export default function WorryRelease({
             transform: rotate(0deg);
           }
           100% {
-            transform: rotate(-75deg);
+            transform: rotate(-65deg);
           }
         }
 
@@ -304,6 +304,50 @@ export default function WorryRelease({
         @keyframes jampp-4 {
           0%, 100% { transform: translateY(0px); }
           15% { transform: translateY(-20px); }
+        }
+
+        /* Throw → Parabolic arc → Land → Disappear */
+        .worry-throw {
+          animation: throwOut 0.8s ease-in var(--throw-delay) forwards;
+          opacity: 1;
+          z-index: 100;
+        }
+
+        @keyframes throwOut {
+          0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+          }
+          25% {
+            transform: translate(0px, calc(0px - var(--item-index) * 15px)) scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: translate(20px, calc(-30px - var(--item-index) * 28px)) scale(1);
+            opacity: 1;
+          }
+          75% {
+            transform: translate(80px, calc(-60px - var(--item-index) * 28px)) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(260px, calc(40px - var(--item-index) * 32px)) scale(1);
+            opacity: 1;
+          }
+        }
+
+        .worry-land {
+          animation: landDisappear 0.3s ease-out calc(var(--throw-delay) + 0.6s) forwards;
+        }
+
+        @keyframes landDisappear {
+          0% {
+            transform: scale(1);
+          }
+          100% {
+            transform: scale(0.3);
+            opacity: 0;
+          }
         }
 
         .dark .trash-bin { background: #334155; }
