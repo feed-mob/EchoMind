@@ -51,7 +51,7 @@ export default function WorryRelease({
         <div className="bin-container group relative h-full">
           <div className="relative bin-container-wrapper ">
             {/* Detailed Premium Lid */}
-            <div className="bin-lid flex flex-col items-center z-20">
+            <div className={`bin-lid flex flex-col items-center z-20 ${isReleasing ? 'lid-open' : ''}`}>
               <div className="bin-lid-handle"></div>
               <div className="bin-lid-top"></div>
             </div>
@@ -66,13 +66,19 @@ export default function WorryRelease({
               <div className="bin-panel"></div>
 
               {/* Worries Inside (80% transparent via CSS) */}
-              <div className={`bin-contents transition-all duration-1000 ${isReleasing ? 'opacity-0' : ''}`}>
+              <div className="bin-contents">
                 {worryItems.map((item, index) => (
-                  <div className="worry-wrapper">
-
+                  <div
+                    key={index}
+                    className={`worry-wrapper ${isReleasing ? 'worry-burst' : ''}`}
+                    style={{
+                      '--burst-delay': `${index * 0.05}s`,
+                      '--burst-x': `${(Math.random() - 0.5) * 300}px`,
+                      '--burst-rotate': `${(Math.random() - 0.5) * 360}deg`,
+                    } as React.CSSProperties}
+                  >
                     <span
-                      key={index}
-                      className="worry-item"
+                      className={`worry-item ${isReleasing ? 'worry-shatter' : ''}`}
                       style={{
                         transform: `rotate(${item.rotation}deg)`,
                       }}
@@ -201,8 +207,23 @@ export default function WorryRelease({
           z-index: 14;
         }
 
-        .bin-container-wrapper:hover .bin-lid{
+        .bin-container-wrapper:hover .bin-lid:not(.lid-open){
           animation: shake 0.6s ease-in-out;
+        }
+
+        /* Lid opening animation - pivot from left edge */
+        .bin-lid.lid-open {
+          animation: lidOpen 0.5s ease-out forwards;
+          transform-origin: left center;
+        }
+
+        @keyframes lidOpen {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(-75deg);
+          }
         }
 
         .worry-wrapper {
