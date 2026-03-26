@@ -190,10 +190,6 @@ model Mood {
   icon        String?  // trash, cloud, flame, candy, star, lamp, leaf
   intensity   Int?     // 1-10, emotion intensity level
 
-  // 拼图奖励系统 Puzzle Reward System
-  rewardRedeemed    Boolean  @default(false)  // 奖励是否已兑换
-  cycleCompletedAt  DateTime?                // 本轮完成时间
-
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, recordedAt])

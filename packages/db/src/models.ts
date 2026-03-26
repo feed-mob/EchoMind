@@ -760,9 +760,6 @@ export interface Mood {
   color?: string | null;     // hex color code
   icon?: string | null;      // icon name
   intensity?: number | null;   // 1-10 intensity level
-  // 拼图奖励系统 Puzzle Reward System
-  rewardRedeemed?: boolean;  // 奖励是否已兑换
-  cycleCompletedAt?: Date | null;  // 本轮完成时间
 }
 
 export const moods = {
@@ -776,8 +773,6 @@ export const moods = {
     color?: string;
     icon?: string;
     intensity?: number;
-    rewardRedeemed?: boolean;
-    cycleCompletedAt?: Date;
   }) {
     return await (db as any).mood.create({
       data: {
@@ -790,8 +785,6 @@ export const moods = {
         color: data.color,
         icon: data.icon,
         intensity: data.intensity,
-        rewardRedeemed: data.rewardRedeemed ?? false,
-        cycleCompletedAt: data.cycleCompletedAt,
       },
     });
   },
@@ -872,34 +865,10 @@ export const moods = {
   },
 
 
-  /**
-   * 标记奖励已兑换
-   */
-  async redeemReward(id: string) {
-    return await (db as any).mood.update({
-      where: { id },
-      data: {
-        rewardRedeemed: true,
-        cycleCompletedAt: new Date(),
-      },
-    });
-  },
-
   async getStatsByUser(userId: string) {
-    // 查找最近一次完成的周期时间
-    const lastCompletedEntry = await (db as any).mood.findFirst({
-      where: { userId, rewardRedeemed: true },
-      orderBy: { cycleCompletedAt: "desc" },
-    });
 
     // 构建查询条件：本轮的记录（在最后一次完成时间之后，或未兑换的记录）
     const where: any = { userId };
-    if (lastCompletedEntry?.cycleCompletedAt) {
-      where.OR = [
-        { recordedAt: { gt: lastCompletedEntry.cycleCompletedAt } },
-        { rewardRedeemed: false },
-      ];
-    }
 
     const entries = await (db as any).mood.findMany({
       where,

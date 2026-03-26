@@ -131,34 +131,4 @@ export const moodsApi = {
     if (!response.ok) throw new Error('Failed to fetch team insights');
     return response.json();
   },
-
-  // 拼图奖励相关接口
-  getPuzzleProgress: async (userId: string): Promise<{
-    unredeemedCount: number;
-    canRedeem: boolean;
-    minRequired: number;
-    progressPercentage: number;
-  }> => {
-    const response = await fetch(buildApiUrl(`/api/moods/puzzle-progress?userId=${userId}`));
-    if (!response.ok) {
-      await throwApiError(response, 'Failed to fetch puzzle progress');
-    }
-    return response.json();
-  },
-
-  redeemReward: async (moodId: string, userId: string): Promise<{
-    success: boolean;
-    message: string;
-    mood: Mood;
-  }> => {
-    const response = await fetch(buildApiUrl(`/api/moods/${moodId}/redeem-reward`), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId }),
-    });
-    if (!response.ok) {
-      await throwApiError(response, 'Failed to redeem reward');
-    }
-    return response.json();
-  },
 };

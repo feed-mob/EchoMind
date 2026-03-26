@@ -9,7 +9,6 @@ import {
   getTeamDistribution,
   getTeamTrend,
   getTeamInsights,
-  redeemMoodReward,
   MoodsServiceError,
 } from "../services/moods.service.js";
 
@@ -287,33 +286,5 @@ export const moodsController = {
 
     await moods.delete(request.params.id);
     return new Response(null, { status: 204 });
-  },
-
-  // 兑换拼图奖励
-  async redeemReward(req: Request) {
-    const request = req as RequestWithParams<{ id: string }>;
-    const data = (await req.json()) as { userId: string };
-
-    if (!data.userId) {
-      return Response.json({ error: "userId is required" }, { status: 400 });
-    }
-
-    try {
-      const updatedMood = await redeemMoodReward(request.params.id, data.userId);
-      return Response.json({
-        success: true,
-        message: "Reward redeemed successfully",
-        mood: updatedMood,
-      });
-    } catch (error) {
-      if (error instanceof MoodsServiceError) {
-        return Response.json({ error: error.message }, { status: error.status });
-      }
-      console.error("Redeem reward error:", error);
-      return Response.json(
-        { error: "Failed to redeem reward" },
-        { status: 500 }
-      );
-    }
   },
 };

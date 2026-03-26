@@ -406,32 +406,3 @@ function getMoodValue(mood: string): number {
   };
   return moodMap[mood.toLowerCase()] || 3;
 }
-
-/**
- * 兑换奖励
- */
-export async function redeemMoodReward(moodId: string, userId: string): Promise<Mood> {
-  try {
-    // 验证 mood 存在且属于该用户
-    const mood = await moods.findById(moodId);
-    if (!mood) {
-      throw new MoodsServiceError("Mood not found", 404);
-    }
-    if (mood.userId !== userId) {
-      throw new MoodsServiceError("Unauthorized to redeem this reward", 403);
-    }
-    if (mood.rewardRedeemed) {
-      throw new MoodsServiceError("Reward already redeemed", 400);
-    }
-
-    // 兑换奖励
-    const updatedMood = await moods.redeemReward(moodId);
-    return updatedMood;
-  } catch (error) {
-    if (error instanceof MoodsServiceError) {
-      throw error;
-    }
-    console.error("Failed to redeem mood reward:", error);
-    throw new MoodsServiceError("Failed to redeem reward", 500);
-  }
-}

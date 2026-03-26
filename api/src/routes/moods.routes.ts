@@ -29,15 +29,9 @@ export const moodsRoutes = {
   "/api/moods/team-insights": {
     GET: moodsController.getTeamInsights,
   },
-  "/api/moods/puzzle-progress": {
-    GET: moodsController.getPuzzleProgress,
-  },
   "/api/moods/:id": {
     GET: moodsController.getById,
     PUT: moodsController.update,
     DELETE: moodsController.delete,
-  },
-  "/api/moods/:id/redeem-reward": {
-    POST: moodsController.redeemReward,
   },
 };
