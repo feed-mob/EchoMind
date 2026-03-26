@@ -49,7 +49,7 @@ export default function WorryRelease({
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[600px]">
         {/* Bulging Trash Bin Visual */}
         <div className="bin-container group relative h-full">
-          <div className="relative bin-container-wrapper ">
+          <div className={`relative bin-container-wrapper ${isReleasing ? 'lid-tilt' : ''}`}>
             {/* Detailed Premium Lid */}
             <div className={`bin-lid flex flex-col items-center z-20 ${isReleasing ? 'lid-open' : ''}`}>
               <div className="bin-lid-handle"></div>
@@ -205,6 +205,19 @@ export default function WorryRelease({
           background: #64748b;
           border-radius: 6px 6px 0 0;
           z-index: 14;
+        }
+
+        .bin-container-wrapper.lid-tilt {
+          animation: tilt 1s ease-in-out 0.6s forwards;
+        }
+
+        @keyframes tilt {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(65deg);
+          }
         }
 
         .bin-container-wrapper:hover .bin-lid:not(.lid-open){
