@@ -14,24 +14,6 @@ export const moodsApi = {
     return response.json();
   },
 
-  create: async (data: {
-    userId: string;
-    mood: string;
-    emotion?: string;
-    notes?: string;
-    recordedAt?: string;
-  }): Promise<Mood> => {
-    const response = await fetch(buildApiUrl('/api/moods'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      await throwApiError(response, 'Failed to create mood');
-    }
-    return response.json();
-  },
-
   getStats: async (userId: string): Promise<MoodStats> => {
     const response = await fetch(buildApiUrl(`/api/moods/stats?userId=${userId}`));
     if (!response.ok) {

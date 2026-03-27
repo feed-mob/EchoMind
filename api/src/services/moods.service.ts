@@ -58,7 +58,7 @@ export async function analyzeAndCreateMood(
     const analysis = await analyzeEmotion(input);
 
     // 保存到数据库
-    const mood = await moods.create({
+    const mood = await moods.createWithSummary({
       userId,
       mood: analysis.spectrum, // 使用 spectrum 作为 mood 值
       emotion: analysis.emotion, // 具体情绪描述

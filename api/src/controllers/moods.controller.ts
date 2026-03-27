@@ -31,31 +31,6 @@ export const moodsController = {
     return Response.json(entries);
   },
 
-  // 传统的创建 mood 接口（兼容旧版）
-  async create(req: Request) {
-    const data = (await req.json()) as {
-      userId: string;
-      mood: string;
-      emotion?: string;
-      notes?: string;
-      recordedAt?: string;
-    };
-
-    if (!data.userId || !data.mood) {
-      return Response.json({ error: "userId and mood are required" }, { status: 400 });
-    }
-
-    const entry = await moods.create({
-      userId: data.userId,
-      mood: data.mood,
-      emotion: data.emotion,
-      notes: data.notes,
-      recordedAt: data.recordedAt ? new Date(data.recordedAt) : undefined,
-    });
-
-    return Response.json(entry, { status: 201 });
-  },
-
   // 新的 AI 情绪分析接口
   async analyze(req: Request) {
     const data = (await req.json()) as {
@@ -158,28 +133,6 @@ export const moodsController = {
     return Response.json(entry);
   },
 
-  async update(req: Request) {
-    const request = req as RequestWithParams<{ id: string }>;
-    const data = (await req.json()) as Partial<{
-      mood: string;
-      emotion: string;
-      notes: string;
-      recordedAt: string;
-    }>;
-
-    const entry = await moods.findById(request.params.id);
-    if (!entry) {
-      return Response.json({ error: "Mood not found" }, { status: 404 });
-    }
-
-    const updated = await moods.update(request.params.id, {
-      ...data,
-      recordedAt: data.recordedAt ? new Date(data.recordedAt) : undefined,
-    });
-
-    return Response.json(updated);
-  },
-
   async getTeamStats(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get("userId");
@@ -274,17 +227,5 @@ export const moodsController = {
         { status: 500 }
       );
     }
-  },
-
-  async delete(req: Request) {
-    const request = req as RequestWithParams<{ id: string }>;
-
-    const entry = await moods.findById(request.params.id);
-    if (!entry) {
-      return Response.json({ error: "Mood not found" }, { status: 404 });
-    }
-
-    await moods.delete(request.params.id);
-    return new Response(null, { status: 204 });
   },
 };

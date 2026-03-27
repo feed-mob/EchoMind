@@ -791,36 +791,6 @@ export interface MoodRedemption {
 }
 
 export const moods = {
-  async create(data: {
-    userId: string;
-    mood: string;
-    emotion?: string;
-    notes?: string;
-    recordedAt?: Date;
-    spectrum?: string;
-    color?: string;
-    icon?: string;
-    intensity?: number;
-  }) {
-    // 自动计算 sentiment
-    const sentiment = this.mapMoodToSentiment(data.mood);
-
-    return await (db as any).mood.create({
-      data: {
-        userId: data.userId,
-        mood: data.mood,
-        sentiment,
-        emotion: data.emotion,
-        notes: data.notes,
-        recordedAt: data.recordedAt || new Date(),
-        spectrum: data.spectrum,
-        color: data.color,
-        icon: data.icon,
-        intensity: data.intensity,
-      },
-    });
-  },
-
   async findById(id: string) {
     return await (db as any).mood.findUnique({
       where: { id },
@@ -874,25 +844,6 @@ export const moods = {
     return await (db as any).mood.findMany({
       where,
       orderBy: { recordedAt: "desc" },
-    });
-  },
-
-  async update(id: string, data: Partial<Mood>) {
-    const updateData: any = { ...data };
-    delete updateData.id;
-    delete updateData.createdAt;
-    delete updateData.updatedAt;
-    delete updateData.userId;
-
-    return await (db as any).mood.update({
-      where: { id },
-      data: updateData,
-    });
-  },
-
-  async delete(id: string) {
-    await (db as any).mood.delete({
-      where: { id },
     });
   },
 

@@ -3,7 +3,6 @@ import { moodsController } from "../controllers/index.js";
 export const moodsRoutes = {
   "/api/moods": {
     GET: moodsController.list,
-    POST: moodsController.create,
   },
   "/api/moods/analyze": {
     POST: moodsController.analyze,
@@ -31,7 +30,5 @@ export const moodsRoutes = {
   },
   "/api/moods/:id": {
     GET: moodsController.getById,
-    PUT: moodsController.update,
-    DELETE: moodsController.delete,
   },
 };
