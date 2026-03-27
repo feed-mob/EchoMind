@@ -750,6 +750,7 @@ export interface Mood {
   id: string;
   userId: string;
   mood: string;
+  sentiment: string; // positive, negative, neutral
   emotion?: string | null;
   notes?: string | null;
   recordedAt: Date;
@@ -760,6 +761,33 @@ export interface Mood {
   color?: string | null;     // hex color code
   icon?: string | null;      // icon name
   intensity?: number | null;   // 1-10 intensity level
+  dailySummaryId?: string | null;
+}
+
+export interface MoodDailySummary {
+  id: string;
+  userId: string;
+  date: Date;
+  sentiment: string; // positive, negative, neutral
+  isRedeemed: boolean;
+  redeemedAt?: Date | null;
+  redemptionType?: string | null; // reward, dump
+  totalMoods: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MoodRedemption {
+  id: string;
+  userId: string;
+  type: string; // reward, dump
+  sentiment: string; // positive, negative
+  level: number;
+  baseCount: number;
+  extraCount: number;
+  totalCount: number;
+  reward?: string | null;
+  createdAt: Date;
 }
 
 export const moods = {
@@ -774,10 +802,14 @@ export const moods = {
     icon?: string;
     intensity?: number;
   }) {
+    // 自动计算 sentiment
+    const sentiment = this.mapMoodToSentiment(data.mood);
+
     return await (db as any).mood.create({
       data: {
         userId: data.userId,
         mood: data.mood,
+        sentiment,
         emotion: data.emotion,
         notes: data.notes,
         recordedAt: data.recordedAt || new Date(),
@@ -864,6 +896,277 @@ export const moods = {
     });
   },
 
+  // ========== 新增：sentiment 相关方法 ==========
+
+  /**
+   * 将 mood 字符串映射到 sentiment
+   * 积极: joy, achievement, warmth
+   * 消极: stress, boredom, anxiety, anger
+   * 正常: calm
+   */
+  mapMoodToSentiment(mood: string): 'positive' | 'negative' | 'neutral' {
+    const positiveMoods = ['joy', 'achievement', 'warmth'];
+    const negativeMoods = ['stress', 'boredom', 'anxiety', 'anger'];
+
+    const lowerMood = mood.toLowerCase();
+    if (positiveMoods.includes(lowerMood)) return 'positive';
+    if (negativeMoods.includes(lowerMood)) return 'negative';
+    return 'neutral';
+  },
+
+  /**
+   * 创建 Mood 并自动生成每日汇总
+   */
+  async createWithSummary(data: {
+    userId: string;
+    mood: string;
+    emotion?: string;
+    notes?: string;
+    recordedAt?: Date;
+    spectrum?: string;
+    color?: string;
+    icon?: string;
+    intensity?: number;
+  }) {
+    const sentiment = this.mapMoodToSentiment(data.mood);
+    const recordedAt = data.recordedAt || new Date();
+
+    // 1. 创建 Mood
+    const mood = await (db as any).mood.create({
+      data: {
+        userId: data.userId,
+        mood: data.mood,
+        sentiment,
+        emotion: data.emotion,
+        notes: data.notes,
+        recordedAt,
+        spectrum: data.spectrum,
+        color: data.color,
+        icon: data.icon,
+        intensity: data.intensity,
+      },
+    });
+
+    // 2. 更新或创建每日汇总
+    await this.upsertDailySummary(data.userId, recordedAt);
+
+    return mood;
+  },
+
+  /**
+   * 更新或创建每日汇总
+   */
+  async upsertDailySummary(userId: string, date: Date) {
+    const dateOnly = new Date(date);
+    dateOnly.setHours(0, 0, 0, 0);
+
+    // 查询当天所有 Mood
+    const startOfDay = new Date(dateOnly);
+    const endOfDay = new Date(dateOnly);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const moods = await (db as any).mood.findMany({
+      where: {
+        userId,
+        recordedAt: {
+          gte: startOfDay,
+          lt: endOfDay,
+        },
+      },
+    });
+
+    if (moods.length === 0) return null;
+
+    // 归类当天情绪（取多数派）
+    const sentiment = this.classifySentiment(moods);
+
+    // 更新 Mood 的 dailySummaryId
+    const summary = await (db as any).moodDailySummary.upsert({
+      where: { userId_date: { userId, date: dateOnly } },
+      update: {
+        sentiment,
+        totalMoods: moods.length,
+      },
+      create: {
+        userId,
+        date: dateOnly,
+        sentiment,
+        totalMoods: moods.length,
+      },
+    });
+
+    // 更新所有 mood 的 dailySummaryId
+    await (db as any).mood.updateMany({
+      where: {
+        id: { in: moods.map((m: any) => m.id) },
+      },
+      data: {
+        dailySummaryId: summary.id,
+      },
+    });
+
+    return summary;
+  },
+
+  /**
+   * 归类当天情绪（取多数派）
+   */
+  classifySentiment(moods: any[]): 'positive' | 'negative' | 'neutral' {
+    const counts = { positive: 0, negative: 0, neutral: 0 };
+    moods.forEach((m) => {
+      counts[m.sentiment as keyof typeof counts]++;
+    });
+
+    if (counts.positive >= counts.negative && counts.positive >= counts.neutral)
+      return 'positive';
+    if (counts.negative >= counts.positive && counts.negative >= counts.neutral)
+      return 'negative';
+    return 'neutral';
+  },
+
+  // ========== 兑换/倾倒相关方法 ==========
+
+  /**
+   * 查询兑换资格
+   */
+  async getRedemptionEligibility(userId: string) {
+    const [positiveCount, negativeCount] = await Promise.all([
+      (db as any).moodDailySummary.count({
+        where: { userId, sentiment: 'positive', isRedeemed: false },
+      }),
+      (db as any).moodDailySummary.count({
+        where: { userId, sentiment: 'negative', isRedeemed: false },
+      }),
+    ]);
+
+    const POSITIVE_BASE = 7;
+    const NEGATIVE_BASE = 3;
+
+    return {
+      positive: {
+        count: positiveCount,
+        canRedeem: positiveCount >= POSITIVE_BASE,
+        level: this.calculateLevel(positiveCount, POSITIVE_BASE),
+        nextLevelNeed: this.nextLevelNeed(positiveCount, POSITIVE_BASE),
+      },
+      negative: {
+        count: negativeCount,
+        canRedeem: negativeCount >= NEGATIVE_BASE,
+        level: this.calculateLevel(negativeCount, NEGATIVE_BASE),
+        nextLevelNeed: this.nextLevelNeed(negativeCount, NEGATIVE_BASE),
+      },
+    };
+  },
+
+  calculateLevel(total: number, base: number): number {
+    if (total < base) return 0;
+    return 1 + Math.floor((total - base) / 3);
+  },
+
+  nextLevelNeed(total: number, base: number): number {
+    if (total < base) return base - total;
+    const level = this.calculateLevel(total, base);
+    return base + level * 3 - total;
+  },
+
+  /**
+   * 执行兑换/倾倒
+   */
+  async redeem(userId: string, type: 'reward' | 'dump') {
+    const sentiment = type === 'reward' ? 'positive' : 'negative';
+    const BASE_REQUIRED = type === 'reward' ? 7 : 3;
+
+    // 查询所有未兑换的该类型记录
+    const summaries = await (db as any).moodDailySummary.findMany({
+      where: { userId, sentiment, isRedeemed: false },
+      orderBy: { date: 'asc' },
+    });
+
+    const totalCount = summaries.length;
+
+    if (totalCount < BASE_REQUIRED) {
+      throw new Error(
+        `需要至少${BASE_REQUIRED}个${sentiment === 'positive' ? '积极' : '不积极'}心情，当前只有${totalCount}个`
+      );
+    }
+
+    // 计算等级
+    const extraCount = totalCount - BASE_REQUIRED;
+    const level = 1 + Math.floor(extraCount / 3);
+
+    // 事务：标记已兑换 + 创建记录
+    const redemption = await (db as any).$transaction(async (tx: any) => {
+      // 标记所有为已兑换（清零）
+      await tx.moodDailySummary.updateMany({
+        where: { id: { in: summaries.map((s: any) => s.id) } },
+        data: {
+          isRedeemed: true,
+          redeemedAt: new Date(),
+          redemptionType: type,
+        },
+      });
+
+      // 创建兑换记录
+      return tx.moodRedemption.create({
+        data: {
+          userId,
+          type,
+          sentiment,
+          level,
+          baseCount: BASE_REQUIRED,
+          extraCount,
+          totalCount,
+          reward: this.generateReward(type, level),
+        },
+      });
+    });
+
+    return {
+      redemption,
+      consumed: totalCount,
+      cleared: true,
+    };
+  },
+
+  generateReward(type: 'reward' | 'dump', level: number): string {
+    if (type === 'reward') {
+      const rewards: Record<number, string> = {
+        1: '一杯奶茶',
+        2: '一顿大餐',
+        3: '一份礼物',
+        4: '一次短途旅行',
+        5: '豪华大礼包',
+      };
+      return rewards[level] || `Lv.${level} 超级奖励`;
+    }
+    return `释放了 ${level} 级负面情绪`;
+  },
+
+  async getRedemptionHistory(userId: string, options?: { limit?: number; offset?: number }) {
+    return await (db as any).moodRedemption.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: options?.limit,
+      skip: options?.offset,
+    });
+  },
+
+  async getRedemptionStats(userId: string) {
+    const [totalRewards, totalDumps, totalPositiveDays, totalNegativeDays] = await Promise.all([
+      (db as any).moodRedemption.count({ where: { userId, type: 'reward' } }),
+      (db as any).moodRedemption.count({ where: { userId, type: 'dump' } }),
+      (db as any).moodDailySummary.count({ where: { userId, sentiment: 'positive', isRedeemed: true } }),
+      (db as any).moodDailySummary.count({ where: { userId, sentiment: 'negative', isRedeemed: true } }),
+    ]);
+
+    return {
+      totalRewards,
+      totalDumps,
+      totalPositiveDays,
+      totalNegativeDays,
+      totalRedemptions: totalRewards + totalDumps,
+    };
+  },
 
   async getStatsByUser(userId: string) {
 
@@ -896,7 +1199,8 @@ export const moods = {
       }
     }
 
-    const mostFrequentMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0][0];
+    const sortedMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]);
+    const mostFrequentMood = sortedMoods.length > 0 ? sortedMoods[0]![0] : null;
 
     // 计算本轮签到天数（基于记录日期的唯一天数）
     const uniqueDays = new Set(
