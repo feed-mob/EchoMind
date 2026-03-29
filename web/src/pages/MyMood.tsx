@@ -9,10 +9,9 @@ import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 import WorryRelease from '../components/WorryRelease';
 
+import { getDaysByKind } from "../tools/functions";
 import { emotionSpectrum } from '../config/enum';
 import { MIN_PUZZLE_DAYS, MIN_NEGATIVE_DAYS } from "../config/constants";
-
-import { generateDayMood, getDaysByKind } from "../tools/functions";
 
 type MoodStatus = 'positive' | 'negative' | 'neutral';
 
@@ -29,7 +28,7 @@ export default function MyMood() {
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
-  const [kindCheckInDays] = useState<number>(0);
+  const [kindCheckInDays, setKindCheckInDays] = useState<number>(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -51,6 +50,8 @@ export default function MyMood() {
 
       setEntries(entriesData);
       setStats(statsData);
+      const days = getDaysByKind(statsData.dailySentiment, moodKind);
+      setKindCheckInDays(days);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
@@ -181,13 +182,13 @@ export default function MyMood() {
           <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Momentum Card */}
             <MomentumCard
-              checkInDays={stats?.checkInDays as number}
+              checkInDays={kindCheckInDays}
               moodStatus={moodStatus}
             />
 
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
-              completedDays={stats?.checkInDays as number}
+              completedDays={kindCheckInDays}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {
@@ -197,7 +198,7 @@ export default function MyMood() {
             />}
 
             {moodStatus == 'negative' && <WorryRelease
-              completedDays={kindCheckInDays as number}
+              completedDays={kindCheckInDays}
               totalDays={MIN_NEGATIVE_DAYS}
             />}
 
@@ -207,7 +208,7 @@ export default function MyMood() {
             {/* Calendar Section */}
             <MoodCalendar
               currentDate={currentDate}
-              entries={entries}
+              dailySentiment={stats?.dailySentiment}
               onNavigateMonth={navigateMonth}
             />
 

@@ -1,33 +1,16 @@
 import { useMemo } from 'react';
-import type { Mood } from '../service/types';
-import { neutralColor, negativeColor, positiveColor, } from '../config/enum';
-import { generateDayMood } from "../tools/functions";
 
-const getDayColor = (k:string) => {
-  if (k) {
-    if (k == 'positive') {
-      return positiveColor;
-    }
-    if (k == 'negative') {
-      return negativeColor;
-    }
-    if(k == 'neutral' ){
-      return neutralColor;
-    }
-  }
-  return '#99a1af';
-};
-
+import { getColorBySentiment } from "../tools/functions";
 
 interface MoodCalendarProps {
   currentDate: Date;
-  entries: Mood[];
+  dailySentiment?: Record<string, 'positive' | 'neutral' | 'negative'>;
   onNavigateMonth: (direction: 'prev' | 'next') => void;
 }
 
 export default function MoodCalendar({
   currentDate,
-  entries,
+  dailySentiment,
   onNavigateMonth,
 }: MoodCalendarProps) {
   const calendarDays = useMemo(() => {
@@ -51,26 +34,22 @@ export default function MoodCalendar({
       days.push({ date: prevMonthLastDay - i });
     }
 
-    const dayMood = generateDayMood(entries);
-
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-
-      // const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
-
-      const color = getDayColor(dayMood[dateStr]);
+      const sentiment = dailySentiment ? dailySentiment[dateStr] : undefined;
+      const color = getColorBySentiment(sentiment);
       const bgColor = color ? `${color}33` : '#fff';
       days.push({
         date: i,
-        specstrum: dayMood[dateStr] ?? undefined,
+        specstrum: sentiment ?? undefined,
         color: color,
         backgroundColor: bgColor,
       });
     }
 
     return days;
-  }, [currentDate, entries]);
+  }, [currentDate, dailySentiment]);
 
   const formatMonth = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -155,15 +134,15 @@ export default function MoodCalendar({
       </div>
       <div className="mt-8 flex flex-wrap gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full" style={{backgroundColor: positiveColor}}></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('positive')}}></span>
           <span className="text-xs font-medium text-slate-500">Positive</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full" style={{backgroundColor: neutralColor}}></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('neutral')}}></span>
           <span className="text-xs font-medium text-slate-500">Neutral</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full" style={{backgroundColor: negativeColor}}></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('negative')}}></span>
           <span className="text-xs font-medium text-slate-500">Negative</span>
         </div>
         <div className="flex items-center gap-2">

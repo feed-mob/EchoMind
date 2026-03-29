@@ -169,9 +169,11 @@ export interface Mood {
 
 export interface MoodStats {
   total: number;
-  checkInDays: number;
-  mostFrequentMood: string | null;
-  moodDistribution: Record<string, number>;
+  moodCounts: Record<string, number>;
+  emotionCounts: Record<string, number>;
+  checkInDays: number; // 本轮签到天数
+  mostFrequentMood: string | null; // top mood
+  dailySentiment: Record<string, "positive" | "negative" | "neutral">
 }
 
 export interface MoodWithAnalysis extends Mood {
