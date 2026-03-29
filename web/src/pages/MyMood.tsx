@@ -29,7 +29,7 @@ export default function MyMood() {
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
-  const [kindCheckInDays, setKindCheckInDays] = useState<number>(0);
+  const [kindCheckInDays] = useState<number>(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -51,9 +51,6 @@ export default function MyMood() {
 
       setEntries(entriesData);
       setStats(statsData);
-      const dayMood = generateDayMood(entriesData);
-      const days = getDaysByKind(dayMood, moodKind);
-      setKindCheckInDays(days);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
@@ -184,13 +181,13 @@ export default function MyMood() {
           <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Momentum Card */}
             <MomentumCard
-              checkInDays={kindCheckInDays}
+              checkInDays={stats?.checkInDays as number}
               moodStatus={moodStatus}
             />
 
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
-              completedDays={kindCheckInDays}
+              completedDays={stats?.checkInDays as number}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {
@@ -200,7 +197,7 @@ export default function MyMood() {
             />}
 
             {moodStatus == 'negative' && <WorryRelease
-              completedDays={kindCheckInDays}
+              completedDays={kindCheckInDays as number}
               totalDays={MIN_NEGATIVE_DAYS}
             />}
 

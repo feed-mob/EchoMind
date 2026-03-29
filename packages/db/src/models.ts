@@ -1153,20 +1153,14 @@ export const moods = {
     const sortedMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]);
     const mostFrequentMood = sortedMoods.length > 0 ? sortedMoods[0]![0] : null;
 
-    // 计算本轮签到天数（基于记录日期的唯一天数）
-    const uniqueDays = new Set(
-      entries.map((e: any) => {
-        const d = new Date(e.recordedAt);
-        return d.toISOString().split('T')[0];  // YYYY-MM-DD 格式
-      })
-    );
-    const checkInDays = uniqueDays.size;
-
     // 从 MoodDailySummary 获取每天的情绪倾向（仅未兑换的）
     const summaries = await (db as any).moodDailySummary.findMany({
       where: { userId, isRedeemed: false },
       orderBy: { date: "desc" },
     });
+
+    // checkInDays 直接使用 summaries 的数量（每个summary代表一天）
+    const checkInDays = summaries.length;
 
     const dailySentiment: Record<string, any> = {};
     if (summaries && summaries.length > 0) {
