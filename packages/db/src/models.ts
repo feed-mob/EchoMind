@@ -911,6 +911,7 @@ export const moods = {
    * 更新或创建每日汇总
    */
   async upsertDailySummary(userId: string, date: Date) {
+    console.log("====== params date ==>", date)
     const dateOnly = new Date(date);
     dateOnly.setHours(0, 0, 0, 0);
 
@@ -935,6 +936,7 @@ export const moods = {
     const sentiment = this.classifySentiment(moods);
 
     // 更新 Mood 的 dailySummaryId
+    console.log("======  dateOnly =>", dateOnly)
     const summary = await (db as any).moodDailySummary.upsert({
       where: { userId_date: { userId, date: dateOnly } },
       update: {

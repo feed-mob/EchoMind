@@ -162,16 +162,30 @@ h1 {
   max-width: min(90vw, 360px);
   padding: 0.75rem 0.9rem;
   border-radius: 0.75rem;
-  border: 1px solid #fecaca;
-  border-left: 4px solid #ef4444;
-  background: #fff1f2;
-  color: #9f1239;
+  border: 1px solid #cccccc;
+  border-left: 4px solid #5d5b5b;
+  background: #f1f1f2;
+  color: #555555;
   box-shadow: 0 14px 30px -20px rgba(15, 23, 42, 0.55);
   font-size: 0.875rem;
   line-height: 1.35;
   pointer-events: auto;
   animation: toast-enter 220ms ease-out;
 }
+
+.toast-message.toast-message--error{
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  background: #fff1f2;
+  color: #9f1239;
+}
+.toast-message.toast-message--success{
+  border: 1px solid #d3feca;
+  border-left: 4px solid hsl(126, 35%, 42%);
+  background: #d4dcd1;
+  color: #129f38ce;
+}
+
 
 .toast-message__icon {
   font-size: 1rem;
