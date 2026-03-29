@@ -198,6 +198,7 @@ export default function MyMood() {
             />}
 
             {moodStatus == 'negative' && <WorryRelease
+              stats={stats}
               completedDays={kindCheckInDays}
               totalDays={MIN_NEGATIVE_DAYS}
             />}

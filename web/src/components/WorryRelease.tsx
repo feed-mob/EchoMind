@@ -1,30 +1,59 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+
+function getRandomIntInclusive(min:number, max:number) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // 包含最小值和最大值
+}
+
+function generateRotation(i:number){
+  const random = (i % 2 == 0) ? getRandomIntInclusive(-5, -12) : getRandomIntInclusive(5, 12);
+  return random;
+}
+
+function generateWorryItems(obj: Record<string, number>): WorryItem[] {
+  const result: WorryItem[] = [];
+  const moods = Object.keys(obj);
+  moods.forEach((m, index) => {
+    const rotation = generateRotation(index);
+    const item: WorryItem = {
+      text: m,
+      rotation: rotation,
+    };
+    result.push(item);
+  });
+
+  return result;
+}
+interface WorryItem {
+  text: string;
+  rotation: number;
+}
 interface WorryReleaseProps {
   completedDays?: number;
   totalDays?: number;
+  stats?: any;
   onDump?: () => void;
 }
 
 export default function WorryRelease({
     completedDays = 0,
     totalDays = 0,
+    stats={},
     onDump
   }: WorryReleaseProps) {
   const isComplete = completedDays >= totalDays;
   const [isReleasing, setIsReleasing] = useState(false);
   const [isReleased, setIsReleased] = useState(false);
+  const [worryItems, setWorryItems] = useState<WorryItem[]>([]);
 
-  const worryItems = [
-  { text: 'Work stress', rotation: -12 },
-  { text: 'Overthinking', rotation: 8 },
-  { text: 'Deadline', rotation: -5 },
-  { text: 'Tiredness', rotation: 15 },
-  { text: 'Social anxiety', rotation: -10 },
-  { text: 'Poor sleep', rotation: 4 },
-  { text: 'Expectations', rotation: -18 },
-  { text: 'Finances', rotation: 7 },
-];
+  useEffect(() => {
+    if (stats?.moodCounts) {
+      const items = generateWorryItems(stats.moodCounts);
+      setWorryItems(items);
+    }
+  }, [stats])
 
   const handleRelease = () => {
     setIsReleasing(true);
