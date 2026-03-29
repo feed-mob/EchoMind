@@ -790,6 +790,9 @@ export interface MoodRedemption {
   createdAt: Date;
 }
 
+const POSITIVE_BASE = 7;
+const NEGATIVE_BASE = 7;
+
 export const moods = {
   async findById(id: string) {
     return await (db as any).mood.findUnique({
@@ -990,9 +993,6 @@ export const moods = {
       }),
     ]);
 
-    const POSITIVE_BASE = 7;
-    const NEGATIVE_BASE = 3;
-
     return {
       positive: {
         count: positiveCount,
@@ -1025,7 +1025,7 @@ export const moods = {
    */
   async redeem(userId: string, type: 'reward' | 'dump') {
     const sentiment = type === 'reward' ? 'positive' : 'negative';
-    const BASE_REQUIRED = type === 'reward' ? 7 : 3;
+    const BASE_REQUIRED = type === 'reward' ? POSITIVE_BASE : NEGATIVE_BASE;
 
     // 查询所有未兑换的该类型记录
     const summaries = await (db as any).moodDailySummary.findMany({
@@ -1037,7 +1037,7 @@ export const moods = {
 
     if (totalCount < BASE_REQUIRED) {
       throw new Error(
-        `需要至少${BASE_REQUIRED}个${sentiment === 'positive' ? '积极' : '不积极'}心情，当前只有${totalCount}个`
+        `At least ${BASE_REQUIRED} ${sentiment === 'positive' ? 'Positive' : 'Negative'} mood, currently there are only ${totalCount} mood.`
       );
     }
 
@@ -1082,15 +1082,14 @@ export const moods = {
   generateReward(type: 'reward' | 'dump', level: number): string {
     if (type === 'reward') {
       const rewards: Record<number, string> = {
-        1: '一杯奶茶',
-        2: '一顿大餐',
-        3: '一份礼物',
-        4: '一次短途旅行',
-        5: '豪华大礼包',
+        1: 'A cartoon painting',
+        2: 'A technological painting',
+        3: 'An artistic painting',
+        4: 'A Van Gogh art painting',
       };
-      return rewards[level] || `Lv.${level} 超级奖励`;
+      return rewards[level] || `Lv.${level} Super Reward`;
     }
-    return `释放了 ${level} 级负面情绪`;
+    return `You released ${level} level of negative emotions`;
   },
 
   async getRedemptionHistory(userId: string, options?: { limit?: number; offset?: number }) {
@@ -1137,6 +1136,7 @@ export const moods = {
         emotionCounts: {},
         checkInDays: 0,  // 本轮签到天数
         mostFrequentMood: null,
+        dailySentiment: {},
       };
     }
 
@@ -1162,12 +1162,29 @@ export const moods = {
     );
     const checkInDays = uniqueDays.size;
 
+    // 从 MoodDailySummary 获取每天的情绪倾向（仅未兑换的）
+    const summaries = await (db as any).moodDailySummary.findMany({
+      where: { userId, isRedeemed: false },
+      orderBy: { date: "desc" },
+    });
+
+    const dailySentiment: Record<string, any> = {};
+    if (summaries && summaries.length > 0) {
+      for (const summary of summaries) {
+        if (summary && summary.date && summary.sentiment) {
+          const dateKey = new Date(summary.date).toISOString().split('T')[0] as string;
+          dailySentiment[dateKey] = summary.sentiment;
+        }
+      }
+    }
+
     return {
       total,
       moodCounts,
       emotionCounts,
       checkInDays,  // 本轮签到天数
-      mostFrequentMood,
+      mostFrequentMood, // top mood
+      dailySentiment,
     };
   },
 

@@ -1,18 +1,5 @@
 import { useState } from 'react';
 
-
-const worryItems = [
-  { text: 'Work stress', rotation: -12 },
-  { text: 'Overthinking', rotation: 8 },
-  { text: 'Deadline', rotation: -5 },
-  { text: 'Tiredness', rotation: 15 },
-  { text: 'Social anxiety', rotation: -10 },
-  { text: 'Poor sleep', rotation: 4 },
-  { text: 'Expectations', rotation: -18 },
-  { text: 'Finances', rotation: 7 },
-];
-
-
 interface WorryReleaseProps {
   completedDays?: number;
   totalDays?: number;
@@ -24,8 +11,20 @@ export default function WorryRelease({
     totalDays = 0,
     onDump
   }: WorryReleaseProps) {
+  const isComplete = completedDays >= totalDays;
   const [isReleasing, setIsReleasing] = useState(false);
   const [isReleased, setIsReleased] = useState(false);
+
+  const worryItems = [
+  { text: 'Work stress', rotation: -12 },
+  { text: 'Overthinking', rotation: 8 },
+  { text: 'Deadline', rotation: -5 },
+  { text: 'Tiredness', rotation: 15 },
+  { text: 'Social anxiety', rotation: -10 },
+  { text: 'Poor sleep', rotation: 4 },
+  { text: 'Expectations', rotation: -18 },
+  { text: 'Finances', rotation: 7 },
+];
 
   const handleRelease = () => {
     setIsReleasing(true);
@@ -44,6 +43,13 @@ export default function WorryRelease({
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Release Your Worries</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Feeling overwhelmed? Let&apos;s clear some mental space.</p>
+        </div>
+        <div className={`px-3 py-1 text-xs font-bold rounded-full ${
+          isComplete
+            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
+            : 'bg-slate-200 dark:bg-blue-900/30 text-slate-500'
+        }`}>
+          {completedDays}/{totalDays} {isComplete ? 'COMPLETE' : 'DAYS'}
         </div>
       </div>
 
@@ -117,7 +123,7 @@ export default function WorryRelease({
           <div className="flex justify-center px-6 pt-28 pb-20">
             <button
               onClick={handleRelease}
-              disabled={isReleasing || isReleased}
+              disabled={isReleasing || isReleased || !isComplete}
               className="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               <span className="material-symbols-outlined">delete_sweep</span>

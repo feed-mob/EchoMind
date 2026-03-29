@@ -9,27 +9,19 @@ import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 import WorryRelease from '../components/WorryRelease';
 
-import { emotionSpectrum} from '../config/enum';
+import { emotionSpectrum } from '../config/enum';
 import { MIN_PUZZLE_DAYS, MIN_NEGATIVE_DAYS } from "../config/constants";
 
-import { generateDayMood } from "../tools/functions";
+import { generateDayMood, getDaysByKind } from "../tools/functions";
 
-const getDaysByKind = (obj:Record<string, 'positive' | 'neutral' | 'negative'>, kind:string) => {
-  let result = 0;
-  const list = Object.values(obj);
-  list.forEach((v)=>{
-    if (kind == v) {
-      result += 1;
-    }
-  })
-  return result;
-}
+type MoodStatus = 'positive' | 'negative' | 'neutral';
 
 export default function MyMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const moodKind = searchParams.get('kind') || 'positive';
+  const moodStatus = moodKind as MoodStatus;
 
   const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
@@ -174,8 +166,11 @@ export default function MyMood() {
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600">
-              <span className="material-icons text-3xl">sentiment_very_satisfied</span>
+            <div className="p-3 rounded-lg" style={{
+              color: stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.color : '',
+              backgroundColor: stats?.mostFrequentMood ? `${emotionSpectrum[stats.mostFrequentMood]?.color}22` : '',
+              }}>
+              <span className="material-icons text-3xl">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.icon : 'sentiment_very_satisfied'} </span>
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Emotion</p>
@@ -190,11 +185,11 @@ export default function MyMood() {
             {/* Momentum Card */}
             <MomentumCard
               checkInDays={kindCheckInDays}
-              moodStatus={moodKind}
+              moodStatus={moodStatus}
             />
 
             {/* Emotional Puzzle */}
-            {moodKind == 'positive' && <EmotionalPuzzle
+            {moodStatus == 'positive' && <EmotionalPuzzle
               completedDays={kindCheckInDays}
               totalDays={MIN_PUZZLE_DAYS}
               quote="Every step forward is progress. Keep going!"
@@ -204,7 +199,7 @@ export default function MyMood() {
               }}
             />}
 
-            {moodKind == 'negative' && <WorryRelease
+            {moodStatus == 'negative' && <WorryRelease
               completedDays={kindCheckInDays}
               totalDays={MIN_NEGATIVE_DAYS}
             />}

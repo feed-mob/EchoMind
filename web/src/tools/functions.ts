@@ -47,3 +47,14 @@ export const generateDayMood = (entries: Mood[]): Record<string, 'positive' | 'n
 
   return result;
 };
+
+export const getDaysByKind = (obj:Record<string, 'positive' | 'neutral' | 'negative'>, kind:string) => {
+  let result = 0;
+  const list = Object.values(obj);
+  list.forEach((v)=>{
+    if (kind == v) {
+      result += 1;
+    }
+  })
+  return result;
+}

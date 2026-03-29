@@ -1,6 +1,6 @@
 interface MomentumCardProps {
   checkInDays: number;
-  moodStatus?: 'positive' | 'negative' | 'neutral';
+  moodStatus: 'positive' | 'negative' | 'neutral';
 }
 
 export default function MomentumCard({
