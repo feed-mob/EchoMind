@@ -131,12 +131,12 @@ function getIconForSpectrum(
     boredom: "hourglass_empty",
     anxiety: "cloud",
     anger: "local_fire_department",
-    joy: "restaurant",
+    joy: "sentiment_very_satisfied",
     achievement: "star",
     warmth: "lightbulb",
     calm: "eco",
   };
-  return iconMap[spectrum] || "sentiment_satisfied";
+  return iconMap[spectrum] || "sentiment_very_satisfied";
 }
 
 /**

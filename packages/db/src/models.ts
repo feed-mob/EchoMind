@@ -911,13 +911,15 @@ export const moods = {
    * 更新或创建每日汇总
    */
   async upsertDailySummary(userId: string, date: Date) {
-    console.log("====== params date ==>", date)
 
-    // 获取当天的日期字符串 (YYYY-MM-DD)
-    const dateStr = date.toISOString().split('T')[0];
-    const startDate = new Date(dateStr);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 1);
+    // 获取日期的 UTC 时间戳，避免时区问题
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    // 创建 UTC 午夜时间用于查询
+    const startDate = new Date(Date.UTC(year, month, day));
+    const endDate = new Date(Date.UTC(year, month, day + 1));
 
     const moods = await (db as any).mood.findMany({
       where: {
@@ -934,11 +936,10 @@ export const moods = {
     // 归类当天情绪（取多数派）
     const sentiment = this.classifySentiment(moods);
 
-    // 创建 Date 对象用于数据库存储
-    const summaryDate = new Date(dateStr);
+    // 创建 UTC 日期用于数据库存储
+    const summaryDate = new Date(Date.UTC(year, month, day));
 
     // 更新 Mood 的 dailySummaryId
-    console.log("======  original date =>", date, "summary date =>", summaryDate)
     const summary = await (db as any).moodDailySummary.upsert({
       where: { userId_date: { userId, date: summaryDate } },
       update: {
