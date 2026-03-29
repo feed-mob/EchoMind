@@ -181,9 +181,9 @@ h1 {
 }
 .toast-message.toast-message--success{
   border: 1px solid #d3feca;
-  border-left: 4px solid hsl(126, 35%, 42%);
-  background: #d4dcd1;
-  color: #129f38ce;
+  border-left: 4px solid hsl(126, 57%, 59%);
+  background: #c2fec4;
+  color: #139e38ce;
 }
 
 

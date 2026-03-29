@@ -4,7 +4,7 @@ export const emotionSpectrum: Record<string, { label: string, color: string; ico
   boredom: { label: 'Boredom', color: '#9CA3AF', icon: 'hourglass_empty' },
   anxiety: { label: 'Anxious', color: '#1E40AF', icon: 'cloud' },
   anger: { label: 'Anger', color: '#DC2626', icon: 'local_fire_department' },
-  joy: { label: 'Joyful', color: '#F97316', icon: 'restaurant' },
+  joy: { label: 'Joyful', color: '#F97316', icon: 'sentiment_very_satisfied' },
   achievement: { label: 'Achievement', color: '#EAB308', icon: 'star' },
   warmth: { label: 'Warmth', color: '#EC4899', icon: 'lightbulb' },
   calm: { label: 'Calm', color: '#22C55E', icon: 'eco' },

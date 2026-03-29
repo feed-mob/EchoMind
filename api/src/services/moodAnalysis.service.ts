@@ -38,7 +38,7 @@ export const emotionSpectrum = {
     label: "快乐",
     color: "#F97316", // orange-500
     bgGradient: "from-amber-400 to-orange-600",
-    icon: "restaurant",
+    icon: "sentiment_very_satisfied",
     container: "candy",
   },
   achievement: {

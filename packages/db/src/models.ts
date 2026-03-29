@@ -912,20 +912,19 @@ export const moods = {
    */
   async upsertDailySummary(userId: string, date: Date) {
     console.log("====== params date ==>", date)
-    const dateOnly = new Date(date);
-    dateOnly.setHours(0, 0, 0, 0);
 
-    // 查询当天所有 Mood
-    const startOfDay = new Date(dateOnly);
-    const endOfDay = new Date(dateOnly);
-    endOfDay.setDate(endOfDay.getDate() + 1);
+    // 获取当天的日期字符串 (YYYY-MM-DD)
+    const dateStr = date.toISOString().split('T')[0];
+    const startDate = new Date(dateStr);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 1);
 
     const moods = await (db as any).mood.findMany({
       where: {
         userId,
         recordedAt: {
-          gte: startOfDay,
-          lt: endOfDay,
+          gte: startDate,
+          lt: endDate,
         },
       },
     });
@@ -935,17 +934,20 @@ export const moods = {
     // 归类当天情绪（取多数派）
     const sentiment = this.classifySentiment(moods);
 
+    // 创建 Date 对象用于数据库存储
+    const summaryDate = new Date(dateStr);
+
     // 更新 Mood 的 dailySummaryId
-    console.log("======  dateOnly =>", dateOnly)
+    console.log("======  original date =>", date, "summary date =>", summaryDate)
     const summary = await (db as any).moodDailySummary.upsert({
-      where: { userId_date: { userId, date: dateOnly } },
+      where: { userId_date: { userId, date: summaryDate } },
       update: {
         sentiment,
         totalMoods: moods.length,
       },
       create: {
         userId,
-        date: dateOnly,
+        date: summaryDate,
         sentiment,
         totalMoods: moods.length,
       },
