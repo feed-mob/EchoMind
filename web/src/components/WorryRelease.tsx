@@ -36,8 +36,7 @@ interface WorryItem {
   rotation: number;
 }
 interface WorryReleaseProps {
-  stats?: MoodStats;
-  loading: boolean;
+  stats?: MoodStats | null;
   userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
   redemptionHistory?: RedemptionHistory[];
@@ -46,7 +45,6 @@ interface WorryReleaseProps {
 
 export default function WorryRelease({
     stats,
-    loading=false,
     userId,
     redemptionEligibility,
     redemptionHistory = [],
@@ -59,12 +57,29 @@ export default function WorryRelease({
   const [worryItems, setWorryItems] = useState<WorryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+
+  //
   useEffect(() => {
-    if (stats?.moodCounts) {
-      const items = generateWorryItems(stats.moodCounts);
-      setWorryItems(items);
+    if (userId){
+      fetchEntries();
     }
-  }, [stats])
+
+    // if (stats?.moodCounts) {
+    //   const items = generateWorryItems(stats.moodCounts);
+    //   setWorryItems(items);
+    // }
+  }, [userId])
+
+  const fetchEntries = async () => {
+    try {
+      const res = await api.moods.listWithoutRedeemed(userId!, 'negative')
+      console.log("==== res=== >",res)
+      // TODO
+      // 完成 情绪显示
+    } catch (err) {
+
+    }
+  };
 
   const handleRelease = async () => {
     if (!userId || !redemptionEligibility?.negative.canRedeem) {

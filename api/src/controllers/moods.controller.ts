@@ -31,6 +31,24 @@ export const moodsController = {
     return Response.json(entries);
   },
 
+  async listWithoutRedeemed(req: Request){
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const moodKind = url.searchParams.get("kind");
+
+    console.log("===== api listWithoutRedeemed ==>", userId, moodKind)
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    const entries = await moods.listWithoutRedeemed(userId, {
+      sentiment: moodKind || undefined
+    });
+
+    return Response.json(entries);
+  },
+
   // 新的 AI 情绪分析接口
   async analyze(req: Request) {
     const data = (await req.json()) as {

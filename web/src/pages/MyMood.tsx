@@ -26,7 +26,6 @@ export default function MyMood() {
   const [redemptionEligibility, setRedemptionEligibility] = useState<RedemptionEligibility | null>(null);
   const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [moodsLoading, setMoodsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
@@ -61,27 +60,6 @@ export default function MyMood() {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const reFetchMoodData = async () => {
-    try {
-      setMoodsLoading(true);
-
-      const [statsData, redemptionEligibilityData, redemptionHistoryData] = await Promise.all([
-        api.moods.getStats(user!.id),
-        api.moods.getRedemptionEligibility(user!.id),
-        api.moods.getRedemptionHistory(user!.id, 5),
-      ]);
-
-      setStats(statsData);
-      setRedemptionEligibility(redemptionEligibilityData);
-      setRedemptionHistory(redemptionHistoryData);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load mood data');
-    } finally {
-      setMoodsLoading(false);
     }
   };
 
@@ -214,7 +192,6 @@ export default function MyMood() {
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
               stats={stats}
-              loading={moodsLoading}
               redemptionEligibility={redemptionEligibility}
               redemptionHistory={redemptionHistory}
               quote="Every step forward is progress. Keep going!"
@@ -226,13 +203,12 @@ export default function MyMood() {
 
             {moodStatus == 'negative' && <WorryRelease
               stats={stats}
-              loading={moodsLoading}
               userId={user?.id}
               redemptionEligibility={redemptionEligibility}
               redemptionHistory={redemptionHistory}
               onDumpSuccess={() => {
                 // 刷新统计数据
-                reFetchMoodData();
+                fetchMoodData();
               }}
             />}
 

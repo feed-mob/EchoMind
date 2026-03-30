@@ -819,6 +819,34 @@ export const moods = {
     });
   },
 
+  async listWithoutRedeemed(userId: string, options?: {sentiment?: string}) {
+    const where: any = { userId };
+
+    const summaries = await (db as any).moodDailySummary.findMany({
+      where: { userId,
+        isRedeemed: false,
+        sentiment: options?.sentiment
+      },
+      orderBy: { date: "desc" },
+    });
+
+
+    const summaryIds = summaries.map((item:any) => (item.id));
+    console.log("====== summaryIds ===>", summaryIds)
+
+    if(summaryIds.length == 0){
+      return []
+    }
+
+    where.dailySummaryId = { in: summaryIds };
+
+    return await (db as any).mood.findMany({
+      where,
+      orderBy: { recordedAt: "desc" },
+    });
+
+  },
+
   async listByGroup(groupId: string, options?: { startDate?: Date; endDate?: Date }) {
     const groupMembers = await (db as any).groupMember.findMany({
       where: { groupId },

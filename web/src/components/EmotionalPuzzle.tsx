@@ -1,9 +1,8 @@
 import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 
 interface EmotionalPuzzleProps {
-  stats?: MoodStats;
+  stats?: MoodStats | null;
   quote?: string;
-  loading: boolean;
   userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
   redemptionHistory?: RedemptionHistory[];

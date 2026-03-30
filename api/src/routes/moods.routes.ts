@@ -4,6 +4,9 @@ export const moodsRoutes = {
   "/api/moods": {
     GET: moodsController.list,
   },
+  "/api/moods_without_redeemed": {
+    GET: moodsController.listWithoutRedeemed,
+  },
   "/api/moods/analyze": {
     POST: moodsController.analyze,
   },

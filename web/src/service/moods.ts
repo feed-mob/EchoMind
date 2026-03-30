@@ -14,6 +14,17 @@ export const moodsApi = {
     return response.json();
   },
 
+  listWithoutRedeemed: async (userId: string, kind: string): Promise<Mood[]> => {
+    const params = new URLSearchParams({ userId });
+    if (kind) params.append('kind', kind);
+
+    const response = await fetch(buildApiUrl(`/api/moods_without_redeemed?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch moods');
+    }
+    return response.json();
+  },
+
   getStats: async (userId: string): Promise<MoodStats> => {
     const response = await fetch(buildApiUrl(`/api/moods/stats?userId=${userId}`));
     if (!response.ok) {
