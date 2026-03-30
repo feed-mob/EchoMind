@@ -168,12 +168,10 @@ export interface Mood {
 }
 
 export interface MoodStats {
-  total: number;
   moodCounts: Record<string, number>;
   emotionCounts: Record<string, number>;
-  checkInDays: number; // 本轮签到天数
   mostFrequentMood: string | null; // top mood
-  dailySentiment: Record<string, "positive" | "negative" | "neutral">
+  dailySentiment: Record<string, any>[]
 }
 
 // 兑换相关类型定义

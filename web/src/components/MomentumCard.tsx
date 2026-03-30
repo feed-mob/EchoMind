@@ -1,12 +1,17 @@
+import type { RedemptionEligibility } from '../service/types';
+
 interface MomentumCardProps {
-  checkInDays: number;
+  redemptionEligibility?: RedemptionEligibility | null;
   moodStatus: 'positive' | 'negative' | 'neutral';
 }
 
 export default function MomentumCard({
-  checkInDays,
-  moodStatus = 'positive'
+  moodStatus = 'positive',
+  redemptionEligibility
 }: MomentumCardProps) {
+  const checkInDays = moodStatus == 'positive' ? redemptionEligibility?.positive.count : redemptionEligibility?.negative.count;
+
+
   // Negative mood: supportive card
 
 

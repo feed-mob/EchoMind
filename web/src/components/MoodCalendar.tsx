@@ -4,7 +4,7 @@ import { getColorBySentiment } from "../tools/functions";
 
 interface MoodCalendarProps {
   currentDate: Date;
-  dailySentiment?: Record<string, 'positive' | 'neutral' | 'negative'>;
+  dailySentiment?: Record<string, any>[];
   onNavigateMonth: (direction: 'prev' | 'next') => void;
 }
 
@@ -26,6 +26,7 @@ export default function MoodCalendar({
       specstrum?: string;
       color?: string;
       backgroundColor?: string;
+      isRedeemed?: boolean;
     }> = [];
 
     // Previous month days
@@ -37,14 +38,17 @@ export default function MoodCalendar({
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-      const sentiment = dailySentiment ? dailySentiment[dateStr] : undefined;
+      const dailyData = (dailySentiment || []).find((item) => (item.date == dateStr));
+      const sentiment = dailyData?.sentiment || undefined;
+      const isRedeemed = dailyData?.isRedeemed || false;
       const color = getColorBySentiment(sentiment);
       const bgColor = color ? `${color}33` : '#fff';
       days.push({
         date: i,
-        specstrum: sentiment ?? undefined,
+        specstrum: sentiment,
         color: color,
         backgroundColor: bgColor,
+        isRedeemed: isRedeemed,
       });
     }
 
@@ -116,8 +120,7 @@ export default function MoodCalendar({
           return (
             <div
               key={index}
-              className={`
-                aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
+              className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
                 ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
                 ${isCurrentMonth && !day.specstrum ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
                 ${isToday && !moodColor ? 'ring-4 ring-primary/20' : ''}
@@ -128,6 +131,7 @@ export default function MoodCalendar({
               title={day.specstrum}
             >
               <span className={day.specstrum ? 'font-bold' : ''}>{day.date}</span>
+              {day.isRedeemed && (<span className="absolute bottom-1 right-0 w-3 h-3 block text-xs material-icons text-primary">check in</span>)}
             </div>
           );
         })}

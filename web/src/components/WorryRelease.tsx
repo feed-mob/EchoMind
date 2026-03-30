@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../service';
-import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
+import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 import { withMinDuration } from "../tools/functions";
 
 import { useToast } from '../components/ToastProvider';
@@ -36,8 +36,7 @@ interface WorryItem {
   rotation: number;
 }
 interface WorryReleaseProps {
-  completedDays?: number;
-  stats?: any;
+  stats?: MoodStats;
   loading: boolean;
   userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
@@ -46,8 +45,7 @@ interface WorryReleaseProps {
 }
 
 export default function WorryRelease({
-    completedDays = 0,
-    stats={},
+    stats,
     loading=false,
     userId,
     redemptionEligibility,
@@ -106,7 +104,7 @@ export default function WorryRelease({
             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
             : 'bg-slate-200 dark:bg-blue-900/30 text-slate-500'
         }`}>
-          {completedDays}/{redemptionEligibility?.negative.base} {redemptionEligibility?.negative.canRedeem ? 'COMPLETE' : 'DAYS'}
+          {redemptionEligibility?.negative.count}/{redemptionEligibility?.negative.base} {redemptionEligibility?.negative.canRedeem ? 'COMPLETE' : 'DAYS'}
         </div>
       </div>
 

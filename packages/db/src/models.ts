@@ -1126,50 +1126,34 @@ export const moods = {
   },
 
   async getStatsByUser(userId: string) {
-    // 从 MoodDailySummary 获取每天的情绪倾向（仅未兑换的）
+    // 从 MoodDailySummary 获取每天的情绪倾向
     const summaries = await (db as any).moodDailySummary.findMany({
-      where: { userId, isRedeemed: false },
+      where: { userId },
       orderBy: { date: "desc" },
     });
 
-    // checkInDays 直接使用 summaries 的数量（每个summary代表一天）
-    const checkInDays = summaries.length;
-
-    const dailySentiment: Record<string, any> = {};
+    const dailySentiment: Record<string, any>[] = [];
     if (summaries && summaries.length > 0) {
       for (const summary of summaries) {
-        if (summary && summary.date && summary.sentiment) {
-          const dateKey = new Date(summary.date).toISOString().split('T')[0] as string;
-          dailySentiment[dateKey] = summary.sentiment;
-        }
+        dailySentiment.push({
+          date: summary.date.toISOString().split('T')[0],
+          sentiment: summary.sentiment,
+          isRedeemed: summary.isRedeemed,
+          redeemedAt:  summary.redeemedAt,
+          redeemedType: summary.redeemedType,
+          totalMools: summary.totalMoods,
+        })
       }
     }
 
-    // 获取 summary IDs 用于查询 entries
-    const summaryIds = summaries.map((s: any) => s.id);
 
-    // 构建查询条件：只查询属于未兑换 summary 的 entries
+    // 查询所有的 entries
     const where: any = { userId };
-    if (summaryIds.length > 0) {
-      where.dailySummaryId = { in: summaryIds };
-    }
 
     const entries = await (db as any).mood.findMany({
       where,
       orderBy: { recordedAt: "desc" },
     });
-
-    const total = entries.length;
-    if (total === 0) {
-      return {
-        total: 0,
-        moodCounts: {},
-        emotionCounts: {},
-        checkInDays: 0,  // 本轮签到天数
-        mostFrequentMood: null,
-        dailySentiment: {},
-      };
-    }
 
     const moodCounts: Record<string, number> = {};
     const emotionCounts: Record<string, number> = {};
@@ -1185,12 +1169,10 @@ export const moods = {
     const mostFrequentMood = sortedMoods.length > 0 ? sortedMoods[0]![0] : null;
 
     return {
-      total,
+      dailySentiment,
       moodCounts,
       emotionCounts,
-      checkInDays,  // 本轮签到天数
       mostFrequentMood, // top mood
-      dailySentiment,
     };
   },
 

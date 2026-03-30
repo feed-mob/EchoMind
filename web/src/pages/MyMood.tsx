@@ -30,7 +30,6 @@ export default function MyMood() {
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
-  const [kindCheckInDays, setKindCheckInDays] = useState<number>(0);
 
   useEffect(() => {
     if (user?.id) {
@@ -56,8 +55,7 @@ export default function MyMood() {
       setStats(statsData);
       setRedemptionEligibility(redemptionEligibilityData);
       setRedemptionHistory(redemptionHistoryData);
-      const days = getDaysByKind(statsData.dailySentiment, moodKind);
-      setKindCheckInDays(days);
+
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
@@ -178,7 +176,7 @@ export default function MyMood() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">All Check-In</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.checkInDays || 0} Days</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.dailySentiment.length || 0} Days</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
@@ -187,7 +185,7 @@ export default function MyMood() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Recorded</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.total || 0} Entries</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{entries.length || 0} Entries</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
@@ -209,14 +207,16 @@ export default function MyMood() {
           <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Momentum Card */}
             <MomentumCard
-              checkInDays={kindCheckInDays}
+              redemptionEligibility={redemptionEligibility}
               moodStatus={moodStatus}
             />
 
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
-              completedDays={kindCheckInDays}
+              stats={stats}
+              loading={moodsLoading}
               redemptionEligibility={redemptionEligibility}
+              redemptionHistory={redemptionHistory}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {
                 // TODO: Implement reward logic
@@ -227,7 +227,6 @@ export default function MyMood() {
             {moodStatus == 'negative' && <WorryRelease
               stats={stats}
               loading={moodsLoading}
-              completedDays={kindCheckInDays}
               userId={user?.id}
               redemptionEligibility={redemptionEligibility}
               redemptionHistory={redemptionHistory}

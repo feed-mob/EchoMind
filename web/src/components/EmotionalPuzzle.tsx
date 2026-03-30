@@ -1,19 +1,23 @@
-import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
+import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 
 interface EmotionalPuzzleProps {
-  completedDays?: number;
+  stats?: MoodStats;
   quote?: string;
+  loading: boolean;
+  userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
+  redemptionHistory?: RedemptionHistory[];
   onGetReward?: () => void;
 }
 
 export default function EmotionalPuzzle({
-  completedDays = 0,
+  stats,
   redemptionEligibility,
+  redemptionHistory,
   quote = "Every step forward is progress. Keep going!",
   onGetReward
 }: EmotionalPuzzleProps) {
-  const isComplete = completedDays >= (redemptionEligibility?.positive.base || 0);
+
 
   const handleGetReward = () => {
     if (onGetReward) {
@@ -32,11 +36,11 @@ export default function EmotionalPuzzle({
           </p>
         </div>
         <div className={`px-3 py-1 text-xs font-bold rounded-full ${
-          isComplete
+          redemptionEligibility?.positive.canRedeem
             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
             : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
         }`}>
-          {completedDays}/{redemptionEligibility?.positive.base} {isComplete ? 'COMPLETE' : 'DAYS'}
+          {redemptionEligibility?.positive.count}/{redemptionEligibility?.positive.base} {redemptionEligibility?.positive.canRedeem ? 'COMPLETE' : 'DAYS'}
         </div>
       </div>
 
@@ -59,7 +63,7 @@ export default function EmotionalPuzzle({
             <button
               onClick={handleGetReward}
               className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3"
-              disabled={isComplete}
+              disabled={!redemptionEligibility?.positive.canRedeem}
             >
               <span className="material-icons animate-bounce">card_giftcard</span>
               Get Reward
