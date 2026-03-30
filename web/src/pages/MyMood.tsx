@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
-import type { Mood, MoodStats } from '../service/types';
+import type { Mood, MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
 import MomentumCard from '../components/MomentumCard';
@@ -11,7 +11,6 @@ import WorryRelease from '../components/WorryRelease';
 
 import { getDaysByKind } from "../tools/functions";
 import { emotionSpectrum } from '../config/enum';
-import { MIN_PUZZLE_DAYS, MIN_NEGATIVE_DAYS } from "../config/constants";
 
 type MoodStatus = 'positive' | 'negative' | 'neutral';
 
@@ -24,7 +23,10 @@ export default function MyMood() {
 
   const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
+  const [redemptionEligibility, setRedemptionEligibility] = useState<RedemptionEligibility | null>(null);
+  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [moodsLoading, setMoodsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
@@ -43,13 +45,17 @@ export default function MyMood() {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - parseInt(timeRange));
 
-      const [entriesData, statsData] = await Promise.all([
+      const [entriesData, statsData, redemptionEligibilityData, redemptionHistoryData] = await Promise.all([
         api.moods.list(user!.id, startDate.toISOString(), endDate.toISOString()),
         api.moods.getStats(user!.id),
+        api.moods.getRedemptionEligibility(user!.id),
+        api.moods.getRedemptionHistory(user!.id, 5),
       ]);
 
       setEntries(entriesData);
       setStats(statsData);
+      setRedemptionEligibility(redemptionEligibilityData);
+      setRedemptionHistory(redemptionHistoryData);
       const days = getDaysByKind(statsData.dailySentiment, moodKind);
       setKindCheckInDays(days);
       setError(null);
@@ -57,6 +63,27 @@ export default function MyMood() {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const reFetchMoodData = async () => {
+    try {
+      setMoodsLoading(true);
+
+      const [statsData, redemptionEligibilityData, redemptionHistoryData] = await Promise.all([
+        api.moods.getStats(user!.id),
+        api.moods.getRedemptionEligibility(user!.id),
+        api.moods.getRedemptionHistory(user!.id, 5),
+      ]);
+
+      setStats(statsData);
+      setRedemptionEligibility(redemptionEligibilityData);
+      setRedemptionHistory(redemptionHistoryData);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load mood data');
+    } finally {
+      setMoodsLoading(false);
     }
   };
 
@@ -77,7 +104,7 @@ export default function MyMood() {
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading my mood history...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading my moods...</p>
         </div>
       </div>
     );
@@ -189,7 +216,7 @@ export default function MyMood() {
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
               completedDays={kindCheckInDays}
-              totalDays={MIN_PUZZLE_DAYS}
+              redemptionEligibility={redemptionEligibility}
               quote="Every step forward is progress. Keep going!"
               onGetReward={() => {
                 // TODO: Implement reward logic
@@ -199,12 +226,14 @@ export default function MyMood() {
 
             {moodStatus == 'negative' && <WorryRelease
               stats={stats}
+              loading={moodsLoading}
               completedDays={kindCheckInDays}
-              totalDays={MIN_NEGATIVE_DAYS}
               userId={user?.id}
+              redemptionEligibility={redemptionEligibility}
+              redemptionHistory={redemptionHistory}
               onDumpSuccess={() => {
                 // 刷新统计数据
-                fetchMoodData();
+                reFetchMoodData();
               }}
             />}
 

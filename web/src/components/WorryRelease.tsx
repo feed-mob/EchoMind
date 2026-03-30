@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api } from '../service';
 import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
+import { withMinDuration } from "../tools/functions";
+
+import { useToast } from '../components/ToastProvider';
 
 
 function getRandomIntInclusive(min:number, max:number) {
@@ -34,26 +37,28 @@ interface WorryItem {
 }
 interface WorryReleaseProps {
   completedDays?: number;
-  totalDays?: number;
   stats?: any;
+  loading: boolean;
   userId?: string;
+  redemptionEligibility?: RedemptionEligibility | null;
+  redemptionHistory?: RedemptionHistory[];
   onDumpSuccess?: () => void;
 }
 
 export default function WorryRelease({
     completedDays = 0,
-    totalDays = 0,
     stats={},
+    loading=false,
     userId,
+    redemptionEligibility,
+    redemptionHistory = [],
     onDumpSuccess
   }: WorryReleaseProps) {
-  const isComplete = completedDays >= totalDays;
+
+  const toast = useToast();
   const [isReleasing, setIsReleasing] = useState(false); // 用于 释放(倾倒) 情绪的 loading 状态
   const [isReleased, setIsReleased] = useState(false);
   const [worryItems, setWorryItems] = useState<WorryItem[]>([]);
-  const [redemptionEligibility, setRedemptionEligibility] = useState<RedemptionEligibility | null>(null);
-  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistory[]>([]);
-  const [isLoading, setIsLoading] = useState(false); // 用于获取数据的loading状态
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,57 +68,30 @@ export default function WorryRelease({
     }
   }, [stats])
 
-  useEffect(() => {
-    if (userId) {
-      fetchRedemptionData();
-    }
-  }, [userId])
-
-  const fetchRedemptionData = async () => {
-    if (!userId) return;
-
-    setIsLoading(true);
-    try {
-      const [eligibility, history] = await Promise.all([
-        api.moods.getRedemptionEligibility(userId),
-        api.moods.getRedemptionHistory(userId, 5) // 只获取最近5条记录
-      ]);
-      setRedemptionEligibility(eligibility);
-      setRedemptionHistory(history);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch redemption data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleRelease = async () => {
     if (!userId || !redemptionEligibility?.negative.canRedeem) {
-      setError('You need at least 7 negative mood days to release your worries');
+      toast.error(`You need at least ${redemptionEligibility?.negative.base} negative mood days to release your worries`)
       return;
     }
 
     setIsReleasing(true);
     setError(null);
 
-    try {
-      const result = await api.moods.dumpMoods(userId);
-
+    withMinDuration(api.moods.dumpMoods(userId), 3000)
+    .then(() => {
       // 兑换成功
       setIsReleasing(false);
       setIsReleased(true);
 
-      // 刷新数据
-      await fetchRedemptionData();
-
-      // 调用成功回调
+      // 调用成功回调（父组件会刷新数据）
       if (onDumpSuccess) {
         onDumpSuccess();
       }
-    } catch (err) {
+    })
+    .catch((err) => {
       setIsReleasing(false);
       setError(err instanceof Error ? err.message : 'Failed to release worries');
-    }
+    });
   };
 
   return (
@@ -124,33 +102,28 @@ export default function WorryRelease({
           <p className="text-sm text-slate-500 dark:text-slate-400">Feeling overwhelmed? Let&apos;s clear some mental space.</p>
         </div>
         <div className={`px-3 py-1 text-xs font-bold rounded-full ${
-          isComplete
+          redemptionEligibility?.negative.canRedeem
             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
             : 'bg-slate-200 dark:bg-blue-900/30 text-slate-500'
         }`}>
-          {completedDays}/{totalDays} {isComplete ? 'COMPLETE' : 'DAYS'}
+          {completedDays}/{redemptionEligibility?.negative.base} {redemptionEligibility?.negative.canRedeem ? 'COMPLETE' : 'DAYS'}
         </div>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[600px]">
         {/* Bulging Trash Bin Visual */}
         <div className="group relative h-full">
+          // TODO
+          // 显示 loading
 
           {/* Quote Overlay */}
-          {isLoading ? (
-            <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                <p className="text-slate-500 dark:text-slate-400">Loading...</p>
-              </div>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
               <div className="max-w-md">
                 <span className="material-symbols-outlined text-red-500 text-5xl mb-4">error_outline</span>
                 <p className="text-red-600 dark:text-red-400 mb-2">{error}</p>
                 <button
-                  onClick={fetchRedemptionData}
+                  onClick={() => window.location.reload()}
                   className="px-4 py-2 bg-primary text-white rounded-lg text-sm"
                 >
                   Retry
@@ -240,7 +213,7 @@ export default function WorryRelease({
           <div className="flex justify-center px-6 pt-28 pb-20">
             <button
               onClick={handleRelease}
-              disabled={isReleasing || isReleased || !isComplete || !redemptionEligibility?.negative.canRedeem}
+              disabled={isReleasing || isReleased || !redemptionEligibility?.negative.canRedeem}
               className="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               <span className="material-symbols-outlined">delete_sweep</span>
@@ -250,7 +223,7 @@ export default function WorryRelease({
           </div>
 
           {/* Redemption History */}
-          {!isLoading && !error && redemptionHistory.length > 0 && (
+          {redemptionHistory.length > 0 && (
             <div className="px-6 pb-8">
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                 <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Releases</h3>
@@ -319,8 +292,10 @@ export default function WorryRelease({
           left: 0;
           right: 0;
           display: flex;
+          flex-direction: column;
           flex-wrap: wrap;
           justify-content: center;
+          align-items: center;
           padding: 10px;
           gap: 4px;
           z-index: 11;
@@ -466,19 +441,19 @@ export default function WorryRelease({
             opacity: 1;
           }
           25% {
-            transform: translate(0px, calc(0px - var(--item-index) * 15px)) scale(1);
+            transform: translate(0px, calc(-30px - var(--item-index) * 15px)) scale(1);
             opacity: 1;
           }
           50% {
-            transform: translate(20px, calc(-30px - var(--item-index) * 28px)) scale(1);
+            transform: translate(20px, calc(-60px - var(--item-index) * 28px)) scale(1);
             opacity: 1;
           }
           75% {
-            transform: translate(80px, calc(-60px - var(--item-index) * 28px)) scale(1);
+            transform: translate(80px, calc(-90px - var(--item-index) * 32px)) scale(1);
             opacity: 1;
           }
           100% {
-            transform: translate(260px, calc(40px - var(--item-index) * 32px)) scale(1);
+            transform: translate(260px, calc(10px - var(--item-index) * 32px)) scale(1);
             opacity: 1;
           }
         }

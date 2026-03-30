@@ -1,5 +1,5 @@
 import { buildApiUrl, throwApiError } from './http';
-import type { Mood, MoodStats, RedemptionEligibility, RedemptionResult, RedemptionHistory } from './types';
+import type { Mood, MoodStats, RedemptionEligibility, RedemptionResult, RedemptionHistory, MoodWithAnalysis } from './types';
 
 export const moodsApi = {
   list: async (userId: string, startDate?: string, endDate?: string): Promise<Mood[]> => {
@@ -123,7 +123,7 @@ export const moodsApi = {
     return response.json();
   },
 
-  dumpMoods: async (userId: string): Promise<RedemptionResult> => {
+  dumpMoods: async (userId?: string): Promise<RedemptionResult> => {
     const response = await fetch(buildApiUrl('/api/moods/dump'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

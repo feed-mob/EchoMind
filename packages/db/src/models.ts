@@ -791,7 +791,7 @@ export interface MoodRedemption {
 }
 
 const POSITIVE_BASE = 7;
-const NEGATIVE_BASE = 7;
+const NEGATIVE_BASE = 2;
 
 export const moods = {
   async findById(id: string) {
@@ -1126,9 +1126,33 @@ export const moods = {
   },
 
   async getStatsByUser(userId: string) {
+    // 从 MoodDailySummary 获取每天的情绪倾向（仅未兑换的）
+    const summaries = await (db as any).moodDailySummary.findMany({
+      where: { userId, isRedeemed: false },
+      orderBy: { date: "desc" },
+    });
 
-    // 构建查询条件：本轮的记录（在最后一次完成时间之后，或未兑换的记录）
+    // checkInDays 直接使用 summaries 的数量（每个summary代表一天）
+    const checkInDays = summaries.length;
+
+    const dailySentiment: Record<string, any> = {};
+    if (summaries && summaries.length > 0) {
+      for (const summary of summaries) {
+        if (summary && summary.date && summary.sentiment) {
+          const dateKey = new Date(summary.date).toISOString().split('T')[0] as string;
+          dailySentiment[dateKey] = summary.sentiment;
+        }
+      }
+    }
+
+    // 获取 summary IDs 用于查询 entries
+    const summaryIds = summaries.map((s: any) => s.id);
+
+    // 构建查询条件：只查询属于未兑换 summary 的 entries
     const where: any = { userId };
+    if (summaryIds.length > 0) {
+      where.dailySummaryId = { in: summaryIds };
+    }
 
     const entries = await (db as any).mood.findMany({
       where,
@@ -1159,25 +1183,6 @@ export const moods = {
 
     const sortedMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]);
     const mostFrequentMood = sortedMoods.length > 0 ? sortedMoods[0]![0] : null;
-
-    // 从 MoodDailySummary 获取每天的情绪倾向（仅未兑换的）
-    const summaries = await (db as any).moodDailySummary.findMany({
-      where: { userId, isRedeemed: false },
-      orderBy: { date: "desc" },
-    });
-
-    // checkInDays 直接使用 summaries 的数量（每个summary代表一天）
-    const checkInDays = summaries.length;
-
-    const dailySentiment: Record<string, any> = {};
-    if (summaries && summaries.length > 0) {
-      for (const summary of summaries) {
-        if (summary && summary.date && summary.sentiment) {
-          const dateKey = new Date(summary.date).toISOString().split('T')[0] as string;
-          dailySentiment[dateKey] = summary.sentiment;
-        }
-      }
-    }
 
     return {
       total,

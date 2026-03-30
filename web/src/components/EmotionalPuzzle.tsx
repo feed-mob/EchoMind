@@ -1,18 +1,19 @@
+import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
 
 interface EmotionalPuzzleProps {
   completedDays?: number;
-  totalDays?: number;
   quote?: string;
+  redemptionEligibility?: RedemptionEligibility | null;
   onGetReward?: () => void;
 }
 
 export default function EmotionalPuzzle({
   completedDays = 0,
-  totalDays = 0,
+  redemptionEligibility,
   quote = "Every step forward is progress. Keep going!",
   onGetReward
 }: EmotionalPuzzleProps) {
-  const isComplete = completedDays >= totalDays;
+  const isComplete = completedDays >= (redemptionEligibility?.positive.base || 0);
 
   const handleGetReward = () => {
     if (onGetReward) {
@@ -27,7 +28,7 @@ export default function EmotionalPuzzle({
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Emotional Accumulation</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Complete {totalDays} days of positive logs to unlock your reward.
+            Complete {redemptionEligibility?.positive.base} days of positive logs to unlock your reward.
           </p>
         </div>
         <div className={`px-3 py-1 text-xs font-bold rounded-full ${
@@ -35,7 +36,7 @@ export default function EmotionalPuzzle({
             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
             : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
         }`}>
-          {completedDays}/{totalDays} {isComplete ? 'COMPLETE' : 'DAYS'}
+          {completedDays}/{redemptionEligibility?.positive.base} {isComplete ? 'COMPLETE' : 'DAYS'}
         </div>
       </div>
 

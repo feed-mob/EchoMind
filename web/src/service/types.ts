@@ -179,12 +179,14 @@ export interface MoodStats {
 // 兑换相关类型定义
 export interface RedemptionEligibility {
   positive: {
+    base: number;
     count: number;
     canRedeem: boolean;
     level: number;
     nextLevelNeed: number;
   };
   negative: {
+    base: number;
     count: number;
     canRedeem: boolean;
     level: number;
