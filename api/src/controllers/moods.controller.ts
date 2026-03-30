@@ -228,4 +228,73 @@ export const moodsController = {
       );
     }
   },
+
+  // 获取兑换资格
+  async getRedemptionEligibility(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const eligibility = await moods.getRedemptionEligibility(userId);
+      return Response.json(eligibility);
+    } catch (error) {
+      console.error("Get redemption eligibility error:", error);
+      return Response.json(
+        { error: "Failed to fetch redemption eligibility" },
+        { status: 500 }
+      );
+    }
+  },
+
+  // 执行情绪倾倒
+  async dump(req: Request) {
+    const data = (await req.json()) as {
+      userId: string;
+    };
+
+    if (!data.userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const result = await moods.redeem(data.userId, 'dump');
+      return Response.json(result);
+    } catch (error) {
+      console.error("Dump moods error:", error);
+      if (error instanceof Error) {
+        return Response.json({ error: error.message }, { status: 400 });
+      }
+      return Response.json(
+        { error: "Failed to dump moods" },
+        { status: 500 }
+      );
+    }
+  },
+
+  // 获取兑换历史
+  async getRedemptionHistory(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get("userId");
+    const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+    const offset = parseInt(url.searchParams.get("offset") || "0", 10);
+
+    if (!userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const history = await moods.getRedemptionHistory(userId, { limit, offset });
+      return Response.json(history);
+    } catch (error) {
+      console.error("Get redemption history error:", error);
+      return Response.json(
+        { error: "Failed to fetch redemption history" },
+        { status: 500 }
+      );
+    }
+  },
 };

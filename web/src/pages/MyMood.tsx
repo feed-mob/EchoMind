@@ -201,6 +201,11 @@ export default function MyMood() {
               stats={stats}
               completedDays={kindCheckInDays}
               totalDays={MIN_NEGATIVE_DAYS}
+              userId={user?.id}
+              onDumpSuccess={() => {
+                // 刷新统计数据
+                fetchMoodData();
+              }}
             />}
 
           </div>

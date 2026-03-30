@@ -1,5 +1,5 @@
 import { buildApiUrl, throwApiError } from './http';
-import type { Mood, MoodStats } from './types';
+import type { Mood, MoodStats, RedemptionEligibility, RedemptionResult, RedemptionHistory } from './types';
 
 export const moodsApi = {
   list: async (userId: string, startDate?: string, endDate?: string): Promise<Mood[]> => {
@@ -111,6 +111,36 @@ export const moodsApi = {
   getTeamInsights: async (userId: string, timeRange: '7' | '30' | '90' = '7'): Promise<{ positiveTrends: string[]; areasForImprovement: string[]; recommendations: string[] }> => {
     const response = await fetch(buildApiUrl(`/api/moods/team-insights?userId=${userId}&timeRange=${timeRange}`));
     if (!response.ok) throw new Error('Failed to fetch team insights');
+    return response.json();
+  },
+
+  // 兑换相关API方法
+  getRedemptionEligibility: async (userId: string): Promise<RedemptionEligibility> => {
+    const response = await fetch(buildApiUrl(`/api/moods/redemption-eligibility?userId=${userId}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch redemption eligibility');
+    }
+    return response.json();
+  },
+
+  dumpMoods: async (userId: string): Promise<RedemptionResult> => {
+    const response = await fetch(buildApiUrl('/api/moods/dump'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to dump moods');
+    }
+    return response.json();
+  },
+
+  getRedemptionHistory: async (userId: string, limit: number = 10, offset: number = 0): Promise<RedemptionHistory[]> => {
+    const params = new URLSearchParams({ userId, limit: String(limit), offset: String(offset) });
+    const response = await fetch(buildApiUrl(`/api/moods/redemption-history?${params}`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch redemption history');
+    }
     return response.json();
   },
 };

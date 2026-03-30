@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { api } from '../service';
+import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
 
 
 function getRandomIntInclusive(min:number, max:number) {
@@ -34,19 +36,25 @@ interface WorryReleaseProps {
   completedDays?: number;
   totalDays?: number;
   stats?: any;
-  onDump?: () => void;
+  userId?: string;
+  onDumpSuccess?: () => void;
 }
 
 export default function WorryRelease({
     completedDays = 0,
     totalDays = 0,
     stats={},
-    onDump
+    userId,
+    onDumpSuccess
   }: WorryReleaseProps) {
   const isComplete = completedDays >= totalDays;
-  const [isReleasing, setIsReleasing] = useState(false);
+  const [isReleasing, setIsReleasing] = useState(false); // 用于 释放(倾倒) 情绪的 loading 状态
   const [isReleased, setIsReleased] = useState(false);
   const [worryItems, setWorryItems] = useState<WorryItem[]>([]);
+  const [redemptionEligibility, setRedemptionEligibility] = useState<RedemptionEligibility | null>(null);
+  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistory[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // 用于获取数据的loading状态
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (stats?.moodCounts) {
@@ -55,15 +63,57 @@ export default function WorryRelease({
     }
   }, [stats])
 
-  const handleRelease = () => {
+  useEffect(() => {
+    if (userId) {
+      fetchRedemptionData();
+    }
+  }, [userId])
+
+  const fetchRedemptionData = async () => {
+    if (!userId) return;
+
+    setIsLoading(true);
+    try {
+      const [eligibility, history] = await Promise.all([
+        api.moods.getRedemptionEligibility(userId),
+        api.moods.getRedemptionHistory(userId, 5) // 只获取最近5条记录
+      ]);
+      setRedemptionEligibility(eligibility);
+      setRedemptionHistory(history);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch redemption data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRelease = async () => {
+    if (!userId || !redemptionEligibility?.negative.canRedeem) {
+      setError('You need at least 7 negative mood days to release your worries');
+      return;
+    }
+
     setIsReleasing(true);
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      const result = await api.moods.dumpMoods(userId);
+
+      // 兑换成功
       setIsReleasing(false);
       setIsReleased(true);
-      if(onDump){
-        onDump()
+
+      // 刷新数据
+      await fetchRedemptionData();
+
+      // 调用成功回调
+      if (onDumpSuccess) {
+        onDumpSuccess();
       }
-    }, 3000);
+    } catch (err) {
+      setIsReleasing(false);
+      setError(err instanceof Error ? err.message : 'Failed to release worries');
+    }
   };
 
   return (
@@ -87,20 +137,58 @@ export default function WorryRelease({
         <div className="group relative h-full">
 
           {/* Quote Overlay */}
-
+          {isLoading ? (
+            <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-slate-500 dark:text-slate-400">Loading...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
+              <div className="max-w-md">
+                <span className="material-symbols-outlined text-red-500 text-5xl mb-4">error_outline</span>
+                <p className="text-red-600 dark:text-red-400 mb-2">{error}</p>
+                <button
+                  onClick={fetchRedemptionData}
+                  className="px-4 py-2 bg-primary text-white rounded-lg text-sm"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          ) : (
             <div className="flex items-center justify-center px-6 pt-20 pb-28 text-center">
               {!isReleased ? <div className="max-w-md">
                 <p className="text-xl font-medium text-slate-500 dark:text-slate-400 leading-tight">
                   &ldquo;Letting go isn&apos;t giving up, it&apos;s making room for better things.&rdquo;
                 </p>
+                {redemptionEligibility && (
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p className="text-sm text-blue-600 dark:text-blue-400">
+                      {redemptionEligibility.negative.canRedeem
+                        ? `You have ${redemptionEligibility.negative.count} negative mood days. Click to release them!`
+                        : `You need ${redemptionEligibility.negative.nextLevelNeed} more negative mood days to release your worries.`
+                      }
+                    </p>
+                  </div>
+                )}
               </div> : <div className="max-w-md">
                 <span className="material-symbols-outlined text-6xl text-primary mb-4">check_circle</span>
                 <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">Worries Released</p>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-tight">
                   Take a deep breath. You&apos;ve taken the first step toward a lighter mind.
                 </p>
+                {redemptionHistory.length > 0 && (
+                  <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      Your release has been recorded. Keep tracking your mood!
+                    </p>
+                  </div>
+                )}
               </div>}
             </div>
+          )}
 
 
 
@@ -152,7 +240,7 @@ export default function WorryRelease({
           <div className="flex justify-center px-6 pt-28 pb-20">
             <button
               onClick={handleRelease}
-              disabled={isReleasing || isReleased || !isComplete}
+              disabled={isReleasing || isReleased || !isComplete || !redemptionEligibility?.negative.canRedeem}
               className="group relative px-10 py-5 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               <span className="material-symbols-outlined">delete_sweep</span>
@@ -160,6 +248,30 @@ export default function WorryRelease({
               <div className="absolute inset-0 rounded-xl bg-white/10 scale-0 group-hover:scale-100 transition-transform duration-500" />
             </button>
           </div>
+
+          {/* Redemption History */}
+          {!isLoading && !error && redemptionHistory.length > 0 && (
+            <div className="px-6 pb-8">
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Releases</h3>
+                <div className="space-y-2">
+                  {redemptionHistory.map((record, index) => (
+                    <div key={record.id} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          Level {record.level} Release
+                        </span>
+                      </div>
+                      <span className="text-slate-500 dark:text-slate-400 text-xs">
+                        {new Date(record.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

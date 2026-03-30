@@ -176,6 +176,51 @@ export interface MoodStats {
   dailySentiment: Record<string, "positive" | "negative" | "neutral">
 }
 
+// 兑换相关类型定义
+export interface RedemptionEligibility {
+  positive: {
+    count: number;
+    canRedeem: boolean;
+    level: number;
+    nextLevelNeed: number;
+  };
+  negative: {
+    count: number;
+    canRedeem: boolean;
+    level: number;
+    nextLevelNeed: number;
+  };
+}
+
+export interface RedemptionResult {
+  redemption: {
+    id: string;
+    userId: string;
+    type: string;
+    sentiment: string;
+    level: number;
+    baseCount: number;
+    extraCount: number;
+    totalCount: number;
+    reward?: string;
+    createdAt: string;
+  };
+  consumed: number;
+  cleared: boolean;
+}
+
+export interface RedemptionHistory {
+  id: string;
+  type: string;
+  sentiment: string;
+  level: number;
+  baseCount: number;
+  extraCount: number;
+  totalCount: number;
+  reward?: string;
+  createdAt: string;
+}
+
 export interface MoodWithAnalysis extends Mood {
   analysis?: EmotionAnalysisResult;
 }

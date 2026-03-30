@@ -1000,12 +1000,14 @@ export const moods = {
 
     return {
       positive: {
+        base: POSITIVE_BASE,
         count: positiveCount,
         canRedeem: positiveCount >= POSITIVE_BASE,
         level: this.calculateLevel(positiveCount, POSITIVE_BASE),
         nextLevelNeed: this.nextLevelNeed(positiveCount, POSITIVE_BASE),
       },
       negative: {
+        base: NEGATIVE_BASE,
         count: negativeCount,
         canRedeem: negativeCount >= NEGATIVE_BASE,
         level: this.calculateLevel(negativeCount, NEGATIVE_BASE),

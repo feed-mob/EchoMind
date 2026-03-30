@@ -28,6 +28,15 @@ export const moodsRoutes = {
   "/api/moods/team-insights": {
     GET: moodsController.getTeamInsights,
   },
+  "/api/moods/redemption-eligibility": {
+    GET: moodsController.getRedemptionEligibility,
+  },
+  "/api/moods/dump": {
+    POST: moodsController.dump,
+  },
+  "/api/moods/redemption-history": {
+    GET: moodsController.getRedemptionHistory,
+  },
   "/api/moods/:id": {
     GET: moodsController.getById,
   },
