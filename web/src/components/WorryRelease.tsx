@@ -4,7 +4,6 @@ import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../ser
 import { withMinDuration } from "../tools/functions";
 
 import { useToast } from '../components/ToastProvider';
-import Loading from "../components/Loading";
 
 function getRandomIntInclusive(min:number, max:number) {
   const minCeiled = Math.ceil(min);
@@ -107,6 +106,7 @@ export default function WorryRelease({
       setIsReleasing(false);
       setIsReleased(true);
 
+      fetchEntries();
       // 调用成功回调（父组件会刷新数据）
       if (onDumpSuccess) {
         onDumpSuccess();
@@ -168,20 +168,29 @@ export default function WorryRelease({
                     </p>
                   </div>
                 )}
-              </div> : <div className="max-w-md">
-                <span className="material-symbols-outlined text-6xl text-primary mb-4">check_circle</span>
-                <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">Worries Released</p>
-                <p className="text-lg text-slate-500 dark:text-slate-400 leading-tight">
-                  Take a deep breath. You&apos;ve taken the first step toward a lighter mind.
-                </p>
-                {redemptionHistory.length > 0 && (
-                  <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <p className="text-sm text-green-600 dark:text-green-400">
-                      Your release has been recorded. Keep tracking your mood!
+              </div> : (
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-slate-900 bg-opacity-90 flex justify-center items-center z-40">
+                  <div className="max-w-3xl p-10 bg-white rounded-lg relative">
+                    <span className="material-symbols-outlined text-6xl text-primary mb-4">thumb_up</span>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">Worries Released</p>
+                    <p className="text-lg text-slate-500 dark:text-slate-400 leading-tight">
+                      Take a deep breath. You&apos;ve taken the first step toward a lighter mind.
                     </p>
+                    {redemptionHistory.length > 0 && (
+                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          Your release has been recorded. Keep tracking your mood!
+                        </p>
+                      </div>
+                    )}
+                    <div className="mt-4">
+                      <button className="min-w-36 py-3 bg-primary text-white rounded-md bg-opacity-80 hover:bg-opacity-100" onClick={() => setIsReleased(false)}>
+                        OK, Got It
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>}
+                </div>
+              )}
             </div>
           )}
 
