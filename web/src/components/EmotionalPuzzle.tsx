@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { api } from '../service';
 import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 
 interface EmotionalPuzzleProps {
@@ -10,12 +12,32 @@ interface EmotionalPuzzleProps {
 }
 
 export default function EmotionalPuzzle({
-  stats,
-  redemptionEligibility,
-  redemptionHistory,
-  quote = "Every step forward is progress. Keep going!",
-  onGetReward
-}: EmotionalPuzzleProps) {
+    stats,
+    redemptionEligibility,
+    redemptionHistory,
+    userId,
+    quote = "Every step forward is progress. Keep going!",
+    onGetReward
+  }: EmotionalPuzzleProps) {
+
+
+  // 加载 entries
+  useEffect(() => {
+    if (userId){
+      fetchEntries();
+    }
+  }, [userId])
+
+  const fetchEntries = async () => {
+    try {
+      const res = await api.moods.listWithoutRedeemed(userId!, 'positive')
+      console.log("==== res=== >",res)
+      // TODO
+      // 完成 情绪显示
+    } catch (err) {
+
+    }
+  };
 
 
   const handleGetReward = () => {

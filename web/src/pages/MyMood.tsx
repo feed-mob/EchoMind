@@ -8,6 +8,7 @@ import MoodTrendChart from '../components/MoodTrendChart';
 import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 import WorryRelease from '../components/WorryRelease';
+import Loading from "../components/Loading";
 
 import { getDaysByKind } from "../tools/functions";
 import { emotionSpectrum } from '../config/enum';
@@ -75,16 +76,16 @@ export default function MyMood() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading my moods...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+  //         <p className="text-slate-600 dark:text-slate-400">Loading my moods...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -139,7 +140,7 @@ export default function MyMood() {
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8 z-0 relative">
         {/* Title Section */}
         <div className="mb-8">
           <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Mood Journey</h1>
@@ -192,6 +193,7 @@ export default function MyMood() {
             {/* Emotional Puzzle */}
             {moodStatus == 'positive' && <EmotionalPuzzle
               stats={stats}
+              userId={user?.id}
               redemptionEligibility={redemptionEligibility}
               redemptionHistory={redemptionHistory}
               quote="Every step forward is progress. Keep going!"
@@ -249,6 +251,7 @@ export default function MyMood() {
           </div>
         </div>
       </main>
+      {loading && (<Loading />)}
     </div>
   );
 }

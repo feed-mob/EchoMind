@@ -791,7 +791,7 @@ export interface MoodRedemption {
 }
 
 const POSITIVE_BASE = 7;
-const NEGATIVE_BASE = 2;
+const NEGATIVE_BASE = 7;
 
 export const moods = {
   async findById(id: string) {
@@ -832,7 +832,6 @@ export const moods = {
 
 
     const summaryIds = summaries.map((item:any) => (item.id));
-    console.log("====== summaryIds ===>", summaryIds)
 
     if(summaryIds.length == 0){
       return []

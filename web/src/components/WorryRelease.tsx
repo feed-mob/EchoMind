@@ -4,7 +4,7 @@ import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../ser
 import { withMinDuration } from "../tools/functions";
 
 import { useToast } from '../components/ToastProvider';
-
+import Loading from "../components/Loading";
 
 function getRandomIntInclusive(min:number, max:number) {
   const minCeiled = Math.ceil(min);
@@ -17,17 +17,35 @@ function generateRotation(i:number){
   return random;
 }
 
-function generateWorryItems(obj: Record<string, number>): WorryItem[] {
+const MAX_SHOW_COUNT = 6;
+function generateWorryItems(list:any[]): WorryItem[] {
   const result: WorryItem[] = [];
-  const moods = Object.keys(obj);
-  moods.forEach((m, index) => {
-    const rotation = generateRotation(index);
-    const item: WorryItem = {
-      text: m,
-      rotation: rotation,
-    };
-    result.push(item);
+
+  // 转化为 WorryItem ，并记录下来用于显示。
+  // 如果已有则不再加入。
+  list.forEach((m, index) => {
+    if(!result.find((i) => (i.text == m.mood))){
+      const rotation = generateRotation(index);
+      const item: WorryItem = {
+        text: m.mood,
+        rotation: rotation,
+      };
+      result.push(item);
+    }
   });
+
+  // 如果不够，则再用已有的心情补齐不够的数量
+  if (list.length > MAX_SHOW_COUNT && result.length < MAX_SHOW_COUNT) {
+    const c = MAX_SHOW_COUNT - result.length;
+    list.slice(0, c).forEach((m, index) => {
+      const rotation = generateRotation(index);
+      const item: WorryItem = {
+        text: m.mood,
+        rotation: rotation,
+      };
+      result.push(item);
+    });
+  }
 
   return result;
 }
@@ -58,26 +76,19 @@ export default function WorryRelease({
   const [error, setError] = useState<string | null>(null);
 
 
-  //
+  // 加载 entries
   useEffect(() => {
     if (userId){
       fetchEntries();
     }
-
-    // if (stats?.moodCounts) {
-    //   const items = generateWorryItems(stats.moodCounts);
-    //   setWorryItems(items);
-    // }
   }, [userId])
 
   const fetchEntries = async () => {
     try {
-      const res = await api.moods.listWithoutRedeemed(userId!, 'negative')
-      console.log("==== res=== >",res)
-      // TODO
-      // 完成 情绪显示
+      const res = await api.moods.listWithoutRedeemed(userId!, 'negative');
+      const items = generateWorryItems(res);
+      setWorryItems(items);
     } catch (err) {
-
     }
   };
 
@@ -126,8 +137,6 @@ export default function WorryRelease({
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[600px]">
         {/* Bulging Trash Bin Visual */}
         <div className="group relative h-full">
-          // TODO
-          // 显示 loading
 
           {/* Quote Overlay */}
           {error ? (
@@ -176,8 +185,6 @@ export default function WorryRelease({
             </div>
           )}
 
-
-
           <div className="bin-container">
             <div className={`relative bin-container-wrapper ${isReleasing ? 'lid-tilt' : ''}`}>
               {/* Detailed Premium Lid */}
@@ -203,11 +210,11 @@ export default function WorryRelease({
                       className={`worry-wrapper ${isReleasing ? 'worry-throw' : ''}`}
                       style={{
                         '--throw-delay': `${index * 0.12 + 1}s`,
-                        '--item-index': index,
+                        '--item-index': Math.min(worryItems.length - index, 6),
                       } as React.CSSProperties}
                     >
                       <span
-                        className={`worry-item ${isReleasing ? 'worry-land' : ''}`}
+                        className={`worry-item`}
                         style={{
                           transform: `rotate(${item.rotation}deg)`,
                         }}
@@ -453,34 +460,43 @@ export default function WorryRelease({
             transform: translate(0, 0) scale(1);
             opacity: 1;
           }
+
           25% {
-            transform: translate(0px, calc(-30px - var(--item-index) * 15px)) scale(1);
+            transform: translate(0px, calc(-240px + var(--item-index) * 32px)) scale(1);
             opacity: 1;
           }
+
           50% {
-            transform: translate(20px, calc(-60px - var(--item-index) * 28px)) scale(1);
+            transform: translate(50px, calc(-300px + var(--item-index) * 32px)) scale(1);
             opacity: 1;
           }
+
           75% {
-            transform: translate(80px, calc(-90px - var(--item-index) * 32px)) scale(1);
+            transform: translate(120px, calc(-320px + var(--item-index) * 32px)) scale(1);
             opacity: 1;
           }
+
           100% {
-            transform: translate(260px, calc(10px - var(--item-index) * 32px)) scale(1);
-            opacity: 1;
+            transform: translate(340px, calc(-200px + var(--item-index) * 32px)) scale(0.2);
+            opacity: 0;
           }
+
         }
 
         .worry-land {
-          animation: landDisappear 0.3s ease-out calc(var(--throw-delay) + 0.6s) forwards;
+          animation: landDisappear 1.3s ease-out calc(var(--throw-delay) + 0.1s) forwards;
         }
 
         @keyframes landDisappear {
           0% {
             transform: scale(1);
           }
+          80% {
+            transform: scale(1);
+            opacity: 1;
+          }
           100% {
-            transform: scale(0.3);
+            transform: scale(0.2);
             opacity: 0;
           }
         }
