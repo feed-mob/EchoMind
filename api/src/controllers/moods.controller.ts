@@ -36,8 +36,6 @@ export const moodsController = {
     const userId = url.searchParams.get("userId");
     const moodKind = url.searchParams.get("kind");
 
-    console.log("===== api listWithoutRedeemed ==>", userId, moodKind)
-
     if (!userId) {
       return Response.json({ error: "userId is required" }, { status: 400 });
     }

@@ -67,10 +67,10 @@ export default function EmotionalPuzzle({
 
       {/* Puzzle Container */}
       <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[550px]">
-        <div className="puzzle-container group relative">
+        <div className="group relative h-full flex flex-col">
 
           {/* Quote Overlay */}
-          <div className="hidden absolute inset-0 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
+          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
             <div className="max-w-md">
               <span className="material-icons text-primary mb-2 text-4xl">format_quote</span>
               <p className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white italic leading-tight">
@@ -79,11 +79,15 @@ export default function EmotionalPuzzle({
             </div>
           </div>
 
+          <div className="puzzle-container flex-1">
+            this is content
+          </div>
+
           {/* Reward Button */}
-          <div className="hidden absolute bottom-10 left-0 right-0 flex justify-center z-20">
+          <div className="flex justify-center p-10">
             <button
               onClick={handleGetReward}
-              className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3"
+              className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3 cursor-pointer"
               disabled={!redemptionEligibility?.positive.canRedeem}
             >
               <span className="material-icons animate-bounce">card_giftcard</span>

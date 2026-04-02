@@ -26,7 +26,7 @@ export default function MoodCenter() {
       const history = await api.moods.getHistory(user.id, 5);
       setMoodHistory(history);
     } catch (err) {
-      console.error('Failed to fetch mood history:', err);
+      // console.error('Failed to fetch mood history:', err);
     }
   }, [user?.id]);
 
@@ -58,7 +58,6 @@ export default function MoodCenter() {
       setInputText('');
       await fetchMoodHistory();
     } catch (err) {
-      console.error('Failed to analyze mood:', err);
       toast.error('Failed to analyze mood. Please try again.');
     } finally {
       setIsSubmitting(false);
