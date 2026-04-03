@@ -164,15 +164,17 @@ export default function EmotionalPuzzle({
       {/* Puzzle Container */}
       <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden relative min-h-[550px]">
         <div className="group relative h-full flex flex-col">
-
-          {/* Quote Overlay */}
-          <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
-            <div className="max-w-md">
-              <span className="material-icons text-primary mb-2 text-4xl">format_quote</span>
-              <p className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white italic leading-tight">
-                "{quote}"
-              </p>
-            </div>
+          <div className="flex items-center justify-center px-6 pt-8 pb-8 text-center">
+            {redemptionEligibility && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                  {redemptionEligibility.positive.canRedeem
+                    ? `You have ${redemptionEligibility.positive.count} positive mood days. Click to redeem them!`
+                    : `You need ${redemptionEligibility.positive.nextLevelNeed} more positive mood days to redeem your Reward.`
+                  }
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="puzzle-container flex-1 flex items-center justify-center md:p-4">
@@ -181,7 +183,7 @@ export default function EmotionalPuzzle({
               className="w-full md:w-[500px] aspect-square"
               style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
             >
-              {puzzlePieces.map((piece) => (
+              {puzzlePieces.map((piece, index) => (
                 <g
                   key={piece.id}
                   className="puzzle-piece"
@@ -189,9 +191,9 @@ export default function EmotionalPuzzle({
                 >
                   <path
                     d={piece.path}
-                    fill={piece.color}
-                    stroke={piece.strokeColor}
-                    strokeWidth="0"
+                    fill={(redemptionEligibility?.positive.count || 0) > index ? piece.color : '#ccc'}
+                    stroke={(redemptionEligibility?.positive.count || 0) > index ? piece.strokeColor : '#bbb'}
+                    strokeWidth="1"
                     style={{
                       transition: 'all 0.2s ease',
                     }}
@@ -208,16 +210,27 @@ export default function EmotionalPuzzle({
                 </g>
               ))}
             </svg>
+
+            {/* Quote Overlay */}
+            <div className="absolute inset-0 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
+              <div className="max-w-md">
+                <p className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white italic leading-tight">
+                  "{quote}"
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Reward Button */}
           <div className="flex justify-center p-10">
             <button
               onClick={handleGetReward}
-              className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3 cursor-pointer"
+              className="group relative px-10 py-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-black text-xl shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-1 transition-all flex items-center gap-3 cursor-pointer disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:from-slate-400 disabled:to-slate-400 disabled:shadow-none"
               disabled={!redemptionEligibility?.positive.canRedeem}
             >
-              <span className="material-icons animate-bounce">card_giftcard</span>
+              {
+                redemptionEligibility?.positive.canRedeem && (<span className="material-icons animate-bounce">card_giftcard</span>)
+              }
               Get Reward
               <div className="absolute inset-0 rounded-xl bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
             </button>
@@ -232,6 +245,7 @@ export default function EmotionalPuzzle({
           margin: 0 auto;
           background-color: transparent;
           overflow: hidden;
+          position: relative;
         }
       `}</style>
     </div>
