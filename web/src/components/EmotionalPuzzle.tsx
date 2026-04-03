@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from '../service';
 import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
+
+// 拼图块类型
+interface PuzzlePiece {
+  id: number;
+  path: string;
+  color: string;
+  strokeColor: string;
+}
 
 interface EmotionalPuzzleProps {
   stats?: MoodStats | null;
@@ -38,6 +46,94 @@ export default function EmotionalPuzzle({
 
     }
   };
+
+  // 生成7块拼图 - 7块4/5边形拼成完整正方形，PC端500x500，手机端自适应
+  const puzzlePieces = useMemo<PuzzlePiece[]>(() => {
+    // SVG 视图框大小，所有坐标基于此缩放
+    const s = 500;
+
+    const pieces: PuzzlePiece[] = [
+      // // 块1: 左上 - 四边形 (左上不规则)
+      {
+        id: 1,
+        path: `M 0 0
+               L ${s * 0.45} 0
+               L ${s * 0.55} ${s * 0.4}
+               L ${s * 0} ${s * 0.35}
+               Z`,
+        color: '#60A5FA',
+        strokeColor: '#3B82F6'
+      },
+      // // 块2: 右上 - 四边形 (右上不规则)
+      {
+        id: 2,
+        path: `M ${s * 0.45} 0
+               L ${s * 1} 0
+               L ${s * 1} ${s * 0.3}
+               L ${s * 0.55} ${s * 0.4}
+               Z`,
+        color: '#A78BFA',
+        strokeColor: '#8B5CF6'
+      },
+      // // 块3: 左中 - 四边形
+      {
+        id: 3,
+        path: `M 0 ${s * 0.35}
+               L ${s * 0.55} ${s * 0.4}
+               L ${s * 0.45} ${s * 0.65}
+               L ${s * 0} ${s * 0.8}
+               Z`,
+        color: '#34D399',
+        strokeColor: '#10B981'
+      },
+      // // 块4: 右中 - 四边形
+      {
+        id: 4,
+        path: `M ${s * 0.55} ${s * 0.4}
+               L ${s * 0.45} ${s * 0.65}
+               L ${s * 0.75} ${s * 0.65}
+               L ${s * 1} ${s * 0.3}
+               Z`,
+        color: '#F87171',
+        strokeColor: '#EF4444'
+      },
+      // // 块5: 下左 - 四边形
+      {
+        id: 5,
+        path: `M 0 ${s * 0.8}
+               L ${s * 0.45} ${s * 0.65}
+               L  ${s * 0.45} ${s * 1}
+               L 0 ${s * 1}
+               Z`,
+        color: '#FBBF24',
+        strokeColor: '#F59E0B'
+      },
+      // // 块6: 下中 - 四边形
+      {
+        id: 6,
+        path: `M ${s * 0.45} ${s * 0.65}
+               L ${s * 0.75} ${s * 0.65}
+               L ${s * 0.9} ${s * 1}
+               L ${s * 0.45} ${s * 1}
+               Z`,
+        color: '#22D3EE',
+        strokeColor: '#06B6D4'
+      },
+      // // 块7:  下右 - 四边形
+      {
+        id: 7,
+        path: `M ${s * 1} ${s * 0.3}
+               L ${s * 1} ${s * 1}
+               L ${s * 0.9} ${s * 1}
+               L ${s * 0.75} ${s * 0.65}
+               Z`,
+        color: '#C084FC',
+        strokeColor: '#A855F7'
+      }
+    ];
+
+    return pieces;
+  }, []);
 
 
   const handleGetReward = () => {
@@ -79,8 +175,39 @@ export default function EmotionalPuzzle({
             </div>
           </div>
 
-          <div className="puzzle-container flex-1">
-            this is content
+          <div className="puzzle-container flex-1 flex items-center justify-center md:p-4">
+            <svg
+              viewBox="0 0 500 500"
+              className="w-full md:w-[500px] aspect-square"
+              style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+            >
+              {puzzlePieces.map((piece) => (
+                <g
+                  key={piece.id}
+                  className="puzzle-piece"
+                  style={{ cursor: 'pointer' }}
+                >
+                  <path
+                    d={piece.path}
+                    fill={piece.color}
+                    stroke={piece.strokeColor}
+                    strokeWidth="0"
+                    style={{
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.filter = 'brightness(1.15)';
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.transformOrigin = 'center';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.filter = 'none';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  />
+                </g>
+              ))}
+            </svg>
           </div>
 
           {/* Reward Button */}
