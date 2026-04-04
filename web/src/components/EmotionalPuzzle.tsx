@@ -45,7 +45,7 @@ function getRandomQuote(): { text: string; author: string } {
 export default function EmotionalPuzzle({
     stats,
     redemptionEligibility,
-    redemptionHistory,
+    redemptionHistory = [],
     userId,
     quote = "Every step forward is progress. Keep going!",
     onGetReward
@@ -56,6 +56,10 @@ export default function EmotionalPuzzle({
   const [isRedeemed, setIsRedeemed] = useState(false);
   const [currentQuote, setCurrentQuote] = useState<{ text: string; author: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const redemptionPositveHistory = useMemo(() => {
+    return redemptionHistory.filter((item) => (item.sentiment == 'positive'))
+  }, [redemptionHistory]);
 
   // 加载 entries
   useEffect(() => {
@@ -312,6 +316,30 @@ export default function EmotionalPuzzle({
               <div className="absolute inset-0 rounded-xl bg-white/20 scale-0 group-hover:scale-100 transition-transform duration-500"></div>
             </button>
           </div>
+
+          {/* Redemption History */}
+          {redemptionPositveHistory.length > 0 && (
+            <div className="px-6 pb-8">
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Reward</h3>
+                <div className="space-y-2">
+                  {redemptionPositveHistory.map((record, index) => (
+                    <div key={record.id} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
+                        <span className="text-slate-700 dark:text-slate-300">
+                          You got {record.level} level Reward: {record.reward}
+                        </span>
+                      </div>
+                      <span className="text-slate-500 dark:text-slate-400 text-xs">
+                        {new Date(record.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
