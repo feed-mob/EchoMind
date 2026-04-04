@@ -146,6 +146,18 @@ export const moodsApi = {
     return response.json();
   },
 
+  rewardMoods: async (userId?: string): Promise<RedemptionResult> => {
+    const response = await fetch(buildApiUrl('/api/moods/reward'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    });
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to reward moods');
+    }
+    return response.json();
+  },
+
   getRedemptionHistory: async (userId: string, limit: number = 10, offset: number = 0): Promise<RedemptionHistory[]> => {
     const params = new URLSearchParams({ userId, limit: String(limit), offset: String(offset) });
     const response = await fetch(buildApiUrl(`/api/moods/redemption-history?${params}`));

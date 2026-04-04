@@ -407,7 +407,7 @@ h1 {
 }
 
 .animate-glow {
-  animation: glow 3s ease-in-out;
+  animation: glow 2.4s ease-in-out;
 }
 
 .animate-shake {

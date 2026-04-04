@@ -291,6 +291,31 @@ export const moodsController = {
     }
   },
 
+  // 正向情绪兑换
+  async reward(req: Request) {
+    const data = (await req.json()) as {
+      userId: string;
+    };
+
+    if (!data.userId) {
+      return Response.json({ error: "userId is required" }, { status: 400 });
+    }
+
+    try {
+      const result = await moods.redeem(data.userId, 'reward');
+      return Response.json(result);
+    } catch (error) {
+      console.error("Reward moods error:", error);
+      if (error instanceof Error) {
+        return Response.json({ error: error.message }, { status: 400 });
+      }
+      return Response.json(
+        { error: "Failed to reward moods" },
+        { status: 500 }
+      );
+    }
+  },
+
   // 获取兑换历史
   async getRedemptionHistory(req: Request) {
     const url = new URL(req.url);

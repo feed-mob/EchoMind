@@ -140,7 +140,7 @@ export default function MyMood() {
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8 z-0 relative">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8 relative">
         {/* Title Section */}
         <div className="mb-8">
           <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Mood Journey</h1>

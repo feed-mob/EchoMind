@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../service';
 import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 import { withMinDuration } from "../tools/functions";
@@ -73,6 +73,10 @@ export default function WorryRelease({
   const [isReleased, setIsReleased] = useState(false);
   const [worryItems, setWorryItems] = useState<WorryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const redemptionNegativeHistory = useMemo(() => {
+    return redemptionHistory.filter((item) => (item.sentiment == 'negative'))
+  }, [redemptionHistory]);
 
 
   // 加载 entries
@@ -169,14 +173,14 @@ export default function WorryRelease({
                   </div>
                 )}
               </div> : (
-                <div className="fixed top-0 bottom-0 left-0 right-0 bg-slate-900 bg-opacity-90 flex justify-center items-center z-40">
+                <div className="fixed top-0 bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
                   <div className="max-w-3xl p-10 bg-white rounded-lg relative">
                     <span className="material-symbols-outlined text-6xl text-primary mb-4">thumb_up</span>
                     <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">Worries Released</p>
                     <p className="text-lg text-slate-500 dark:text-slate-400 leading-tight">
                       Take a deep breath. You&apos;ve taken the first step toward a lighter mind.
                     </p>
-                    {redemptionHistory.length > 0 && (
+                    {redemptionNegativeHistory.length > 0 && (
                       <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                         <p className="text-sm text-green-600 dark:text-green-400">
                           Your release has been recorded. Keep tracking your mood!
@@ -252,17 +256,17 @@ export default function WorryRelease({
           </div>
 
           {/* Redemption History */}
-          {redemptionHistory.length > 0 && (
+          {redemptionNegativeHistory.length > 0 && (
             <div className="px-6 pb-8">
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                 <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Releases</h3>
                 <div className="space-y-2">
-                  {redemptionHistory.map((record, index) => (
+                  {redemptionNegativeHistory.map((record, index) => (
                     <div key={record.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
                         <span className="text-slate-700 dark:text-slate-300">
-                          Level {record.level} Release
+                          You Release {record.totalCount} days worries
                         </span>
                       </div>
                       <span className="text-slate-500 dark:text-slate-400 text-xs">
