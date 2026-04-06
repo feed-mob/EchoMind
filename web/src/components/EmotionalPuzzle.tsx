@@ -61,24 +61,6 @@ export default function EmotionalPuzzle({
     return redemptionHistory.filter((item) => (item.sentiment == 'positive'))
   }, [redemptionHistory]);
 
-  // 加载 entries
-  useEffect(() => {
-    if (userId){
-      fetchEntries();
-    }
-  }, [userId])
-
-  const fetchEntries = async () => {
-    try {
-      const res = await api.moods.listWithoutRedeemed(userId!, 'positive')
-      console.log("==== res=== >",res)
-      // TODO
-      // 完成 情绪显示
-    } catch (err) {
-      console.error("Failed to fetch entries:", err);
-    }
-  };
-
   const handleGetReward = async () => {
     // 检查兑换资格
     if (!userId || !redemptionEligibility?.positive.canRedeem) {
@@ -103,9 +85,6 @@ export default function EmotionalPuzzle({
       // 随机选择一条名言
       const randomQuote = getRandomQuote();
       setCurrentQuote(randomQuote);
-
-      // 刷新entries
-      fetchEntries();
 
       // 调用父组件回调
       if (onGetReward) {
