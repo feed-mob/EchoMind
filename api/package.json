@@ -4,9 +4,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "db:generate": "cd ../packages/db && bunx prisma generate --schema prisma/schema.prisma",
+    "db:generate": "if [ -d ../packages/db ]; then cd ../packages/db; elif [ -d ./packages/db ]; then cd ./packages/db; else echo 'packages/db not found, skip prisma generate'; exit 0; fi; bunx prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "if [ -d ../packages/db ]; then cd ../packages/db; elif [ -d ./packages/db ]; then cd ./packages/db; else echo 'packages/db not found, skip prisma migrate'; exit 0; fi; bunx prisma migrate deploy --schema prisma/schema.prisma",
     "dev": "bun run db:generate && bun --hot index.ts",
-    "postinstall": "cd ../packages/db && bun install && bunx prisma generate --schema prisma/schema.prisma"
+    "start": "bun index.ts",
+    "postinstall": "if [ -d ../packages/db ]; then cd ../packages/db; elif [ -d ./packages/db ]; then cd ./packages/db; else echo 'packages/db not found, skip postinstall db setup'; exit 0; fi; bun install && bunx prisma generate --schema prisma/schema.prisma"
   },
   "devDependencies": {
     "@types/bun": "latest"

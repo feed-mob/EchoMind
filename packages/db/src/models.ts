@@ -790,8 +790,8 @@ export interface MoodRedemption {
   createdAt: Date;
 }
 
-const POSITIVE_BASE = 2;
-const NEGATIVE_BASE = 2;
+const POSITIVE_BASE = 7;
+const NEGATIVE_BASE = 7;
 
 export const moods = {
   async findById(id: string) {

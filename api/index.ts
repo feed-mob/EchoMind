@@ -2,9 +2,10 @@ import { initDatabase } from "../packages/db/index.js";
 import { handleRequest } from "./src/http/app.js";
 
 await initDatabase();
+const port = Number(process.env.PORT || 3000);
 
 Bun.serve({
-  port: 3000,
+  port,
   fetch: handleRequest,
   development: {
     hmr: true,
@@ -12,4 +13,4 @@ Bun.serve({
   },
 });
 
-console.log("API server running on http://localhost:3000");
+console.log(`API server running on http://localhost:${port}`);
