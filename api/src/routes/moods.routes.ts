@@ -3,7 +3,9 @@ import { moodsController } from "../controllers/index.js";
 export const moodsRoutes = {
   "/api/moods": {
     GET: moodsController.list,
-    POST: moodsController.create,
+  },
+  "/api/moods_without_redeemed": {
+    GET: moodsController.listWithoutRedeemed,
   },
   "/api/moods/analyze": {
     POST: moodsController.analyze,
@@ -29,9 +31,19 @@ export const moodsRoutes = {
   "/api/moods/team-insights": {
     GET: moodsController.getTeamInsights,
   },
+  "/api/moods/redemption-eligibility": {
+    GET: moodsController.getRedemptionEligibility,
+  },
+  "/api/moods/dump": {
+    POST: moodsController.dump,
+  },
+  "/api/moods/redemption-history": {
+    GET: moodsController.getRedemptionHistory,
+  },
+  "/api/moods/reward": {
+    POST: moodsController.reward,
+  },
   "/api/moods/:id": {
     GET: moodsController.getById,
-    PUT: moodsController.update,
-    DELETE: moodsController.delete,
   },
 };

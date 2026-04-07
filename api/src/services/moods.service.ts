@@ -15,7 +15,7 @@ export interface TeamMoodStats {
 }
 
 export interface TeamMoodDistribution {
-  emotion: string;
+  mood: string;
   count: number;
   percentage: number;
 }
@@ -58,7 +58,7 @@ export async function analyzeAndCreateMood(
     const analysis = await analyzeEmotion(input);
 
     // 保存到数据库
-    const mood = await moods.create({
+    const mood = await moods.createWithSummary({
       userId,
       mood: analysis.spectrum, // 使用 spectrum 作为 mood 值
       emotion: analysis.emotion, // 具体情绪描述
@@ -131,12 +131,12 @@ function getIconForSpectrum(
     boredom: "hourglass_empty",
     anxiety: "cloud",
     anger: "local_fire_department",
-    joy: "restaurant",
+    joy: "sentiment_very_satisfied",
     achievement: "star",
     warmth: "lightbulb",
     calm: "eco",
   };
-  return iconMap[spectrum] || "sentiment_satisfied";
+  return iconMap[spectrum] || "sentiment_very_satisfied";
 }
 
 /**
@@ -198,7 +198,7 @@ export async function getTeamStats(
 
     // 获取主要情绪
     const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
+      const emotion = m.mood || m.emotion;
       acc[emotion] = (acc[emotion] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -240,14 +240,14 @@ export async function getTeamDistribution(
     const recentMoods = moodsList.filter(m => new Date(m.recordedAt) >= cutoffDate);
 
     const emotionCounts = recentMoods.reduce((acc, m) => {
-      const emotion = m.emotion || m.mood;
-      acc[emotion] = (acc[emotion] || 0) + 1;
+      const mood = m.mood || m.emotion;
+      acc[mood] = (acc[mood] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const total = recentMoods.length;
-    const distribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
-      emotion,
+    const distribution = Object.entries(emotionCounts).map(([mood, count]) => ({
+      mood,
       count,
       percentage: Math.round((count / total) * 100),
     }));

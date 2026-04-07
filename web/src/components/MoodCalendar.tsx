@@ -1,16 +1,16 @@
 import { useMemo } from 'react';
-import type { Mood } from '../service/types';
-import { moodColorMap } from '../config/enum';
+
+import { getColorBySentiment } from "../tools/functions";
 
 interface MoodCalendarProps {
   currentDate: Date;
-  entries: Mood[];
+  dailySentiment?: Record<string, any>[];
   onNavigateMonth: (direction: 'prev' | 'next') => void;
 }
 
 export default function MoodCalendar({
   currentDate,
-  entries,
+  dailySentiment,
   onNavigateMonth,
 }: MoodCalendarProps) {
   const calendarDays = useMemo(() => {
@@ -23,11 +23,10 @@ export default function MoodCalendar({
 
     const days: Array<{
       date: number;
-      mood?: string;
-      emotion?: string;
+      specstrum?: string;
       color?: string;
       backgroundColor?: string;
-      entry?: Mood;
+      isRedeemed?: boolean;
     }> = [];
 
     // Previous month days
@@ -39,32 +38,29 @@ export default function MoodCalendar({
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-      const entry = entries.find((e) => e.recordedAt.startsWith(dateStr));
-
-      const color =
-        entry?.mood && entry.mood in moodColorMap
-          ? moodColorMap[entry.mood as keyof typeof moodColorMap]
-          : undefined;
-      const bgColor = color ? `${color}33` : '';
+      const dailyData = (dailySentiment || []).find((item) => (item.date == dateStr));
+      const sentiment = dailyData?.sentiment || undefined;
+      const isRedeemed = dailyData?.isRedeemed || false;
+      const color = getColorBySentiment(sentiment);
+      const bgColor = color ? `${color}33` : '#fff';
       days.push({
         date: i,
-        mood: entry?.mood ?? undefined,
-        emotion: entry?.emotion ?? undefined,
+        specstrum: sentiment,
         color: color,
         backgroundColor: bgColor,
-        entry,
+        isRedeemed: isRedeemed,
       });
     }
 
     return days;
-  }, [currentDate, entries]);
+  }, [currentDate, dailySentiment]);
 
   const formatMonth = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
   return (
-    <div className="lg:col-span-5 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
           {formatMonth(currentDate)}
@@ -118,43 +114,39 @@ export default function MoodCalendar({
             currentDate.getMonth() === new Date().getMonth();
 
           const moodColor = day.color;
+          const moodStyle = moodColor && isCurrentMonth ? { backgroundColor: day.backgroundColor, color: day.color } : undefined;
+          const cellStyle = day.specstrum ? moodStyle : {border: `1px dashed #cad5e2`};
 
           return (
             <div
               key={index}
-              className={`
-                aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
+              className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium
                 ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
-                ${isCurrentMonth && !day.mood ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
+                ${isCurrentMonth && !day.specstrum ? 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800' : ''}
                 ${isToday && !moodColor ? 'ring-4 ring-primary/20' : ''}
                 ${isToday && moodColor ? 'ring-4 ring-white/30' : ''}
                 transition-colors cursor-pointer
               `}
-              style={
-                moodColor && isCurrentMonth
-                  ? {
-                      backgroundColor: day.backgroundColor,
-                      color: day.color,
-                    }
-                  : undefined
-              }
+              style={cellStyle}
+              title={day.specstrum}
             >
-              <span className={day.mood ? 'font-bold' : ''}>{day.date}</span>
+              <span className={day.specstrum ? 'font-bold' : ''}>{day.date}</span>
+              {day.isRedeemed && (<span className="absolute bottom-1 right-0 w-3 h-3 block text-xs material-icons text-primary">check in</span>)}
             </div>
           );
         })}
       </div>
       <div className="mt-8 flex flex-wrap gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('positive')}}></span>
           <span className="text-xs font-medium text-slate-500">Positive</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-primary"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('neutral')}}></span>
           <span className="text-xs font-medium text-slate-500">Neutral</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-slate-400"></span>
+          <span className="w-3 h-3 rounded-full" style={{backgroundColor: getColorBySentiment('negative')}}></span>
           <span className="text-xs font-medium text-slate-500">Negative</span>
         </div>
         <div className="flex items-center gap-2">

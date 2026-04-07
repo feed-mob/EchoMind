@@ -27,3 +27,7 @@ Packages (packages/)
 packages/
 ├── db/           Database package for schema management, migrations, client generation, and seed workflows.
 ├── shared/       Shared package space for cross-package utilities/types
+
+
+禁止使用 npm, pnpm npx, yarn
+只能使用 bun

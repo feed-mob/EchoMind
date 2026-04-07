@@ -27,6 +27,8 @@ model User {
   comments  Comment[]
   invitations GroupInvitation[] @relation("InvitedByUser")
   moods Mood[]
+  moodDailySummaries MoodDailySummary[]
+  moodRedemptions MoodRedemption[]
 }
 
 model Group {
@@ -178,6 +180,7 @@ model Mood {
   id          String   @id @default(cuid())
   userId      String
   mood        String   // awesome, good, neutral, low, poor
+  sentiment   String   // positive, negative, neutral (新增：归类到三大类型)
   emotion     String?  // joyful, calm, anxious, stressed, etc.
   notes       String?
   recordedAt  DateTime @default(now())
@@ -190,9 +193,72 @@ model Mood {
   icon        String?  // trash, cloud, flame, candy, star, lamp, leaf
   intensity   Int?     // 1-10, emotion intensity level
 
+  // 关联到每日汇总
+  dailySummary MoodDailySummary? @relation(fields: [dailySummaryId], references: [id])
+  dailySummaryId String?
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, recordedAt])
   @@index([userId])
   @@index([spectrum])
+  @@index([sentiment, dailySummaryId]) // 查询未汇总的某类型心情
+}
+
+model MoodDailySummary {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @db.Date  // 日期（不含时间）
+
+  // 当天情绪归类
+  sentiment   String   // positive, negative, neutral
+
+  // 兑换状态
+  isRedeemed  Boolean  @default(false) // 是否已兑换/倾倒
+  redeemedAt  DateTime?
+  redemptionType String? // reward, dump
+
+  // 统计
+  totalMoods  Int      @default(0) // 当天记录条数
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 关联
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moods       Mood[]
+
+  @@unique([userId, date]) // 每天唯一
+  @@index([userId, date])
+  @@index([sentiment, isRedeemed, userId]) // 查询某用户未兑换的某类型
+}
+
+model MoodRedemption {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // 兑换类型
+  type        String   // reward(兑换奖励), dump(倾倒释放)
+
+  // 兑换的心情类型
+  sentiment   String   // positive, negative
+
+  // 等级系统（多余积攒升级）
+  level       Int      @default(1) // 1=基础, 2=进阶, 3=豪华...
+
+  // 消耗统计
+  baseCount   Int      // 基础需求（积极7，不积极3）
+  extraCount  Int      @default(0) // 多余升级的数量
+  totalCount  Int      // 总共消耗（清零）
+
+  // 奖励描述
+  reward      String?  // 奖励描述
+
+  createdAt   DateTime @default(now())
+
+  // 关联
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([sentiment])
 }

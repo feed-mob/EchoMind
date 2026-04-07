@@ -167,6 +167,64 @@ export interface Mood {
   intensity?: number | null;
 }
 
+export interface MoodStats {
+  moodCounts: Record<string, number>;
+  emotionCounts: Record<string, number>;
+  mostFrequentMood: string | null; // top mood
+  dailySentiment: Record<string, any>[]
+}
+
+// 兑换相关类型定义
+export interface RedemptionEligibility {
+  positive: {
+    base: number;
+    count: number;
+    canRedeem: boolean;
+    level: number;
+    nextLevelNeed: number;
+  };
+  negative: {
+    base: number;
+    count: number;
+    canRedeem: boolean;
+    level: number;
+    nextLevelNeed: number;
+  };
+}
+
+export interface RedemptionResult {
+  redemption: {
+    id: string;
+    userId: string;
+    type: string;
+    sentiment: string;
+    level: number;
+    baseCount: number;
+    extraCount: number;
+    totalCount: number;
+    reward?: string;
+    createdAt: string;
+  };
+  consumed: number;
+  cleared: boolean;
+}
+
+export interface RedemptionHistory {
+  id: string;
+  type: string;
+  sentiment: string;
+  level: number;
+  baseCount: number;
+  extraCount: number;
+  totalCount: number;
+  reward?: string;
+  createdAt: string;
+}
+
+export interface MoodWithAnalysis extends Mood {
+  analysis?: EmotionAnalysisResult;
+}
+
 export interface EmotionAnalysisResult {
   spectrum: string;
   emotion: string;
@@ -193,7 +251,7 @@ export interface TeamMoodStats {
 }
 
 export interface TeamMoodDistribution {
-  emotion: string;
+  mood: string;
   count: number;
   percentage: number;
 }

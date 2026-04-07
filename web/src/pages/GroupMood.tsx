@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
 import type { TeamMoodStats, TeamMoodDistribution, TeamMoodTrend, TeamInsights } from '../service/types';
+import { emotionSpectrum } from "../config/enum";
 import GroupMoodCalendar from '../components/GroupMoodCalendar';
 import GroupMoodTrendChart from '../components/GroupMoodTrendChart';
 import SentimentDistribution from '../components/SentimentDistribution';
@@ -10,26 +11,11 @@ import TeamInsightsCard from '../components/TeamInsights';
 import GroupActionableAdvice from '../components/GroupActionableAdvice';
 import StatCard from '../components/StatCard';
 
-// 情绪标签映射
-const emotionLabels: Record<string, string> = {
-  joyful: 'Joyful',
-  calm: 'Calm',
-  anxious: 'Anxious',
-  stressed: 'Stressed',
-  excited: 'Excited',
-  tired: 'Tired',
-  grateful: 'Grateful',
-  frustrated: 'Frustrated',
-  positive: 'Positive',
-  neutral: 'Neutral',
-  negative: 'Negative',
-  productive: 'Productive',
-};
 
 export default function GroupMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('30');
+  const [timeRange, setTimeRange] = useState<'7' | '30' | '90'>('7');
   const [stats, setStats] = useState<TeamMoodStats | null>(null);
   const [distribution, setDistribution] = useState<TeamMoodDistribution[]>([]);
   const [trend, setTrend] = useState<TeamMoodTrend[]>([]);
@@ -175,7 +161,7 @@ export default function GroupMood() {
                 title="Average Sentiment"
                 icon="sentiment_satisfied"
                 iconColor="text-green-500"
-                value={stats?.topEmotion ? emotionLabels[stats.topEmotion] || stats.topEmotion : 'Neutral'}
+                value={stats?.topEmotion ? emotionSpectrum[stats.topEmotion]?.label || stats.topEmotion : 'Neutral'}
                 footer={
                   <>
                     <span className="material-icons text-sm">trending_up</span>

@@ -1,34 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
-import type { Mood } from '../service/types';
+import type { Mood, MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
+import MomentumCard from '../components/MomentumCard';
+import EmotionalPuzzle from '../components/EmotionalPuzzle';
+import WorryRelease from '../components/WorryRelease';
+import Loading from "../components/Loading";
 
-interface MoodStats {
-  total: number;
-  currentStreak: number;
-  topEmotion: string | null;
-  moodDistribution: Record<string, number>;
-}
+import { getDaysByKind } from "../tools/functions";
+import { emotionSpectrum } from '../config/enum';
 
-const emotionLabels: Record<string, string> = {
-  joyful: 'Joyful',
-  calm: 'Calm',
-  anxious: 'Anxious',
-  stressed: 'Stressed',
-  excited: 'Excited',
-  tired: 'Tired',
-  grateful: 'Grateful',
-  frustrated: 'Frustrated',
-};
+type MoodStatus = 'positive' | 'negative' | 'neutral';
 
 export default function MyMood() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const moodKind = searchParams.get('kind') || 'positive';
+  const moodStatus = moodKind as MoodStatus;
+
   const [entries, setEntries] = useState<Mood[]>([]);
   const [stats, setStats] = useState<MoodStats | null>(null);
+  const [redemptionEligibility, setRedemptionEligibility] = useState<RedemptionEligibility | null>(null);
+  const [redemptionHistory, setRedemptionHistory] = useState<RedemptionHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -47,13 +44,18 @@ export default function MyMood() {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - parseInt(timeRange));
 
-      const [entriesData, statsData] = await Promise.all([
+      const [entriesData, statsData, redemptionEligibilityData, redemptionHistoryData] = await Promise.all([
         api.moods.list(user!.id, startDate.toISOString(), endDate.toISOString()),
         api.moods.getStats(user!.id),
+        api.moods.getRedemptionEligibility(user!.id),
+        api.moods.getRedemptionHistory(user!.id, 5),
       ]);
 
       setEntries(entriesData);
       setStats(statsData);
+      setRedemptionEligibility(redemptionEligibilityData);
+      setRedemptionHistory(redemptionHistoryData);
+
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mood data');
@@ -74,16 +76,16 @@ export default function MyMood() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading my mood history...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+  //         <p className="text-slate-600 dark:text-slate-400">Loading my moods...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -138,10 +140,10 @@ export default function MyMood() {
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8 relative">
         {/* Title Section */}
         <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Your Mood Journey</h1>
+          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Mood Journey</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2">Visualizing your emotional well-being over the last {timeRange} days.</p>
         </div>
 
@@ -152,8 +154,8 @@ export default function MyMood() {
               <span className="material-icons text-3xl">local_fire_department</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Current Streak</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.currentStreak || 0} Days</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">All Check-In</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.dailySentiment.length || 0} Days</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
@@ -162,31 +164,67 @@ export default function MyMood() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Recorded</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.total || 0} Entries</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{entries.length || 0} Entries</p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600">
-              <span className="material-icons text-3xl">sentiment_very_satisfied</span>
+            <div className="p-3 rounded-lg" style={{
+              color: stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.color : '',
+              backgroundColor: stats?.mostFrequentMood ? `${emotionSpectrum[stats.mostFrequentMood]?.color}22` : '',
+              }}>
+              <span className="material-icons text-3xl">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.icon : 'sentiment_very_satisfied'} </span>
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Emotion</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.topEmotion ? emotionLabels[stats.topEmotion] || stats.topEmotion : 'None'}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.label || stats.mostFrequentMood : 'None'}</p>
             </div>
           </div>
         </div>
 
         {/* Main Grid: Calendar and Trend */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Calendar Section */}
-          <MoodCalendar
-            currentDate={currentDate}
-            entries={entries}
-            onNavigateMonth={navigateMonth}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {/* Momentum Card */}
+            <MomentumCard
+              redemptionEligibility={redemptionEligibility}
+              moodStatus={moodStatus}
+            />
 
-          {/* Mood Trend Chart Section */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+            {/* Emotional Puzzle */}
+            {moodStatus == 'positive' && <EmotionalPuzzle
+              stats={stats}
+              userId={user?.id}
+              redemptionEligibility={redemptionEligibility}
+              redemptionHistory={redemptionHistory}
+              quote="Every step forward is progress. Keep going!"
+              onGetReward={() => {
+                // TODO: Implement reward logic
+                console.log('Reward claimed!');
+              }}
+            />}
+
+            {moodStatus == 'negative' && <WorryRelease
+              stats={stats}
+              userId={user?.id}
+              redemptionEligibility={redemptionEligibility}
+              redemptionHistory={redemptionHistory}
+              onDumpSuccess={() => {
+                // 刷新统计数据
+                fetchMoodData();
+              }}
+            />}
+
+          </div>
+
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {/* Calendar Section */}
+            <MoodCalendar
+              currentDate={currentDate}
+              dailySentiment={stats?.dailySentiment}
+              onNavigateMonth={navigateMonth}
+            />
+
+            {/* Mood Trend Chart Section */}
             <MoodTrendChart
               timeRange={timeRange}
               entries={entries}
@@ -201,8 +239,8 @@ export default function MyMood() {
               <div className="relative z-10">
                 <h3 className="font-bold text-lg mb-2">Weekly Mood Insight</h3>
                 <p className="text-blue-100 text-sm leading-relaxed max-w-md">
-                  {stats?.topEmotion
-                    ? `You've been feeling mostly ${emotionLabels[stats.topEmotion] || stats.topEmotion.toLowerCase()}. Keep tracking your mood to discover patterns!`
+                  {stats?.mostFrequentMood
+                    ? `You've been feeling mostly ${emotionSpectrum[stats.mostFrequentMood].label || stats.mostFrequentMood.toLowerCase()}. Keep tracking your mood to discover patterns!`
                     : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
                 </p>
                 <button onClick={() => navigate('/group/mood')} className="mt-4 px-4 py-2 bg-white text-primary rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">
@@ -213,6 +251,7 @@ export default function MyMood() {
           </div>
         </div>
       </main>
+      {loading && (<Loading />)}
     </div>
   );
 }

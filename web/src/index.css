@@ -162,16 +162,30 @@ h1 {
   max-width: min(90vw, 360px);
   padding: 0.75rem 0.9rem;
   border-radius: 0.75rem;
-  border: 1px solid #fecaca;
-  border-left: 4px solid #ef4444;
-  background: #fff1f2;
-  color: #9f1239;
+  border: 1px solid #cccccc;
+  border-left: 4px solid #5d5b5b;
+  background: #f1f1f2;
+  color: #555555;
   box-shadow: 0 14px 30px -20px rgba(15, 23, 42, 0.55);
   font-size: 0.875rem;
   line-height: 1.35;
   pointer-events: auto;
   animation: toast-enter 220ms ease-out;
 }
+
+.toast-message.toast-message--error{
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  background: #fff1f2;
+  color: #9f1239;
+}
+.toast-message.toast-message--success{
+  border: 1px solid #d3feca;
+  border-left: 4px solid hsl(126, 57%, 59%);
+  background: #d0fcd1;
+  color: #139e38ce;
+}
+
 
 .toast-message__icon {
   font-size: 1rem;
@@ -353,7 +367,7 @@ h1 {
     box-shadow: 0 0 5px rgba(249, 115, 22, 0.4), 0 0 10px rgba(249, 115, 22, 0.3);
     transform: scale(1);
   }
-  25%, 80% {
+  25%, 75%{
     box-shadow: 0 0 20px rgba(249, 115, 22, 0.8), 0 0 30px rgba(249, 115, 22, 0.6), 0 0 40px rgba(249, 115, 22, 0.4);
     transform: scale(1.05);
   }
@@ -365,25 +379,24 @@ h1 {
   }
   10% {
     transform: translateX(-4px) rotate(-3deg) scale(1.1);
-
   }
   20% {
-    transform: translateX(4px) rotate(3deg) scale(1.1);
+    transform: translateX(5px) rotate(3deg) scale(1.1);
   }
   30% {
-    transform: translateX(-4px) rotate(-2deg) scale(1.1);
+    transform: translateX(-6px) rotate(-3deg) scale(1.1);
   }
   40% {
-    transform: translateX(4px) rotate(2deg) scale(1.1);
+    transform: translateX(6px) rotate(3deg) scale(1.1);
   }
   50% {
-    transform: translateX(-2px) rotate(-0.5deg) scale(1.1);
+    transform: translateX(-5px) rotate(-1deg) scale(1.1);
   }
   60% {
-    transform: translateX(2px) rotate(0.5deg) scale(1.1);
+    transform: translateX(4px) rotate(1deg) scale(1.1);
   }
   70% {
-    transform: translateX(-1px) rotate(1deg) scale(1.1);
+    transform: translateX(-3px) rotate(-1deg) scale(1.1);
   }
   80% {
     transform: translateX(1px) rotate(1deg) scale(1.1);
@@ -394,7 +407,7 @@ h1 {
 }
 
 .animate-glow {
-  animation: glow 3s ease-in-out;
+  animation: glow 2.4s ease-in-out;
 }
 
 .animate-shake {
