@@ -1,7 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from '../service';
 import type { MoodStats, RedemptionEligibility, RedemptionHistory, RedemptionResult } from '../service/types';
 import { withMinDuration } from "../tools/functions";
+import { RewardImage, type ImageStatus } from "./RewardImage";
 
 // 拼图块类型
 interface PuzzlePiece {
@@ -57,6 +58,12 @@ export default function EmotionalPuzzle({
   const [currentQuote, setCurrentQuote] = useState<{ text: string; author: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // 图片生成相关状态
+  const [redemptionId, setRedemptionId] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<string | null>(null);
+  const [imageStatus, setImageStatus] = useState<ImageStatus>('pending');
+  const [pollInterval, setPollInterval] = useState<ReturnType<typeof setInterval> | null>(null);
+
   const redemptionPositveHistory = useMemo(() => {
     return redemptionHistory.filter((item) => (item.sentiment == 'positive'))
   }, [redemptionHistory]);
@@ -78,6 +85,19 @@ export default function EmotionalPuzzle({
         3000
       );
 
+      // 兑换成功，保存 redemption ID
+      setRedemptionId(result.redemption.id);
+      setImageStatus(result.redemption.imageStatus as ImageStatus);
+
+      // 如果图片已经完成，直接显示
+      if (result.redemption.imageData) {
+        setImageData(result.redemption.imageData);
+        setImageStatus('completed');
+      } else {
+        // 开始轮询图片状态
+        startPolling(result.redemption.id);
+      }
+
       // 兑换成功
       setIsRedeeming(false);
       setIsRedeemed(true);
@@ -98,7 +118,55 @@ export default function EmotionalPuzzle({
 
   const handleCloseModal = () => {
     setIsRedeemed(false);
+    // 清理轮询
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      setPollInterval(null);
+    }
   };
+
+  // 轮询检查图片生成状态
+  const startPolling = useCallback((id: string) => {
+    // 每 5 秒检查一次
+    const interval = setInterval(async () => {
+      try {
+        const response = await api.moods.getRedemptionImage(id);
+        if (response) {
+          setImageStatus(response.imageStatus as ImageStatus);
+
+          if (response.imageStatus === 'completed' && response.imageData) {
+            setImageData(response.imageData);
+            clearInterval(interval);
+            setPollInterval(null);
+          } else if (response.imageStatus === 'failed') {
+            clearInterval(interval);
+            setPollInterval(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch redemption image status:', err);
+      }
+    }, 5000);
+
+    setPollInterval(interval);
+
+    // 设置超时，最多轮询 5 分钟
+    setTimeout(() => {
+      if (interval) {
+        clearInterval(interval);
+        setPollInterval(null);
+      }
+    }, 5 * 60 * 1000);
+  }, []);
+
+  // 组件卸载时清理轮询
+  useEffect(() => {
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [pollInterval]);
 
   // 生成7块拼图 - 7块4/5边形拼成完整正方形，PC端500x500，手机端自适应
   const puzzlePieces = useMemo<PuzzlePiece[]>(() => {
@@ -330,26 +398,45 @@ export default function EmotionalPuzzle({
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseModal} />
 
           {/* Modal Content */}
-          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
             {/* Celebration Header */}
-            <div className="bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 p-8 text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-3xl font-bold text-white mb-2">Congratulations!</h2>
-              <p className="text-white/90 text-lg">You've unlocked your reward</p>
+            <div className="bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 p-6 text-center">
+              <div className="text-5xl mb-2">🎉</div>
+              <h2 className="text-2xl font-bold text-white mb-1">Congratulations!</h2>
+              <p className="text-white/90 text-base">You've unlocked your reward</p>
+            </div>
+
+            {/* AI Generated Image Section */}
+            <div className="p-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+              <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3 text-center">
+                🎨 Your AI-Generated Reward
+              </h3>
+              {redemptionId ? (
+                <RewardImage
+                  imageData={imageData || undefined}
+                  status={imageStatus}
+                  description={currentQuote.text}
+                  className="w-full max-w-md mx-auto"
+                />
+              ) : (
+                <div className="flex items-center justify-center p-8 bg-gray-100 rounded-xl">
+                  <p className="text-gray-500">Loading...</p>
+                </div>
+              )}
             </div>
 
             {/* Quote Content */}
-            <div className="p-8 md:p-12 text-center">
-              <div className="text-amber-500 text-4xl mb-6">"</div>
-              <blockquote className="text-xl md:text-2xl font-medium text-slate-800 dark:text-slate-100 leading-relaxed mb-6">
+            <div className="p-6 text-center">
+              <div className="text-amber-500 text-3xl mb-4">"</div>
+              <blockquote className="text-lg font-medium text-slate-800 dark:text-slate-100 leading-relaxed mb-4">
                 {currentQuote.text}
               </blockquote>
-              <cite className="text-slate-500 dark:text-slate-400 not-italic">
+              <cite className="text-slate-500 dark:text-slate-400 not-italic text-sm">
                 — {currentQuote.author}
               </cite>
 
               {/* Decorative Elements */}
-              <div className="mt-8 flex justify-center gap-2">
+              <div className="mt-6 flex justify-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-400" />
                 <span className="w-2 h-2 rounded-full bg-orange-500" />
                 <span className="w-2 h-2 rounded-full bg-pink-500" />
@@ -357,10 +444,10 @@ export default function EmotionalPuzzle({
             </div>
 
             {/* Footer with Close Button */}
-            <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-center">
               <button
                 onClick={handleCloseModal}
-                className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
+                className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
                 Got It!
               </button>

@@ -787,10 +787,14 @@ export interface MoodRedemption {
   extraCount: number;
   totalCount: number;
   reward?: string | null;
+  // AI 图片生成相关字段
+  imageData?: string | null; // Base64 编码的图片数据
+  imageStatus: 'pending' | 'generating' | 'completed' | 'failed';
+  imageGenAt?: Date | null; // 图片生成完成时间
   createdAt: Date;
 }
 
-const POSITIVE_BASE = 7;
+const POSITIVE_BASE = 3;
 const NEGATIVE_BASE = 7;
 
 export const moods = {
@@ -1126,12 +1130,79 @@ export const moods = {
     return `You released ${level} level of negative emotions`;
   },
 
+  /**
+   * 生成图片用的详细奖励描述
+   */
+  generateRewardImagePrompt(type: 'reward' | 'dump', level: number, sentiment: string): string | undefined {
+    if (type === 'reward' && sentiment === 'positive') {
+      const prompts: Record<number, string> = {
+        1: 'A cheerful cartoon illustration with bright colors, cute characters, and a joyful atmosphere. Warm and welcoming style with playful elements.',
+        2: 'A futuristic digital artwork with sleek technology themes, glowing neon accents, and modern geometric shapes. High-tech and innovative feel.',
+        3: 'A sophisticated artistic painting with rich textures, deep colors, and elegant composition. Gallery-quality fine art with emotional depth.',
+        4: 'A masterpiece in the style of Van Gogh with swirling brushstrokes, vibrant colors, and expressive technique. Museum-worthy impressionist artwork.',
+      };
+      return prompts[level] || prompts[1];
+    }
+    return 'An abstract illustration representing emotional release and inner peace. Soft colors and calming composition.';
+  },
+
   async getRedemptionHistory(userId: string, options?: { limit?: number; offset?: number }) {
     return await (db as any).moodRedemption.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: options?.limit,
       skip: options?.offset,
+    });
+  },
+
+  /**
+   * 根据 ID 获取兑换记录
+   */
+  async getRedemptionById(id: string): Promise<MoodRedemption | null> {
+    return await (db as any).moodRedemption.findUnique({
+      where: { id },
+    });
+  },
+
+  /**
+   * 更新兑换记录的图片信息
+   */
+  async updateRedemptionImage(
+    id: string,
+    imageData: string,
+    status: 'completed' | 'failed' = 'completed'
+  ): Promise<MoodRedemption | null> {
+    return await (db as any).moodRedemption.update({
+      where: { id },
+      data: {
+        imageData,
+        imageStatus: status,
+        imageGenAt: new Date(),
+      },
+    });
+  },
+
+  /**
+   * 更新图片生成状态
+   */
+  async updateRedemptionImageStatus(
+    id: string,
+    status: 'pending' | 'generating' | 'completed' | 'failed',
+    error?: string
+  ): Promise<MoodRedemption | null> {
+    const data: any = { imageStatus: status };
+    if (status === 'completed' || status === 'failed') {
+      data.imageGenAt = new Date();
+    }
+    if (error) {
+      // Note: We're not storing the error message in the DB currently
+      // but we could add an errorMessage field if needed
+      console.error(`Image generation failed for redemption ${id}:`, error);
+    }
+
+    return await (db as any).moodRedemption.update({
+      where: { id },
+      data,
     });
   },
 

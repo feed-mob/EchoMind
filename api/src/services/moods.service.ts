@@ -1,5 +1,6 @@
-import { moods, type Mood, groupMembers } from "../../../packages/db/index.js";
+import { moods, type Mood, groupMembers, type MoodRedemption } from "../../../packages/db/index.js";
 import { analyzeEmotion, type EmotionAnalysisResult } from "./moodAnalysis.service.js";
+import { generateRewardImage } from "./imageGeneration.service.js";
 
 export type MoodWithAnalysis = Mood & {
   analysis?: EmotionAnalysisResult;
@@ -405,4 +406,75 @@ function getMoodValue(mood: string): number {
     frustrated: 1,
   };
   return moodMap[mood.toLowerCase()] || 3;
+}
+
+/**
+ * 异步生成兑换奖励图片
+ * 在兑换成功后后台调用
+ */
+export async function generateRedemptionImage(
+  redemptionId: string,
+  rewardDescription: string,
+  level: number,
+  sentiment: 'positive' | 'negative' = 'positive'
+): Promise<void> {
+  try {
+    console.log(`[ImageGen] Starting image generation for redemption ${redemptionId}`);
+
+    // 1. Update status to generating
+    await moods.updateRedemptionImageStatus(redemptionId, 'generating');
+
+    // 2. Generate the image
+    const result = await generateRewardImage(rewardDescription, level, sentiment);
+
+    if (result.success && result.imageData) {
+      // 3. Save the image
+      await moods.updateRedemptionImage(
+        redemptionId,
+        result.imageData,
+        'completed'
+      );
+      console.log(`[ImageGen] Image generation completed for redemption ${redemptionId}`);
+    } else {
+      // 4. Handle failure
+      await moods.updateRedemptionImageStatus(
+        redemptionId,
+        'failed',
+        result.error || 'Unknown error'
+      );
+      console.error(`[ImageGen] Image generation failed for redemption ${redemptionId}:`, result.error);
+    }
+  } catch (error) {
+    // Handle unexpected errors
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await moods.updateRedemptionImageStatus(
+      redemptionId,
+      'failed',
+      errorMessage
+    );
+    console.error(`[ImageGen] Unexpected error for redemption ${redemptionId}:`, error);
+  }
+}
+
+/**
+ * 获取兑换记录及其图片状态
+ */
+export async function getRedemptionWithImage(redemptionId: string): Promise<{
+  redemption: any;
+  hasImage: boolean;
+  imageStatus: string;
+  imageData?: string;
+} | null> {
+  const redemption = await moods.getRedemptionById(redemptionId);
+
+  if (!redemption) {
+    return null;
+  }
+
+  return {
+    redemption,
+    hasImage: !!redemption.imageData,
+    imageStatus: redemption.imageStatus,
+    imageData: redemption.imageData || undefined,
+  };
 }

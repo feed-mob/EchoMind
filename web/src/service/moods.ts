@@ -166,4 +166,13 @@ export const moodsApi = {
     }
     return response.json();
   },
+
+  // Get redemption image status and data
+  getRedemptionImage: async (redemptionId: string): Promise<{ redemptionId: string; imageStatus: string; hasImage: boolean; imageData?: string; createdAt: string }> => {
+    const response = await fetch(buildApiUrl(`/api/moods/redemptions/${redemptionId}/image`));
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch redemption image');
+    }
+    return response.json();
+  },
 };
