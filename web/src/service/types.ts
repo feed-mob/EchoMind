@@ -204,6 +204,9 @@ export interface RedemptionResult {
     totalCount: number;
     reward?: string;
     createdAt: string;
+    // AI 图片相关字段
+    imageData?: string;
+    imageStatus: 'pending' | 'generating' | 'completed' | 'failed';
   };
   consumed: number;
   cleared: boolean;

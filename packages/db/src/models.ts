@@ -1106,6 +1106,7 @@ export const moods = {
           extraCount,
           totalCount,
           reward: this.generateReward(type, level),
+          imageStatus: 'pending',
         },
       });
     });
