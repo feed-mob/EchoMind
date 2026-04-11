@@ -1124,11 +1124,10 @@ export const moods = {
     if (type === 'reward') {
       const rewards: Record<number, string> = {
         1: 'A cartoon painting',
-        2: 'A technological painting',
-        3: 'An artistic painting',
-        4: 'A Van Gogh art painting',
+        2: 'An artistic painting',
+        3: 'A Van Gogh art painting',
       };
-      return rewards[level] || `Lv.${level} Super Reward`;
+      return rewards[level] || `A cartoon painting`;
     }
     return `You released ${level} level of negative emotions`;
   },
@@ -1140,9 +1139,8 @@ export const moods = {
     if (type === 'reward' && sentiment === 'positive') {
       const prompts: Record<number, string> = {
         1: 'A cheerful cartoon illustration with bright colors, cute characters, and a joyful atmosphere. Warm and welcoming style with playful elements.',
-        2: 'A futuristic digital artwork with sleek technology themes, glowing neon accents, and modern geometric shapes. High-tech and innovative feel.',
-        3: 'A sophisticated artistic painting with rich textures, deep colors, and elegant composition. Gallery-quality fine art with emotional depth.',
-        4: 'A masterpiece in the style of Van Gogh with swirling brushstrokes, vibrant colors, and expressive technique. Museum-worthy impressionist artwork.',
+        2: 'A sophisticated artistic painting with rich textures, deep colors, and elegant composition. Gallery-quality fine art with emotional depth.',
+        3: 'A masterpiece in the style of Van Gogh with swirling brushstrokes, vibrant colors, and expressive technique. Museum-worthy impressionist artwork.',
       };
       return prompts[level] || prompts[1];
     }

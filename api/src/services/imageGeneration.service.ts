@@ -44,9 +44,8 @@ async function optimizePrompt(
 ): Promise<z.infer<typeof imagePromptSchema>> {
   const levelStyles: Record<number, string> = {
     1: 'simple, cute, warm illustration style',
-    2: 'detailed, vibrant, modern digital art',
-    3: 'sophisticated, artistic, professional illustration',
-    4: 'masterpiece quality, Van Gogh inspired, museum-worthy art',
+    2: 'sophisticated, artistic, professional illustration',
+    3: 'masterpiece quality, Van Gogh inspired, museum-worthy art',
   };
 
   const style = levelStyles[level] || levelStyles[1];
@@ -100,9 +99,8 @@ function buildFinalPrompt(params: z.infer<typeof imagePromptSchema>, level: numb
 
   const levelModifiers: Record<number, string> = {
     1: 'simple, cute, beginner-friendly, warm and cozy',
-    2: 'detailed, vibrant, engaging, modern aesthetic',
-    3: 'sophisticated, artistic, professional quality, stunning',
-    4: 'masterpiece, museum quality, breathtaking, extraordinary',
+    2: 'sophisticated, artistic, professional quality, stunning',
+    3: 'masterpiece, museum quality, breathtaking, extraordinary',
   };
 
   const styleMod = styleModifiers[params.style] || styleModifiers.illustration;
@@ -217,9 +215,8 @@ export function generatePlaceholderImage(
   // Create a simple SVG placeholder
   const colors: Record<number, string> = {
     1: '#FFD700',
-    2: '#FFA500',
-    3: '#FF6347',
-    4: '#DA70D6',
+    2: '#FF6347',
+    3: '#DA70D6',
   };
 
   const color = colors[level] || colors[1];
