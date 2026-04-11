@@ -794,7 +794,7 @@ export interface MoodRedemption {
   createdAt: Date;
 }
 
-const POSITIVE_BASE = 3;
+const POSITIVE_BASE = 7;
 const NEGATIVE_BASE = 7;
 
 export const moods = {
