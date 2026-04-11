@@ -1049,12 +1049,14 @@ export const moods = {
 
   calculateLevel(total: number, base: number): number {
     if (total < base) return 0;
-    return 1 + Math.floor((total - base) / 3);
+    return Math.min(3, 1 + Math.floor((total - base) / 3));
   },
 
   nextLevelNeed(total: number, base: number): number {
     if (total < base) return base - total;
     const level = this.calculateLevel(total, base);
+    // If already at max level (3), return 0
+    if (level >= 3) return 0;
     return base + level * 3 - total;
   },
 
