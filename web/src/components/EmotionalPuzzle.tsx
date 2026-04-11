@@ -168,6 +168,9 @@ export default function EmotionalPuzzle({
     };
   }, [pollInterval]);
 
+  // 历史记录弹窗状态
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<RedemptionHistory | null>(null);
+
   // 生成7块拼图 - 7块4/5边形拼成完整正方形，PC端500x500，手机端自适应
   const puzzlePieces = useMemo<PuzzlePiece[]>(() => {
     // SVG 视图框大小，所有坐标基于此缩放
@@ -371,16 +374,29 @@ export default function EmotionalPuzzle({
                 <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Reward</h3>
                 <div className="space-y-2">
                   {redemptionPositveHistory.map((record, index) => (
-                    <div key={record.id} className="flex items-center justify-between text-sm">
+                    <div
+                      key={record.id}
+                      className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                      onClick={() => setSelectedHistoryItem(record)}
+                    >
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
                         <span className="text-slate-700 dark:text-slate-300">
                           You got {record.level} level Reward: {record.reward}
                         </span>
                       </div>
-                      <span className="text-slate-500 dark:text-slate-400 text-xs">
-                        {new Date(record.createdAt).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {record.imageData && (
+                          <img
+                            src={record.imageData}
+                            alt="Reward"
+                            className="w-8 h-8 rounded object-cover"
+                          />
+                        )}
+                        <span className="text-slate-500 dark:text-slate-400 text-xs">
+                          {new Date(record.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -450,6 +466,64 @@ export default function EmotionalPuzzle({
                 className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
               >
                 Got It!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Image Modal */}
+      {selectedHistoryItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedHistoryItem(null)} />
+
+          {/* Modal Content */}
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 p-6 text-center">
+              <div className="text-4xl mb-2">🎁</div>
+              <h2 className="text-xl font-bold text-white mb-1">Your Reward</h2>
+              <p className="text-white/90 text-sm">Level {selectedHistoryItem.level} • {new Date(selectedHistoryItem.createdAt).toLocaleDateString()}</p>
+            </div>
+
+            {/* Image Section - 直接使用 img 标签显示图片 */}
+            <div className="p-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+              {selectedHistoryItem.imageData ? (
+                <img
+                  src={selectedHistoryItem.imageData}
+                  alt="Reward"
+                  className="w-full max-w-md mx-auto rounded-xl shadow-lg"
+                />
+              ) : (
+                <div className="flex items-center justify-center p-8 bg-gray-100 rounded-xl">
+                  <p className="text-gray-500">No image available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Reward Info */}
+            <div className="p-6 text-center">
+              <div className="text-indigo-500 text-2xl mb-2">✨</div>
+              <p className="text-lg font-medium text-slate-800 dark:text-slate-100 leading-relaxed mb-2">
+                {selectedHistoryItem.reward}
+              </p>
+
+              {/* Decorative Elements */}
+              <div className="mt-4 flex justify-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-400" />
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <span className="w-2 h-2 rounded-full bg-purple-500" />
+              </div>
+            </div>
+
+            {/* Footer with Close Button */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+              <button
+                onClick={() => setSelectedHistoryItem(null)}
+                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
+              >
+                Close
               </button>
             </div>
           </div>
