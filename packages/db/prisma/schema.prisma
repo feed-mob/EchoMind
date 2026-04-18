@@ -254,6 +254,12 @@ model MoodRedemption {
   // 奖励描述
   reward      String?  // 奖励描述
 
+  // === 新增字段：AI 图片生成 ===
+  imageData   String?  // Base64 编码的图片数据
+  imageStatus String   @default("pending") // pending, generating, completed, failed
+  imageGenAt  DateTime? // 图片生成完成时间
+  // ==========================
+
   createdAt   DateTime @default(now())
 
   // 关联

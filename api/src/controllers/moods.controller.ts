@@ -9,6 +9,8 @@ import {
   getTeamDistribution,
   getTeamTrend,
   getTeamInsights,
+  generateRedemptionImage,
+  getRedemptionWithImage,
   MoodsServiceError,
 } from "../services/moods.service.js";
 
@@ -303,6 +305,25 @@ export const moodsController = {
 
     try {
       const result = await moods.redeem(data.userId, 'reward');
+
+      // 异步触发图片生成（不阻塞响应）
+      if (result.redemption?.id && result.redemption.reward) {
+        const { redemption } = result;
+        // 使用 setImmediate 确保在响应发送后才执行
+        setImmediate(async () => {
+          try {
+            await generateRedemptionImage(
+              redemption.id,
+              redemption.reward,
+              redemption.level || 1,
+              'positive'
+            );
+          } catch (err) {
+            console.error(`[ImageGen] Background generation failed for ${redemption.id}:`, err);
+          }
+        });
+      }
+
       return Response.json(result);
     } catch (error) {
       console.error("Reward moods error:", error);
@@ -334,6 +355,39 @@ export const moodsController = {
       console.error("Get redemption history error:", error);
       return Response.json(
         { error: "Failed to fetch redemption history" },
+        { status: 500 }
+      );
+    }
+  },
+
+  // 获取兑换记录的AI图片状态
+  async getRedemptionImage(req: Request) {
+    const request = req as RequestWithParams<{ id: string }>;
+    const redemptionId = request.params.id;
+
+    if (!redemptionId) {
+      return Response.json({ error: "Redemption ID is required" }, { status: 400 });
+    }
+
+    try {
+      const result = await getRedemptionWithImage(redemptionId);
+
+      if (!result) {
+        return Response.json({ error: "Redemption not found" }, { status: 404 });
+      }
+
+      return Response.json({
+        redemptionId,
+        imageStatus: result.imageStatus,
+        hasImage: result.hasImage,
+        // Only include image data if it exists
+        imageData: result.imageData || undefined,
+        createdAt: result.redemption.createdAt,
+      });
+    } catch (error) {
+      console.error("Get redemption image error:", error);
+      return Response.json(
+        { error: "Failed to fetch redemption image" },
         { status: 500 }
       );
     }

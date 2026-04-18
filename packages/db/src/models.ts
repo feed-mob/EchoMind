@@ -787,6 +787,10 @@ export interface MoodRedemption {
   extraCount: number;
   totalCount: number;
   reward?: string | null;
+  // AI 图片生成相关字段
+  imageData?: string | null; // Base64 编码的图片数据
+  imageStatus: 'pending' | 'generating' | 'completed' | 'failed';
+  imageGenAt?: Date | null; // 图片生成完成时间
   createdAt: Date;
 }
 
@@ -1045,12 +1049,14 @@ export const moods = {
 
   calculateLevel(total: number, base: number): number {
     if (total < base) return 0;
-    return 1 + Math.floor((total - base) / 3);
+    return Math.min(3, 1 + Math.floor((total - base) / 3));
   },
 
   nextLevelNeed(total: number, base: number): number {
     if (total < base) return base - total;
     const level = this.calculateLevel(total, base);
+    // If already at max level (3), return 0
+    if (level >= 3) return 0;
     return base + level * 3 - total;
   },
 
@@ -1102,6 +1108,7 @@ export const moods = {
           extraCount,
           totalCount,
           reward: this.generateReward(type, level),
+          imageStatus: 'pending',
         },
       });
     });
@@ -1117,13 +1124,27 @@ export const moods = {
     if (type === 'reward') {
       const rewards: Record<number, string> = {
         1: 'A cartoon painting',
-        2: 'A technological painting',
-        3: 'An artistic painting',
-        4: 'A Van Gogh art painting',
+        2: 'An artistic painting',
+        3: 'A Van Gogh art painting',
       };
-      return rewards[level] || `Lv.${level} Super Reward`;
+      return rewards[level] || `A cartoon painting`;
     }
     return `You released ${level} level of negative emotions`;
+  },
+
+  /**
+   * 生成图片用的详细奖励描述
+   */
+  generateRewardImagePrompt(type: 'reward' | 'dump', level: number, sentiment: string): string | undefined {
+    if (type === 'reward' && sentiment === 'positive') {
+      const prompts: Record<number, string> = {
+        1: 'A cheerful cartoon illustration with bright colors, cute characters, and a joyful atmosphere. Warm and welcoming style with playful elements.',
+        2: 'A sophisticated artistic painting with rich textures, deep colors, and elegant composition. Gallery-quality fine art with emotional depth.',
+        3: 'A masterpiece in the style of Van Gogh with swirling brushstrokes, vibrant colors, and expressive technique. Museum-worthy impressionist artwork.',
+      };
+      return prompts[level] || prompts[1];
+    }
+    return 'An abstract illustration representing emotional release and inner peace. Soft colors and calming composition.';
   },
 
   async getRedemptionHistory(userId: string, options?: { limit?: number; offset?: number }) {
@@ -1132,6 +1153,57 @@ export const moods = {
       orderBy: { createdAt: 'desc' },
       take: options?.limit,
       skip: options?.offset,
+    });
+  },
+
+  /**
+   * 根据 ID 获取兑换记录
+   */
+  async getRedemptionById(id: string): Promise<MoodRedemption | null> {
+    return await (db as any).moodRedemption.findUnique({
+      where: { id },
+    });
+  },
+
+  /**
+   * 更新兑换记录的图片信息
+   */
+  async updateRedemptionImage(
+    id: string,
+    imageData: string,
+    status: 'completed' | 'failed' = 'completed'
+  ): Promise<MoodRedemption | null> {
+    return await (db as any).moodRedemption.update({
+      where: { id },
+      data: {
+        imageData,
+        imageStatus: status,
+        imageGenAt: new Date(),
+      },
+    });
+  },
+
+  /**
+   * 更新图片生成状态
+   */
+  async updateRedemptionImageStatus(
+    id: string,
+    status: 'pending' | 'generating' | 'completed' | 'failed',
+    error?: string
+  ): Promise<MoodRedemption | null> {
+    const data: any = { imageStatus: status };
+    if (status === 'completed' || status === 'failed') {
+      data.imageGenAt = new Date();
+    }
+    if (error) {
+      // Note: We're not storing the error message in the DB currently
+      // but we could add an errorMessage field if needed
+      console.error(`Image generation failed for redemption ${id}:`, error);
+    }
+
+    return await (db as any).moodRedemption.update({
+      where: { id },
+      data,
     });
   },
 

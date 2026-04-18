@@ -204,6 +204,9 @@ export interface RedemptionResult {
     totalCount: number;
     reward?: string;
     createdAt: string;
+    // AI 图片相关字段
+    imageData?: string;
+    imageStatus: 'pending' | 'generating' | 'completed' | 'failed';
   };
   consumed: number;
   cleared: boolean;
@@ -218,6 +221,10 @@ export interface RedemptionHistory {
   extraCount: number;
   totalCount: number;
   reward?: string;
+  // AI 图片相关字段
+  imageData?: string; // Base64 编码的图片数据
+  imageStatus: 'pending' | 'generating' | 'completed' | 'failed';
+  imageGenAt?: string; // ISO 格式时间戳
   createdAt: string;
 }
 

@@ -43,6 +43,9 @@ export const moodsRoutes = {
   "/api/moods/reward": {
     POST: moodsController.reward,
   },
+  "/api/moods/redemptions/:id/image": {
+    GET: moodsController.getRedemptionImage,
+  },
   "/api/moods/:id": {
     GET: moodsController.getById,
   },
