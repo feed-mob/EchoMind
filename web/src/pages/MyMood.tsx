@@ -9,8 +9,9 @@ import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 import WorryRelease from '../components/WorryRelease';
 import Loading from "../components/Loading";
+import HomeTopHeader from '../components/HomeTopHeader';
+import MoodSpaceSidebar from '../components/MoodSpaceSidebar';
 
-import { getDaysByKind } from "../tools/functions";
 import { emotionSpectrum } from '../config/enum';
 
 type MoodStatus = 'positive' | 'negative' | 'neutral';
@@ -76,17 +77,6 @@ export default function MyMood() {
     });
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
-  //       <div className="text-center">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-  //         <p className="text-slate-600 dark:text-slate-400">Loading my moods...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   if (error) {
     return (
       <div className="flex h-screen items-center justify-center bg-background-light dark:bg-background-dark">
@@ -105,152 +95,81 @@ export default function MyMood() {
   }
 
   return (
-    <div className="min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-200">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 lg:px-20 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/group')}
-              className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors group"
-            >
-              <span className="material-icons text-[20px]">arrow_back</span>
-              <span className="text-sm font-semibold tracking-tight">Back to Dashboard</span>
-            </button>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-6">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Mood History</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                <span className="material-icons text-[20px]">notifications</span>
-              </button>
-              <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 overflow-hidden">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="User profile" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-primary text-sm font-bold">
-                    {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+    <div className="flex h-screen overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display transition-colors duration-300">
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <HomeTopHeader activeMenu="mood" />
+
+        <section className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8">
+            <div className="flex-1">
+              <div className="mb-8">
+                <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">My Mood Journey</h1>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-8 flex flex-col gap-6">
+                  <MomentumCard
+                    redemptionEligibility={redemptionEligibility}
+                    moodStatus={moodStatus}
+                  />
+
+                  {moodStatus == 'positive' && <EmotionalPuzzle
+                    stats={stats}
+                    userId={user?.id}
+                    redemptionEligibility={redemptionEligibility}
+                    redemptionHistory={redemptionHistory}
+                    quote="Every step forward is progress. Keep going!"
+                    onGetReward={() => {
+                      console.log('Reward claimed!');
+                    }}
+                  />}
+
+                  {moodStatus == 'negative' && <WorryRelease
+                    stats={stats}
+                    userId={user?.id}
+                    redemptionEligibility={redemptionEligibility}
+                    redemptionHistory={redemptionHistory}
+                    onDumpSuccess={() => {
+                      fetchMoodData();
+                    }}
+                  />}
+                </div>
+
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                  <MoodCalendar
+                    currentDate={currentDate}
+                    dailySentiment={stats?.dailySentiment}
+                    onNavigateMonth={navigateMonth}
+                  />
+
+                  <MoodTrendChart
+                    timeRange={timeRange}
+                    entries={entries}
+                    onTimeRangeChange={setTimeRange}
+                  />
+
+                  <div className="bg-primary p-6 rounded-xl text-white shadow-lg relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 group-hover:scale-110 transition-transform duration-500">
+                      <span className="material-icons text-[120px]">lightbulb</span>
+                    </div>
+                    <div className="relative z-10">
+                      <h3 className="font-bold text-lg mb-2">Weekly Mood Insight</h3>
+                      <p className="text-blue-100 text-sm leading-relaxed max-w-md">
+                        {stats?.mostFrequentMood
+                          ? `You've been feeling mostly ${emotionSpectrum[stats.mostFrequentMood].label || stats.mostFrequentMood.toLowerCase()}. Keep tracking your mood to discover patterns!`
+                          : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
+                      </p>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
+
+            <MoodSpaceSidebar />
           </div>
-        </div>
-      </header>
-
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-20 py-8 relative">
-        {/* Title Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">My Mood Journey</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Visualizing your emotional well-being over the last {timeRange} days.</p>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600">
-              <span className="material-icons text-3xl">local_fire_department</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">All Check-In</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.dailySentiment.length || 0} Days</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary">
-              <span className="material-icons text-3xl">calendar_month</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Recorded</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{entries.length || 0} Entries</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center gap-4">
-            <div className="p-3 rounded-lg" style={{
-              color: stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.color : '',
-              backgroundColor: stats?.mostFrequentMood ? `${emotionSpectrum[stats.mostFrequentMood]?.color}22` : '',
-              }}>
-              <span className="material-icons text-3xl">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.icon : 'sentiment_very_satisfied'} </span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Top Emotion</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.mostFrequentMood ? emotionSpectrum[stats.mostFrequentMood]?.label || stats.mostFrequentMood : 'None'}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Grid: Calendar and Trend */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 flex flex-col gap-6">
-            {/* Momentum Card */}
-            <MomentumCard
-              redemptionEligibility={redemptionEligibility}
-              moodStatus={moodStatus}
-            />
-
-            {/* Emotional Puzzle */}
-            {moodStatus == 'positive' && <EmotionalPuzzle
-              stats={stats}
-              userId={user?.id}
-              redemptionEligibility={redemptionEligibility}
-              redemptionHistory={redemptionHistory}
-              quote="Every step forward is progress. Keep going!"
-              onGetReward={() => {
-                // TODO: Implement reward logic
-                console.log('Reward claimed!');
-              }}
-            />}
-
-            {moodStatus == 'negative' && <WorryRelease
-              stats={stats}
-              userId={user?.id}
-              redemptionEligibility={redemptionEligibility}
-              redemptionHistory={redemptionHistory}
-              onDumpSuccess={() => {
-                // 刷新统计数据
-                fetchMoodData();
-              }}
-            />}
-
-          </div>
-
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            {/* Calendar Section */}
-            <MoodCalendar
-              currentDate={currentDate}
-              dailySentiment={stats?.dailySentiment}
-              onNavigateMonth={navigateMonth}
-            />
-
-            {/* Mood Trend Chart Section */}
-            <MoodTrendChart
-              timeRange={timeRange}
-              entries={entries}
-              onTimeRangeChange={setTimeRange}
-            />
-
-            {/* Weekly Insight Card */}
-            <div className="bg-primary p-6 rounded-xl text-white shadow-lg relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 group-hover:scale-110 transition-transform duration-500">
-                <span className="material-icons text-[120px]">lightbulb</span>
-              </div>
-              <div className="relative z-10">
-                <h3 className="font-bold text-lg mb-2">Weekly Mood Insight</h3>
-                <p className="text-blue-100 text-sm leading-relaxed max-w-md">
-                  {stats?.mostFrequentMood
-                    ? `You've been feeling mostly ${emotionSpectrum[stats.mostFrequentMood].label || stats.mostFrequentMood.toLowerCase()}. Keep tracking your mood to discover patterns!`
-                    : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
-                </p>
-                <button onClick={() => navigate('/group/mood')} className="mt-4 px-4 py-2 bg-white text-primary rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors">
-                  View Full Report
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        </section>
       </main>
+
       {loading && (<Loading />)}
     </div>
   );
