@@ -11,8 +11,6 @@ import Loading from "../components/Loading";
 import HomeTopHeader from '../components/HomeTopHeader';
 import MoodSpaceSidebar from '../components/MoodSpaceSidebar';
 
-import { emotionSpectrum } from '../config/enum';
-
 type MoodStatus = 'positive' | 'negative' | 'neutral';
 
 export default function MyMood() {

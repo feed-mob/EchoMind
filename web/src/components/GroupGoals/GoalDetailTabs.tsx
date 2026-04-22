@@ -23,7 +23,7 @@ export default function GoalDetailTabs({ activeTab, onChange, onBackToList }: Go
         <div className="flex items-center gap-6">
           <button
             type="button"
-            className={`pb-4 text-sm font-bold border-b-2 transition-colors ${
+            className={`pb-4 text-sm font-bold border-b-2 transition-colors focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 ${
               activeTab === 'detail'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -34,7 +34,7 @@ export default function GoalDetailTabs({ activeTab, onChange, onBackToList }: Go
           </button>
           <button
             type="button"
-            className={`pb-4 text-sm font-bold border-b-2 transition-colors ${
+            className={`pb-4 text-sm font-bold border-b-2 transition-colors focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 ${
               activeTab === 'sources'
                 ? 'border-primary text-primary'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
