@@ -14,7 +14,7 @@ export default function AIEvaluationSetup() {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [selectedGoalId, setSelectedGoalId] = useState(goalIdFromQuery);
   const [selectedIdeaIds, setSelectedIdeaIds] = useState<string[]>([]);
-  const [model, setModel] = useState('gemini-2.5-flash');
+  const [model, setModel] = useState('global.anthropic.claude-sonnet-4-5-20250929-v1:0');
   const [impact, setImpact] = useState(40);
   const [feasibility, setFeasibility] = useState(35);
   const [originality, setOriginality] = useState(25);
@@ -76,7 +76,7 @@ export default function AIEvaluationSetup() {
   );
 
   const totalWeight = impact + feasibility + originality;
-  const canRunPick = Boolean(selectedGoal && selectedIdeaIds.length > 0 && totalWeight === 100 && !submitting);
+  const canRunEvaluation = Boolean(selectedGoal && selectedIdeaIds.length > 0 && totalWeight === 100 && !submitting);
 
   useEffect(() => {
     if (!submitting) {
@@ -126,7 +126,7 @@ export default function AIEvaluationSetup() {
     setter(clampWeight(Math.round(parsed)));
   };
 
-  const handleRunPick = async () => {
+  const handleRunEvaluation = async () => {
     if (!groupId || !group || !selectedGoal || selectedIdeaIds.length === 0 || totalWeight !== 100) {
       return;
     }
@@ -313,7 +313,7 @@ export default function AIEvaluationSetup() {
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Select AI Model</label>
               <div className="space-y-3">
-                {[{ id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: 'Fast model for idea evaluation' }].map((item) => (
+                {[{ id: 'global.anthropic.claude-sonnet-4-5-20250929-v1:0', name: 'Claude Sonnet 4.5', desc: 'Balanced quality and speed for idea evaluation' }].map((item) => (
                   <label
                     key={item.id}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -409,11 +409,11 @@ export default function AIEvaluationSetup() {
           <div className="p-6 bg-slate-50 border-t border-slate-200 dark:bg-slate-900/50 dark:border-slate-800">
             <button
               className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all disabled:opacity-60"
-              onClick={() => void handleRunPick()}
-              disabled={!canRunPick}
+              onClick={() => void handleRunEvaluation()}
+              disabled={!canRunEvaluation}
             >
               <span className="material-icons">play_arrow</span>
-              Run AI Pick
+              Run AI Evaluation
             </button>
             {submitError && <p className="text-center mt-2 text-[10px] text-red-500">{submitError}</p>}
             <p className="text-center mt-3 text-[10px] text-slate-500">Estimated cost: ~0.45 credits</p>

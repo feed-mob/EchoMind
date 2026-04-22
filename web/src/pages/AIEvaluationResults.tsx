@@ -60,8 +60,8 @@ export default function AIEvaluationResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storedResults, setStoredResults] = useState<AiEvaluationResult[]>([]);
-  const [settingTopPick, setSettingTopPick] = useState(false);
-  const [setTopPickError, setSetTopPickError] = useState<string | null>(null);
+  const [settingPickIdeaId, setSettingPickIdeaId] = useState<string | null>(null);
+  const [setPickError, setSetPickError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!groupId) return;
@@ -186,29 +186,22 @@ export default function AIEvaluationResults() {
     return list.sort((a, b) => b.score - a.score);
   }, [ideas, selectedGoal?.id, selectedIdeaIds, state.selectedIdeas, storedResults, weighted.feasibility, weighted.impact, weighted.originality]);
 
-  const winner = rankedIdeas[0] || null;
-  const isAlreadyTopPick = Boolean(
-    winner &&
-    selectedGoal?.selectedIdeaId === winner.id &&
-    selectedGoal?.selectedSettingId === (settingId || null)
-  );
-
-  const handleSetTopPick = async () => {
-    if (!winner || !selectedGoal) return;
+  const handleSetPick = async (ideaId: string) => {
+    if (!selectedGoal) return;
 
     try {
-      setSettingTopPick(true);
-      setSetTopPickError(null);
+      setSettingPickIdeaId(ideaId);
+      setSetPickError(null);
       const updatedGoal = await api.goals.update(selectedGoal.id, {
-        selectedIdeaId: winner.id,
+        selectedIdeaId: ideaId,
         selectedSettingId: settingId || null,
         status: 'in_progress',
       });
       setGoals((prev) => prev.map((goal) => (goal.id === selectedGoal.id ? updatedGoal : goal)));
     } catch (err) {
-      setSetTopPickError(err instanceof Error ? err.message : 'Failed to set top pick for goal');
+      setSetPickError(err instanceof Error ? err.message : 'Failed to set pick for goal');
     } finally {
-      setSettingTopPick(false);
+      setSettingPickIdeaId(null);
     }
   };
 
@@ -252,23 +245,26 @@ export default function AIEvaluationResults() {
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-[24%]">Idea Proposal</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-24 text-center">Score</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-52">Dimensions</th>
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-[28%]">Reasoning Preview</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-[24%]">Reasoning Preview</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 w-44 text-center">Manual Pick</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {rankedIdeas.map((idea, index) => {
-                      const isWinner = index === 0;
+                      const isCurrentPick =
+                        selectedGoal.selectedIdeaId === idea.id &&
+                        selectedGoal.selectedSettingId === (settingId || null);
                       return (
                         <tr key={idea.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                           <td className="px-6 py-6 text-center">
-                            <span className={isWinner ? 'text-2xl font-black text-primary' : 'text-xl font-bold text-slate-400'}>{index + 1}</span>
+                            <span className="text-xl font-bold text-slate-400">{index + 1}</span>
                           </td>
                           <td className="px-6 py-6">
                             <div className="flex items-center gap-3">
-                              <span className={isWinner ? 'font-bold text-lg text-slate-900 dark:text-white break-words' : 'font-semibold text-slate-800 dark:text-slate-200 break-words'}>{idea.title}</span>
-                              {isWinner && (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary text-white">
-                                  <span className="material-icons text-xs mr-1">emoji_events</span> WINNER
+                              <span className="font-semibold text-slate-800 dark:text-slate-200 break-words">{idea.title}</span>
+                              {isCurrentPick && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white">
+                                  <span className="material-icons text-xs mr-1">person</span> CURRENT PICK
                                 </span>
                               )}
                             </div>
@@ -276,7 +272,7 @@ export default function AIEvaluationResults() {
                           </td>
                           <td className="px-6 py-6 text-center">
                             <div className="inline-flex flex-col items-center">
-                              <span className={isWinner ? 'text-xl font-bold text-primary' : 'text-lg font-bold text-slate-700 dark:text-slate-300'}>{idea.score}</span>
+                              <span className="text-lg font-bold text-slate-700 dark:text-slate-300">{idea.score}</span>
                               <span className="text-[10px] text-slate-400 font-medium">/100</span>
                             </div>
                           </td>
@@ -314,6 +310,17 @@ export default function AIEvaluationResults() {
                           <td className="px-6 py-6">
                             <p className="text-sm text-slate-600 dark:text-slate-400 break-words">{idea.reasoning}</p>
                           </td>
+                          <td className="px-6 py-6 text-center">
+                            <button
+                              type="button"
+                              className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-primary/90 disabled:opacity-60"
+                              onClick={() => void handleSetPick(idea.id)}
+                              disabled={Boolean(settingPickIdeaId) || isCurrentPick}
+                            >
+                              <span className="material-icons text-sm">task_alt</span>
+                              {isCurrentPick ? 'Picked' : 'Pick This Idea'}
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -329,56 +336,34 @@ export default function AIEvaluationResults() {
                 <div className="bg-primary p-4 text-white">
                   <div className="flex justify-between items-center">
                     <h2 className="font-bold flex items-center gap-2 tracking-wide">
-                      <span className="material-icons">auto_awesome</span> AI TOP PICK
+                      <span className="material-icons">insights</span> AI EVALUATION
                     </h2>
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-lg font-bold mb-3">Why this idea won</h3>
-                  {winner ? (
-                    <div className="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                      <p>
-                        The <span className="text-primary font-semibold">{winner.title}</span> balances strong execution feasibility with high projected impact for this goal.
-                      </p>
-                      <p>
-                        Weighted scoring ({weighted.impact}/{weighted.feasibility}/{weighted.originality}) puts it at <span className="font-bold text-slate-900 dark:text-white">{winner.score}/100</span>, ahead of other candidates in this batch.
-                      </p>
-                      <div className="pt-2">
-                        <button
-                          type="button"
-                          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 disabled:opacity-60"
-                          onClick={() => void handleSetTopPick()}
-                          disabled={settingTopPick || isAlreadyTopPick || !settingId}
-                        >
-                          <span className="material-icons text-base">task_alt</span>
-                          {isAlreadyTopPick ? 'Already set as Top Pick for This Goal' : 'Set as Top Pick for This Goal'}
-                        </button>
-                        {!settingId && (
-                          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                            Missing evaluation setting id, cannot attach this pick to a goal setting.
-                          </p>
-                        )}
-                        {setTopPickError && (
-                          <p className="mt-2 text-xs text-red-600 dark:text-red-400">{setTopPickError}</p>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-600 dark:text-slate-300">No evaluated ideas in this run.</p>
-                  )}
+                  <h3 className="text-lg font-bold mb-3">Scoring Only</h3>
+                  <div className="space-y-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    <p>AI Evaluate provides scores and reasoning only. It does not pick an idea.</p>
+                    <p>Use the manual pick button in the table to choose the final idea for this goal.</p>
+                    <p>
+                      Current weights: Impact {weighted.impact}% · Feasibility {weighted.feasibility}% · Originality {weighted.originality}%
+                    </p>
+                    {setPickError && (
+                      <p className="text-xs text-red-600 dark:text-red-400">{setPickError}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Confidence Score</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Evaluation Summary</h4>
                 <div className="flex items-end gap-3 mb-2">
-                  <span className="text-3xl font-bold">{winner ? Math.min(98, winner.score + 4) : 0}%</span>
-                  <span className="text-green-500 text-sm font-bold flex items-center mb-1">
-                    <span className="material-icons text-sm">trending_up</span>
-                    +2.4%
-                  </span>
+                  <span className="text-3xl font-bold">{rankedIdeas.length}</span>
+                  <span className="text-sm text-slate-500 mb-1">ideas evaluated</span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Based on relative ranking confidence in the evaluated idea set.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Sorted by weighted score. Final pick is made by a person, not by AI.
+                </p>
               </div>
             </div>
           </aside>
