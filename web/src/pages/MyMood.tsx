@@ -5,7 +5,6 @@ import { api } from '../service';
 import type { Mood, MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
 import MoodCalendar from '../components/MoodCalendar';
 import MoodTrendChart from '../components/MoodTrendChart';
-import MomentumCard from '../components/MomentumCard';
 import EmotionalPuzzle from '../components/EmotionalPuzzle';
 import WorryRelease from '../components/WorryRelease';
 import Loading from "../components/Loading";
@@ -101,64 +100,42 @@ export default function MyMood() {
         <section className="flex-1 overflow-y-auto p-6 md:p-8">
           <div className="max-w-[1440px] mx-auto w-full flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
-              <div className="mb-8">
-                <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">My Mood Journey</h1>
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-8 flex flex-col gap-6">
-                  <MomentumCard
-                    redemptionEligibility={redemptionEligibility}
-                    moodStatus={moodStatus}
-                  />
+              <div className="flex flex-col gap-6">
+                {moodStatus == 'positive' && <EmotionalPuzzle
+                  userId={user?.id}
+                  redemptionEligibility={redemptionEligibility}
+                  redemptionHistory={redemptionHistory}
+                  quote="Every step forward is progress. Keep going!"
+                  onGetReward={() => {
+                    console.log('Reward claimed!');
+                  }}
+                />}
 
-                  {moodStatus == 'positive' && <EmotionalPuzzle
-                    userId={user?.id}
-                    redemptionEligibility={redemptionEligibility}
-                    redemptionHistory={redemptionHistory}
-                    quote="Every step forward is progress. Keep going!"
-                    onGetReward={() => {
-                      console.log('Reward claimed!');
-                    }}
-                  />}
+                {moodStatus == 'negative' && <WorryRelease
+                  userId={user?.id}
+                  redemptionEligibility={redemptionEligibility}
+                  redemptionHistory={redemptionHistory}
+                  onDumpSuccess={() => {
+                    fetchMoodData();
+                  }}
+                />}
 
-                  {moodStatus == 'negative' && <WorryRelease
-                    userId={user?.id}
-                    redemptionEligibility={redemptionEligibility}
-                    redemptionHistory={redemptionHistory}
-                    onDumpSuccess={() => {
-                      fetchMoodData();
-                    }}
-                  />}
-                </div>
-
-                <div className="lg:col-span-4 flex flex-col gap-6">
-                  <MoodCalendar
-                    currentDate={currentDate}
-                    dailySentiment={stats?.dailySentiment}
-                    onNavigateMonth={navigateMonth}
-                  />
-
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <MoodTrendChart
                     timeRange={timeRange}
                     entries={entries}
                     onTimeRangeChange={setTimeRange}
                   />
 
-                  <div className="bg-primary p-6 rounded-xl text-white shadow-lg relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 group-hover:scale-110 transition-transform duration-500">
-                      <span className="material-icons text-[120px]">lightbulb</span>
-                    </div>
-                    <div className="relative z-10">
-                      <h3 className="font-bold text-lg mb-2">Weekly Mood Insight</h3>
-                      <p className="text-blue-100 text-sm leading-relaxed max-w-md">
-                        {stats?.mostFrequentMood
-                          ? `You've been feeling mostly ${emotionSpectrum[stats.mostFrequentMood].label || stats.mostFrequentMood.toLowerCase()}. Keep tracking your mood to discover patterns!`
-                          : 'Start logging your mood daily to receive personalized insights about your emotional patterns.'}
-                      </p>
-                    </div>
-                  </div>
+                  <MoodCalendar
+                    currentDate={currentDate}
+                    dailySentiment={stats?.dailySentiment}
+                    onNavigateMonth={navigateMonth}
+                  />
                 </div>
+
+
               </div>
             </div>
 
