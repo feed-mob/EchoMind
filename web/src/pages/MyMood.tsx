@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../service';
 import type { Mood, MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
@@ -17,7 +17,6 @@ import { emotionSpectrum } from '../config/enum';
 type MoodStatus = 'positive' | 'negative' | 'neutral';
 
 export default function MyMood() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const moodKind = searchParams.get('kind') || 'positive';
@@ -114,7 +113,6 @@ export default function MyMood() {
                   />
 
                   {moodStatus == 'positive' && <EmotionalPuzzle
-                    stats={stats}
                     userId={user?.id}
                     redemptionEligibility={redemptionEligibility}
                     redemptionHistory={redemptionHistory}
@@ -125,7 +123,6 @@ export default function MyMood() {
                   />}
 
                   {moodStatus == 'negative' && <WorryRelease
-                    stats={stats}
                     userId={user?.id}
                     redemptionEligibility={redemptionEligibility}
                     redemptionHistory={redemptionHistory}

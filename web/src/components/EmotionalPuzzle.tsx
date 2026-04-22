@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from '../service';
-import type { MoodStats, RedemptionEligibility, RedemptionHistory, RedemptionResult } from '../service/types';
+import type { RedemptionEligibility, RedemptionHistory, RedemptionResult } from '../service/types';
 import { withMinDuration } from "../tools/functions";
 import { RewardImage, type ImageStatus } from "./RewardImage";
 
@@ -13,7 +13,6 @@ interface PuzzlePiece {
 }
 
 interface EmotionalPuzzleProps {
-  stats?: MoodStats | null;
   quote?: string;
   userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
@@ -44,7 +43,6 @@ function getRandomQuote(): { text: string; author: string } {
 }
 
 export default function EmotionalPuzzle({
-    stats,
     redemptionEligibility,
     redemptionHistory = [],
     userId,
@@ -373,7 +371,7 @@ export default function EmotionalPuzzle({
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                 <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Reward</h3>
                 <div className="space-y-2">
-                  {redemptionPositveHistory.map((record, index) => (
+                  {redemptionPositveHistory.map((record) => (
                     <div
                       key={record.id}
                       className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../service';
-import type { MoodStats, RedemptionEligibility, RedemptionHistory } from '../service/types';
+import type { RedemptionEligibility, RedemptionHistory } from '../service/types';
 import { withMinDuration } from "../tools/functions";
 
 import { useToast } from '../components/ToastProvider';
@@ -53,7 +53,6 @@ interface WorryItem {
   rotation: number;
 }
 interface WorryReleaseProps {
-  stats?: MoodStats | null;
   userId?: string;
   redemptionEligibility?: RedemptionEligibility | null;
   redemptionHistory?: RedemptionHistory[];
@@ -61,7 +60,6 @@ interface WorryReleaseProps {
 }
 
 export default function WorryRelease({
-    stats,
     userId,
     redemptionEligibility,
     redemptionHistory = [],
@@ -261,7 +259,7 @@ export default function WorryRelease({
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                 <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Recent Releases</h3>
                 <div className="space-y-2">
-                  {redemptionNegativeHistory.map((record, index) => (
+                  {redemptionNegativeHistory.map((record) => (
                     <div key={record.id} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-green-500 text-[18px]">check_circle</span>
