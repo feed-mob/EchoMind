@@ -10,9 +10,9 @@ Create `api/.env`:
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5434/echomind?schema=public"
-GOOGLE_GENERATIVE_AI_API_KEY=your_google_generative_ai_api_key
-GOOGLE_CLIENT_ID=your_google_web_client_id
-GOOGLE_CLIENT_SECRET=your_google_web_client_secret
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 ```
 
 To run:

@@ -2,7 +2,7 @@ import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 
 const DEFAULT_REGION = process.env.AWS_REGION?.trim() || "us-east-1";
-export const DEFAULT_BEDROCK_MODEL = process.env.BEDROCK_MODEL_ID?.trim() || "amazon.nova-lite-v1:0";
+export const DEFAULT_BEDROCK_MODEL = process.env.BEDROCK_MODEL_ID?.trim() || "global.anthropic.claude-sonnet-4-5-20250929-v1:0";
 
 function createBedrockClient() {
   const region = process.env.BEDROCK_REGION?.trim() || DEFAULT_REGION;

@@ -202,7 +202,7 @@ describe("aiEvaluationSettingsService.createAndEvaluate", () => {
     expect(dbMock.aiEvaluationSettings.create).toHaveBeenCalledWith({
       groupId: "g1",
       goalId: "goal1",
-      model: "amazon.nova-lite-v1:0",
+      model: "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
       impactWeight: 40,
       feasibilityWeight: 30,
       originalityWeight: 30,
@@ -210,7 +210,7 @@ describe("aiEvaluationSettingsService.createAndEvaluate", () => {
     });
 
     expect(generateObjectMock).toHaveBeenCalledTimes(2);
-    expect(bedrockModelMock).toHaveBeenCalledWith("amazon.nova-lite-v1:0");
+    expect(bedrockModelMock).toHaveBeenCalledWith("global.anthropic.claude-sonnet-4-5-20250929-v1:0");
 
     expect(dbMock.aiEvaluationResults.createMany).toHaveBeenCalledTimes(1);
     const persistedResults = dbMock.aiEvaluationResults.createMany.mock.calls[0][0] as Array<{
