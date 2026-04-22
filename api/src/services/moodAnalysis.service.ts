@@ -1,8 +1,6 @@
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
-
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+import { bedrockModel } from "./bedrock.provider.js";
 
 // 情绪光谱系统 Emotion Spectrum System
 export const emotionSpectrum = {
@@ -110,7 +108,7 @@ export async function analyzeEmotion(input: string): Promise<EmotionAnalysisResu
 
   try {
     const { object } = await generateObject({
-      model: google(DEFAULT_GEMINI_MODEL),
+      model: bedrockModel(),
       schema: emotionAnalysisSchema,
       prompt: `Analyze the emotional content of the following text and classify it into one of the specified emotion categories.
 

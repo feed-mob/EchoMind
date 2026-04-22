@@ -6,7 +6,9 @@ const generateObjectMock = mock(async () => ({
   },
 }));
 
-const googleMock = mock((model: string) => ({ provider: "google", model }));
+const bedrockModelMock = mock((model: string) => ({ provider: "bedrock", model }));
+const createAmazonBedrockMock = mock(() => bedrockModelMock);
+const fromNodeProviderChainMock = mock(() => mock(async () => ({})));
 
 const dbMock = {
   aiEvaluationSettings: {
@@ -30,8 +32,12 @@ mock.module("ai", () => ({
   generateObject: generateObjectMock,
 }));
 
-mock.module("@ai-sdk/google", () => ({
-  google: googleMock,
+mock.module("@ai-sdk/amazon-bedrock", () => ({
+  createAmazonBedrock: createAmazonBedrockMock,
+}));
+
+mock.module("@aws-sdk/credential-providers", () => ({
+  fromNodeProviderChain: fromNodeProviderChainMock,
 }));
 
 const dbIndexJs = new URL("../../../../packages/db/index.js", import.meta.url).pathname;
@@ -43,6 +49,8 @@ let aiEvaluationSettingsService: typeof import("../aiEvaluationSettings.service.
 let AiEvaluationServiceError: typeof import("../aiEvaluationSettings.service.ts").AiEvaluationServiceError;
 
 beforeAll(async () => {
+  process.env.BEDROCK_MODEL_ID = "amazon.nova-lite-v1:0";
+
   ({ aiEvaluationSettingsService, AiEvaluationServiceError } = await import(
     "../aiEvaluationSettings.service.ts"
   ));
@@ -194,7 +202,7 @@ describe("aiEvaluationSettingsService.createAndEvaluate", () => {
     expect(dbMock.aiEvaluationSettings.create).toHaveBeenCalledWith({
       groupId: "g1",
       goalId: "goal1",
-      model: "gemini-2.5-flash",
+      model: "amazon.nova-lite-v1:0",
       impactWeight: 40,
       feasibilityWeight: 30,
       originalityWeight: 30,
@@ -202,7 +210,7 @@ describe("aiEvaluationSettingsService.createAndEvaluate", () => {
     });
 
     expect(generateObjectMock).toHaveBeenCalledTimes(2);
-    expect(googleMock).toHaveBeenCalledWith("gemini-2.5-flash");
+    expect(bedrockModelMock).toHaveBeenCalledWith("amazon.nova-lite-v1:0");
 
     expect(dbMock.aiEvaluationResults.createMany).toHaveBeenCalledTimes(1);
     const persistedResults = dbMock.aiEvaluationResults.createMany.mock.calls[0][0] as Array<{
@@ -220,7 +228,7 @@ describe("aiEvaluationSettingsService.createAndEvaluate", () => {
 
     expect(result.setting).toMatchObject({
       id: "setting-1",
-      model: "gemini-2.5-flash",
+      model: "amazon.nova-lite-v1:0",
     });
     expect(result.results).toHaveLength(6);
   });

@@ -1,8 +1,8 @@
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { aiEvaluationResults, aiEvaluationSettings, goals, ideas } from "../../../packages/db/index.js";
 import type { Idea } from "../../../packages/db/index.js";
+import { bedrockModel, normalizeBedrockModel } from "./bedrock.provider.js";
 
 type CreateSettingInput = {
   groupId: string;
@@ -29,8 +29,6 @@ const batchReviewSchema = z.object({
 });
 
 const BATCH_SIZE = 5;
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-
 export class AiEvaluationServiceError extends Error {
   status: number;
 
@@ -72,14 +70,7 @@ function formatGoalField(value: unknown) {
   }
 }
 
-function normalizeGeminiModel(model: string) {
-  if (model === "gemini-1.5-pro") return DEFAULT_GEMINI_MODEL;
-  if (model === "gemini-1.5-flash") return DEFAULT_GEMINI_MODEL;
-  if (!model.startsWith("gemini-")) return DEFAULT_GEMINI_MODEL;
-  return model;
-}
-
-async function evaluateIdeasBatchWithGoogle(params: {
+async function evaluateIdeasBatchWithBedrock(params: {
   model: string;
   goalTitle: string;
   goalDescription: string;
@@ -90,7 +81,7 @@ async function evaluateIdeasBatchWithGoogle(params: {
   originalityWeight: number;
   ideas: Array<{ id: string; title: string; content: string }>;
 }) {
-  const modelName = normalizeGeminiModel(params.model);
+  const modelName = normalizeBedrockModel(params.model);
 
   const ideasBlock = params.ideas
     .map(
@@ -104,7 +95,7 @@ Idea ${index + 1}:
     .join("\n\n");
 
   const { object } = await generateObject({
-    model: google(modelName),
+    model: bedrockModel(modelName),
     schema: batchReviewSchema,
     prompt: `You are evaluating multiple product ideas against one goal.
 
@@ -180,7 +171,7 @@ export const aiEvaluationSettingsService = {
       throw new AiEvaluationServiceError("No valid ideas selected", 400);
     }
 
-    const selectedModel = normalizeGeminiModel(input.model);
+    const selectedModel = normalizeBedrockModel(input.model);
     const setting = await aiEvaluationSettings.create({
       groupId: input.groupId,
       goalId: input.goalId,
@@ -203,7 +194,7 @@ export const aiEvaluationSettingsService = {
 
     const ideaBatches = chunkIdeas(selectedIdeas, BATCH_SIZE);
     for (const batch of ideaBatches) {
-      const batchResultMap = await evaluateIdeasBatchWithGoogle({
+      const batchResultMap = await evaluateIdeasBatchWithBedrock({
         model: selectedModel,
         goalTitle: goal.title,
         goalDescription: goal.description || "",

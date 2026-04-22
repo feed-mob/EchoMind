@@ -1,8 +1,6 @@
-import { generateObject, generateText } from "ai";
-import { google } from "@ai-sdk/google";
+import { generateObject } from "ai";
 import { z } from "zod";
-
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+import { bedrockModel } from "./bedrock.provider.js";
 
 export interface ImageGenerationOptions {
   prompt: string;
@@ -52,7 +50,7 @@ async function optimizePrompt(
 
   try {
     const { object } = await generateObject({
-      model: google(DEFAULT_GEMINI_MODEL),
+      model: bedrockModel(),
       schema: imagePromptSchema,
       prompt: `You are an expert prompt engineer for AI image generation.
 
